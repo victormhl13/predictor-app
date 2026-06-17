@@ -2,7 +2,6 @@ import {
   BrowserRouter,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom"
 
 import BottomNavigation from "./components/BottomNavigation"
@@ -26,33 +25,52 @@ function App() {
       <div
         style={{
           minHeight: "100vh",
+
           color: "#FFFFFF",
+
           padding: "14px",
+
           paddingTop: "20px",
+
           paddingBottom: "100px",
+
           fontFamily:
             "'Manrope', 'Inter', system-ui, sans-serif",
+
           maxWidth: "430px",
+
           margin: "0 auto",
         }}
       >
+        {/* HEADER */}
+
         <div
           style={{
             display: "flex",
+
             flexDirection: "column",
+
             alignItems: "center",
+
             justifyContent: "center",
-            marginBottom: "64px",
+
+            marginBottom: "0px",
           }}
         >
           <h1
             style={{
               fontSize: "20px",
+
               fontWeight: 900,
+
               margin: 0,
+
               letterSpacing: "2.5px",
+
               textTransform: "uppercase",
+
               color: "#FFFFFF",
+
               textShadow:
                 "0 0 12px rgba(109,255,78,0.35), 0 0 30px rgba(109,255,78,0.15)",
             }}
@@ -63,7 +81,9 @@ function App() {
           <div
             style={{
               fontSize: "33px",
+
               marginTop: "6px",
+
               filter:
                 "drop-shadow(0 0 14px rgba(109,255,78,0.4))",
             }}
@@ -72,14 +92,22 @@ function App() {
           </div>
         </div>
 
+        {/* AUTH GATE */}
+
         {!currentUser ? (
           <Routes>
-            <Route path="*" element={<Login />} />
+            <Route
+              path="*"
+              element={<Login />}
+            />
           </Routes>
         ) : (
           <>
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route
+                path="/"
+                element={<Dashboard />}
+              />
 
               <Route
                 path="/matchdays"
@@ -108,16 +136,7 @@ function App() {
 
               <Route
                 path="/admin"
-                element={
-                  currentUser.role === "admin"
-                    ? <AdminPanel />
-                    : <Navigate to="/" replace />
-                }
-              />
-
-              <Route
-                path="*"
-                element={<Navigate to="/" replace />}
+                element={<AdminPanel />}
               />
             </Routes>
 

@@ -81,13 +81,23 @@ function Matchdays() {
   async function addMatchday(
     name: string
   ) {
+    const {error}=
     await supabase
 
       .from("matchdays")
 
-      .insert([{ name }])
-
-    loadMatchdays()
+      .insert([
+        { 
+          name,
+        
+          is_open:true,
+        }
+      ])
+    if (error) {
+      console.log(error)
+        return
+    }  
+    await loadMatchdays()
   }
 
   async function addMatch(

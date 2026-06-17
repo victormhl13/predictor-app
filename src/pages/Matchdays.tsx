@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react"
 
+import {
+  ChevronDown,
+
+  ChevronUp,
+} from "lucide-react"
+
 import { supabase } from "../lib/supabase"
 
 import { useAuth } from "../context/AuthContext"
@@ -17,13 +23,22 @@ import type {
 } from "../types"
 
 function Matchdays() {
-  const { currentUser } = useAuth()
+  const { currentUser } =
+    useAuth()
 
   const [matchdays, setMatchdays] =
     useState<Matchday[]>([])
 
   const [matches, setMatches] =
     useState<Match[]>([])
+
+  const [
+    expandedMatchdays,
+
+    setExpandedMatchdays,
+  ] = useState<
+    Record<string, boolean>
+  >({})
 
   useEffect(() => {
     loadMatchdays()
@@ -32,7 +47,7 @@ function Matchdays() {
   }, [])
 
   async function loadMatchdays() {
-    const { data, error } =
+    const { data } =
       await supabase
 
         .from("matchdays")
@@ -41,21 +56,14 @@ function Matchdays() {
 
         .order("name")
 
-    if (error) {
-      console.log(error)
-
-      return
-    }
-
-    if (data) {
+    if (data)
       setMatchdays(
         data as Matchday[]
       )
-    }
   }
 
   async function loadMatches() {
-    const { data, error } =
+    const { data } =
       await supabase
 
         .from("matches")
@@ -64,44 +72,22 @@ function Matchdays() {
 
         .order("kickoff")
 
-    if (error) {
-      console.log(error)
-
-      return
-    }
-
-    if (data) {
+    if (data)
       setMatches(
         data as Match[]
       )
-    }
   }
 
   async function addMatchday(
     name: string
   ) {
-    const { error } =
-      await supabase
+    await supabase
 
-        .from("matchdays")
+      .from("matchdays")
 
-        .insert([
-          {
-            name,
-          },
-        ])
+      .insert([{ name }])
 
-    if (error) {
-      console.log(error)
-
-      alert(
-        "Could not create Matchday"
-      )
-
-      return
-    }
-
-    await loadMatchdays()
+    loadMatchdays()
   }
 
   async function addMatch(
@@ -113,37 +99,26 @@ function Matchdays() {
 
     kickoff: string
   ) {
-    const { error } =
-      await supabase
+    await supabase
 
-        .from("matches")
+      .from("matches")
 
-        .insert([
-          {
-            matchday_id:
-              matchdayId,
+      .insert([
+        {
+          matchday_id:
+            matchdayId,
 
-            home_team:
-              homeTeam,
+          home_team:
+            homeTeam,
 
-            away_team:
-              awayTeam,
+          away_team:
+            awayTeam,
 
-            kickoff,
-          },
-        ])
+          kickoff,
+        },
+      ])
 
-    if (error) {
-      console.log(error)
-
-      alert(
-        "Could not create match"
-      )
-
-      return
-    }
-
-    await loadMatches()
+    loadMatches()
   }
 
   async function saveFinalScore(
@@ -153,74 +128,57 @@ function Matchdays() {
 
     awayScore: number
   ) {
-    const { error } =
-      await supabase
+    await supabase
 
-        .from("matches")
+      .from("matches")
 
-        .update({
-          home_score:
-            homeScore,
+      .update({
+        home_score:
+          homeScore,
 
-          away_score:
-            awayScore,
-        })
+        away_score:
+          awayScore,
+      })
 
-        .eq(
-          "id",
+      .eq(
+        "id",
 
-          matchId
-        )
-
-    if (error) {
-      console.log(error)
-
-      alert(
-        "Could not save score"
+        matchId
       )
 
-      return
-    }
-
-    await loadMatches()
-
-    alert(
-      "Final score saved ✅"
-    )
+    loadMatches()
   }
 
   async function closeMatchday(
     matchdayId: string
   ) {
-    const { error } =
-      await supabase
+    await supabase
 
-        .from("matchdays")
+      .from("matchdays")
 
-        .update({
-          is_open: false,
-        })
+      .update({
+        is_open: false,
+      })
 
-        .eq(
-          "id",
+      .eq(
+        "id",
 
-          matchdayId
-        )
-
-    if (error) {
-      console.log(error)
-
-      alert(
-        "Could not close Matchday"
+        matchdayId
       )
 
-      return
-    }
+    loadMatchdays()
+  }
 
-    await loadMatchdays()
+  function toggleMatchday(
+    id: string
+  ) {
+    setExpandedMatchdays(
+      (prev) => ({
+        ...prev,
 
-    alert(
-      "Matchday closed 🔒"
+        [id]:
+          !prev[id],
+      })
     )
   }
 
@@ -237,8 +195,6 @@ function Matchdays() {
 
         month: "short",
 
-        year: "numeric",
-
         hour: "2-digit",
 
         minute: "2-digit",
@@ -246,38 +202,18 @@ function Matchdays() {
     )
   }
 
-  function getMatchStatus(
-    match: Match
-  ) {
-    if (
-      match.home_score !==
-        null &&
-
-      match.away_score !==
-        null
-    ) {
-      return "🟢 Finished"
-    }
-
-    return "🟡 Upcoming"
-  }
-
   function getMatchCount(
-    matchdayId: string
+    id: string
   ) {
     return matches.filter(
       (match) =>
         match.matchday_id ===
-        matchdayId
+        id
     ).length
   }
 
   return (
-    <div>
-      <h2>
-        ⚽ Matchdays
-      </h2>
-
+        <div>
       {currentUser?.role ===
         "admin" && (
         <CreateMatchdayForm
@@ -287,116 +223,232 @@ function Matchdays() {
         />
       )}
 
-      <div
-        style={{
-          marginTop:
-            "20px",
-        }}
-      >
-        {matchdays.map(
-          (matchday) => (
+      {matchdays.map(
+        (matchday) => {
+          const expanded =
+            expandedMatchdays[
+              matchday.id
+            ]
+
+          return (
             <div
               key={
                 matchday.id
               }
+
               style={{
-                backgroundColor:
-                  "#1E1E1E",
+                background:
+                  "rgba(255,255,255,0.05)",
 
                 border:
-                  "1px solid #2A2A2A",
+                  "1px solid rgba(255,255,255,0.08)",
 
                 borderRadius:
-                  "12px",
+                  "22px",
 
                 padding:
-                  "16px",
+                  "18px",
 
                 marginBottom:
-                  "16px",
+                  "14px",
               }}
             >
-              <h3>
-                ⚽{" "}
-
-                {
-                  matchday.name
-                }
-              </h3>
-
-              <div>
-                {matchday.is_open
-                  ? "🟢 Open"
-
-                  : "🔴 Closed"}
-              </div>
-
               <div
                 style={{
-                  marginTop:
-                    "6px",
+                  display:
+                    "flex",
 
-                  color:
-                    "#AAAAAA",
+                  justifyContent:
+                    "space-between",
 
-                  fontSize:
-                    "14px",
+                  alignItems:
+                    "center",
                 }}
               >
-                ⚽{" "}
+                <div>
+                  <div
+                    style={{
+                      fontSize:
+                        "20px",
 
-                {getMatchCount(
-                  matchday.id
-                )}{" "}
+                      fontWeight:
+                        700,
+                    }}
+                  >
+                    {
+                      matchday.name
+                    }
+                  </div>
+
+                  <div
+                    style={{
+                      color:
+                        "#9CA3AF",
+
+                      fontSize:
+                        "12px",
+
+                      marginTop:
+                        "4px",
+                    }}
+                  >
+                    {getMatchCount(
+                      matchday.id
+                    )}{" "}
+
+                    matches
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    background:
+                      matchday.is_open
+
+                        ? "#6DFF4E"
+
+                        : "#FF5C5C",
+
+                    color:
+                      "#05080F",
+
+                    padding:
+                      "6px 12px",
+
+                    borderRadius:
+                      "999px",
+
+                    fontSize:
+                      "11px",
+
+                    fontWeight:
+                      700,
+                  }}
+                >
+                  {matchday.is_open
+
+                    ? "OPEN"
+
+                    : "CLOSED"}
+                </div>
+              </div>
+
+              {!matchday.is_open && (
+                <button
+                  onClick={() =>
+                    toggleMatchday(
+                      matchday.id
+                    )
+                  }
+
+                  style={{
+                    marginTop:
+                      "14px",
+
+                    display:
+                      "flex",
+
+                    alignItems:
+                      "center",
+
+                    gap: "8px",
+
+                    border:
+                      "none",
+
+                    background:
+                      "transparent",
+
+                    color:
+                      "#9CA3AF",
+
+                    padding: 0,
+
+                    fontSize:
+                      "13px",
+                  }}
+                >
+                  {expanded ? (
+                    <>
+                      <ChevronUp
+                        size={16}
+                      />
+
+                      Hide results
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown
+                        size={16}
+                      />
+
+                      View results
+                    </>
+                  )}
+                </button>
+              )}
+
+              {currentUser?.role ===
+                "admin" &&
+
+                matchday.is_open && (
+                  <>
+                    <button
+                      onClick={() =>
+                        closeMatchday(
+                          matchday.id
+                        )
+                      }
+
+                      style={{
+                        width:
+                          "100%",
+
+                        height:
+                          "44px",
+
+                        border:
+                          "none",
+
+                        borderRadius:
+                          "14px",
+
+                        background:
+                          "#FF5C5C",
+
+                        color:
+                          "white",
+
+                        fontWeight:
+                          700,
+
+                        fontSize:
+                          "14px",
+
+                        margin:
+                          "16px 0",
+                      }}
+                    >
+                      Close Matchday
+                    </button>
+
+                    <AddMatchForm
+                      matchdayId={
+                        matchday.id
+                      }
+
+                      onCreate={
+                        addMatch
+                      }
+                    />
+                  </>
+                )}
+
+              {(matchday.is_open ||
+
+                expanded) &&
 
                 matches
-              </div>
-
-              {currentUser?.role ===
-                "admin" &&
-
-                matchday.is_open && (
-                  <button
-                    style={{
-                      marginTop:
-                        "12px",
-
-                      marginBottom:
-                        "12px",
-                    }}
-
-                    onClick={() =>
-                      closeMatchday(
-                        matchday.id
-                      )
-                    }
-                  >
-                    🔒 Close Matchday
-                  </button>
-                )}
-
-              {currentUser?.role ===
-                "admin" &&
-
-                matchday.is_open && (
-                  <AddMatchForm
-                    matchdayId={
-                      matchday.id
-                    }
-
-                    onCreate={
-                      addMatch
-                    }
-                  />
-                )}
-
-              <div
-                style={{
-                  marginTop:
-                    "16px",
-                }}
-              >
-                {matches
 
                   .filter(
                     (match) =>
@@ -405,122 +457,212 @@ function Matchdays() {
                   )
 
                   .map(
-                    (match) => (
-                      <div
-                        key={
-                          match.id
-                        }
-                        style={{
-                          backgroundColor:
-                            "#121212",
+                    (match) => {
+                      const finished =
+                        match.home_score !==
+                          null &&
 
-                          padding:
-                            "12px",
+                        match.away_score !==
+                          null
 
-                          borderRadius:
-                            "10px",
-
-                          marginBottom:
-                            "12px",
-                        }}
-                      >
-                        <div>
-                          ⚽{" "}
-
-                          {
-                            match.home_team
+                      return (
+                                                <div
+                          key={
+                            match.id
                           }
 
-                          {" - "}
-
-                          {
-                            match.away_team
-                          }
-                        </div>
-
-                        <div
                           style={{
-                            marginTop:
-                              "6px",
+                            borderTop:
+                              "1px solid rgba(255,255,255,0.08)",
 
-                            fontSize:
-                              "14px",
-
-                            color:
-                              "#AAAAAA",
+                            padding:
+                              "12px 0",
                           }}
                         >
-                          {getMatchStatus(
-                            match
-                          )}
+                          <div
+                            style={{
+                              display:
+                                "flex",
+
+                              alignItems:
+                                "center",
+
+                              justifyContent:
+                                "space-between",
+
+                              gap: "12px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                flex: 1,
+
+                                fontSize:
+                                  "15px",
+
+                                fontWeight:
+                                  600,
+                              }}
+                            >
+                              {
+                                match.home_team
+                              }
+                            </div>
+
+                            <div
+                              style={{
+                                width:
+                                  "90px",
+
+                                display:
+                                  "flex",
+
+                                flexDirection:
+                                  "column",
+
+                                alignItems:
+                                  "center",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  minWidth:
+                                    "74px",
+
+                                  height:
+                                    "34px",
+
+                                  display:
+                                    "flex",
+
+                                  alignItems:
+                                    "center",
+
+                                  justifyContent:
+                                    "center",
+
+                                  border:
+                                    "1px solid rgba(255,255,255,0.08)",
+
+                                  borderRadius:
+                                    "12px",
+
+                                  fontSize:
+                                    "18px",
+
+                                  fontWeight:
+                                    700,
+
+                                  background:
+                                    "rgba(255,255,255,0.03)",
+                                }}
+                              >
+                                {match.home_score ??
+                                  "-"}
+
+                                {" - "}
+
+                                {match.away_score ??
+                                  "-"}
+                              </div>
+
+                              {!finished && (
+                                <>
+                                  <div
+                                    style={{
+                                      fontSize:
+                                        "11px",
+
+                                      color:
+                                        "#9CA3AF",
+
+                                      marginTop:
+                                        "6px",
+                                    }}
+                                  >
+                                    {formatKickoff(
+                                      match.kickoff
+                                    )}
+                                  </div>
+
+                                  <div
+                                    style={{
+                                      color:
+                                        "#60A5FA",
+
+                                      fontSize:
+                                        "10px",
+
+                                      fontWeight:
+                                        700,
+
+                                      marginTop:
+                                        "4px",
+                                    }}
+                                  >
+                                    UPCOMING
+                                  </div>
+                                </>
+                              )}
+                            </div>
+
+                            <div
+                              style={{
+                                flex: 1,
+
+                                textAlign:
+                                  "right",
+
+                                fontSize:
+                                  "15px",
+
+                                fontWeight:
+                                  600,
+                              }}
+                            >
+                              {
+                                match.away_team
+                              }
+                            </div>
+                          </div>
+
+                          {currentUser?.role ===
+                            "admin" &&
+
+                            !finished && (
+                              <div
+                                style={{
+                                  marginTop:
+                                    "12px",
+                                }}
+                              >
+                                <FinalScoreForm
+                                  matchId={
+                                    match.id
+                                  }
+
+                                  currentHomeScore={
+                                    match.home_score
+                                  }
+
+                                  currentAwayScore={
+                                    match.away_score
+                                  }
+
+                                  onSave={
+                                    saveFinalScore
+                                  }
+                                />
+                              </div>
+                            )}
                         </div>
-
-                        <div
-                          style={{
-                            marginTop:
-                              "6px",
-
-                            fontSize:
-                              "14px",
-
-                            color:
-                              "#AAAAAA",
-                          }}
-                        >
-                          🕒{" "}
-
-                          {formatKickoff(
-                            match.kickoff
-                          )}
-                        </div>
-
-                        <div
-                          style={{
-                            marginTop:
-                              "8px",
-                          }}
-                        >
-                          Final score:
-
-                          {" "}
-
-                          {match.home_score ??
-                            "-"}
-
-                          {" - "}
-
-                          {match.away_score ??
-                            "-"}
-                        </div>
-
-                        {currentUser?.role ===
-                          "admin" && (
-                          <FinalScoreForm
-                            matchId={
-                              match.id
-                            }
-
-                            currentHomeScore={
-                              match.home_score
-                            }
-
-                            currentAwayScore={
-                              match.away_score
-                            }
-
-                            onSave={
-                              saveFinalScore
-                            }
-                          />
-                        )}
-                      </div>
-                    )
+                      )
+                    }
                   )}
-              </div>
             </div>
           )
-        )}
-      </div>
+        }
+      )}
     </div>
   )
 }

@@ -6,8 +6,6 @@ import { supabase } from "../lib/supabase"
 
 import { useAuth } from "../context/AuthContext"
 
-import InfoCard from "../components/InfoCard"
-
 import type {
   Match,
 
@@ -17,19 +15,34 @@ import type {
 } from "../types"
 
 function Dashboard() {
-  const { currentUser } = useAuth()
+  const { currentUser } =
+    useAuth()
 
-  const [currentMatchday, setCurrentMatchday] =
-    useState("-")
+  const [
+    currentMatchday,
 
-  const [upcomingMatch, setUpcomingMatch] =
-    useState("No matches")
+    setCurrentMatchday,
+  ] = useState("-")
 
-  const [myPredictions, setMyPredictions] =
-    useState(0)
+  const [
+    upcomingMatch,
 
-  const [leader, setLeader] =
-    useState("No data")
+    setUpcomingMatch,
+  ] = useState(
+    "No matches"
+  )
+
+  const [
+    myPredictions,
+
+    setMyPredictions,
+  ] = useState(0)
+
+  const [
+    leader,
+
+    setLeader,
+  ] = useState("No data")
 
   useEffect(() => {
     loadDashboard()
@@ -88,7 +101,7 @@ function Dashboard() {
 
     if (data) {
       setUpcomingMatch(
-        `${data.home_team} - ${data.away_team}`
+        `${data.home_team} vs ${data.away_team}`
       )
     }
   }
@@ -248,62 +261,200 @@ function Dashboard() {
         b.points - a.points
     )
 
+    const top =
+      leaderboard[0]
+
     if (
-      leaderboard.length > 0
+      !top ||
+
+      top.points === 0
     ) {
       setLeader(
-        `${leaderboard[0].name} (${leaderboard[0].points} pts)`
+        "No leader yet"
       )
+
+      return
     }
+
+    setLeader(
+      `${top.name} • ${top.points} pts`
+    )
+  }
+
+  function DashboardCard({
+    title,
+
+    value,
+
+    big = false,
+  }: any) {
+    return (
+      <div
+        style={{
+          background:
+            "rgba(255,255,255,0.05)",
+
+          border:
+            "1px solid rgba(255,255,255,0.08)",
+
+          borderRadius:
+            "22px",
+
+          padding:
+            big
+
+              ? "24px"
+
+              : "18px",
+
+          minHeight:
+            big
+
+              ? "120px"
+
+              : "95px",
+
+          display:
+            "flex",
+
+          flexDirection:
+            "column",
+
+          justifyContent:
+            "center",
+
+          alignItems:
+            "center",
+
+          textAlign:
+            "center",
+        }}
+      >
+        <div
+          style={{
+            color:
+              "#9CA3AF",
+
+            fontSize:
+              "12px",
+
+            fontWeight:
+              700,
+
+            marginBottom:
+              "10px",
+          }}
+        >
+          {title}
+        </div>
+
+        <div
+          style={{
+            fontSize:
+              big
+
+                ? "24px"
+
+                : "20px",
+
+            fontWeight:
+              800,
+
+            lineHeight:
+              1.2,
+          }}
+        >
+          {value}
+        </div>
+      </div>
+    )
   }
 
   return (
     <div>
-      <InfoCard
-        title="⚽ Current Matchday"
-
-        value={
-          currentMatchday
-        }
-      />
-
-      <InfoCard
-        title="📅 Upcoming Match"
-
-        value={
-          upcomingMatch
-        }
-      />
-
-      <InfoCard
-        title="📝 My Predictions"
-
-        value={`${myPredictions} saved`}
-      />
-
-      <InfoCard
-        title="🏆 Leaderboard"
-
-        value={leader}
-      />
-
-      <Link
-        to="/statistics"
-
+      <div
         style={{
-          textDecoration:
-            "none",
-
-          color:
-            "inherit",
+          marginBottom:
+            "14px",
         }}
       >
-        <InfoCard
-          title="📊 Statistics"
+        <DashboardCard
+          title="Upcoming Match"
 
-          value="Open statistics"
+          value={
+            upcomingMatch
+          }
+
+          big
         />
-      </Link>
+      </div>
+
+      <div
+        style={{
+          display:
+            "grid",
+
+          gridTemplateColumns:
+            "1fr 1fr",
+
+          gap: "12px",
+
+          marginBottom:
+            "12px",
+        }}
+      >
+        <DashboardCard
+          title="Matchday"
+
+          value={
+            currentMatchday
+          }
+        />
+
+        <DashboardCard
+          title="Leader"
+
+          value={leader}
+        />
+      </div>
+
+      <div
+        style={{
+          display:
+            "grid",
+
+          gridTemplateColumns:
+            "1fr 1fr",
+
+          gap: "12px",
+        }}
+      >
+        <DashboardCard
+          title="My Predictions"
+
+          value={
+            myPredictions
+          }
+        />
+
+        <Link
+          to="/statistics"
+
+          style={{
+            color:
+              "inherit",
+
+            textDecoration:
+              "none",
+          }}
+        >
+          <DashboardCard
+            title="Statistics"
+
+            value="Open →"
+          />
+        </Link>
+      </div>
     </div>
   )
 }

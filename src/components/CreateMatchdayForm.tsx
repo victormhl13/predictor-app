@@ -1,7 +1,9 @@
 import { useState } from "react"
 
 type Props = {
-  onCreate: (name: string) => void
+  onCreate: (
+    name: string
+  ) => void
 }
 
 function CreateMatchdayForm({
@@ -10,52 +12,192 @@ function CreateMatchdayForm({
   const [name, setName] =
     useState("")
 
+  const [
+    isOpen,
+
+    setIsOpen,
+  ] = useState(false)
+
   function handleSubmit() {
-    if (!name.trim()) return
+    if (!name.trim())
+      return
 
     onCreate(name)
 
     setName("")
+
+    setIsOpen(false)
   }
 
   return (
     <div
       style={{
-        marginBottom: "24px",
+        marginBottom:
+          "24px",
       }}
     >
-      <h3>
-        ➕ Create Matchday
-      </h3>
+      {!isOpen ? (
+        <button
+          onClick={() =>
+            setIsOpen(true)
+          }
 
-      <input
-        placeholder="Matchday name"
+          style={{
+            width: "100%",
 
-        value={name}
+            height: "52px",
 
-        onChange={(e) =>
-          setName(e.target.value)
-        }
+            border: "none",
 
-        style={{
-          width: "220px",
+            borderRadius:
+              "18px",
 
-          padding: "10px",
+            background:
+              "rgba(255,255,255,0.06)",
 
-          borderRadius: "8px",
+            color:
+              "#FFFFFF",
 
-          border:
-            "1px solid #2A2A2A",
+            fontSize:
+              "16px",
 
-          marginRight: "12px",
-        }}
-      />
+            fontWeight:
+              600,
 
-      <button
-        onClick={handleSubmit}
-      >
-        Create
-      </button>
+            cursor:
+              "pointer",
+          }}
+        >
+          + New Matchday
+        </button>
+      ) : (
+        <div
+          style={{
+            background:
+              "rgba(255,255,255,0.05)",
+
+            border:
+              "1px solid rgba(255,255,255,0.08)",
+
+            borderRadius:
+              "20px",
+
+            padding:
+              "18px",
+          }}
+        >
+          <input
+            placeholder="Matchday name"
+
+            value={name}
+
+            onChange={(
+              e
+            ) =>
+              setName(
+                e.target.value
+              )
+            }
+
+            style={{
+              width:
+                "100%",
+
+              height:
+                "48px",
+
+              padding:
+                "0 16px",
+
+              border:
+                "1px solid rgba(255,255,255,0.10)",
+
+              borderRadius:
+                "14px",
+
+              background:
+                "rgba(255,255,255,0.05)",
+
+              color:
+                "#FFFFFF",
+
+              outline:
+                "none",
+
+              marginBottom:
+                "12px",
+            }}
+          />
+
+          <div
+            style={{
+              display:
+                "flex",
+
+              gap: "12px",
+            }}
+          >
+            <button
+              onClick={
+                handleSubmit
+              }
+
+              style={{
+                flex: 1,
+
+                height:
+                  "48px",
+
+                border:
+                  "none",
+
+                borderRadius:
+                  "14px",
+
+                background:
+                  "#6DFF4E",
+
+                color:
+                  "#05080F",
+
+                fontWeight:
+                  700,
+              }}
+            >
+              Create
+            </button>
+
+            <button
+              onClick={() =>
+                setIsOpen(
+                  false
+                )
+              }
+
+              style={{
+                flex: 1,
+
+                height:
+                  "48px",
+
+                border:
+                  "1px solid rgba(255,255,255,0.10)",
+
+                borderRadius:
+                  "14px",
+
+                background:
+                  "transparent",
+
+                color:
+                  "#FFFFFF",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

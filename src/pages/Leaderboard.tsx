@@ -79,6 +79,56 @@ function Leaderboard() {
     )
   }
 
+  function getCardStyle(
+    index: number
+  ) {
+    if (index === 0) {
+      return {
+        background:
+          "rgba(255,215,0,0.12)",
+
+        border:
+          "1px solid rgba(255,215,0,0.30)",
+
+        height: "78px",
+      }
+    }
+
+    if (index === 1) {
+      return {
+        background:
+          "rgba(192,192,192,0.10)",
+
+        border:
+          "1px solid rgba(192,192,192,0.22)",
+
+        height: "70px",
+      }
+    }
+
+    if (index === 2) {
+      return {
+        background:
+          "rgba(205,127,50,0.10)",
+
+        border:
+          "1px solid rgba(205,127,50,0.22)",
+
+        height: "70px",
+      }
+    }
+
+    return {
+      background:
+        "rgba(255,255,255,0.05)",
+
+      border:
+        "1px solid rgba(255,255,255,0.08)",
+
+      height: "66px",
+    }
+  }
+
   function getMedal(
     index: number
   ) {
@@ -91,61 +141,184 @@ function Leaderboard() {
     if (index === 2)
       return "🥉"
 
-    return `${index + 1}.`
+    return `#${index + 1}`
   }
+
+  const hasPoints =
+    leaderboard.some(
+      (
+        player
+      ) =>
+        player.points > 0
+    )
 
   return (
     <div>
-      <h2>
-        🏆 Leaderboard
-      </h2>
+      {!hasPoints && (
+        <div
+          style={{
+            background:
+              "rgba(255,255,255,0.05)",
+
+            border:
+              "1px solid rgba(255,255,255,0.08)",
+
+            borderRadius:
+              "20px",
+
+            padding:
+              "18px",
+
+            marginBottom:
+              "14px",
+
+            textAlign:
+              "center",
+
+            color:
+              "#9CA3AF",
+
+            fontSize:
+              "14px",
+          }}
+        >
+          No leaderboard yet
+        </div>
+      )}
 
       {leaderboard.map(
         (
           player,
 
           index
-        ) => (
-          <div
-            key={player.id}
-            style={{
-              backgroundColor:
-                index === 0
-                  ? "#2A2412"
-                  : "#1E1E1E",
+        ) => {
+          const style =
+            getCardStyle(
+              index
+            )
 
-              border:
-                index === 0
-                  ? "1px solid #FFD700"
-                  : "1px solid #2A2A2A",
+          return (
+            <div
+              key={
+                player.id
+              }
 
-              borderRadius:
-                "12px",
+              style={{
+                ...style,
 
-              padding:
-                "16px",
+                borderRadius:
+                  "20px",
 
-              marginBottom:
-                "12px",
-            }}
-          >
-            <h3>
-              {getMedal(
-                index
-              )}
+                display:
+                  "flex",
 
-              {" "}
+                alignItems:
+                  "center",
 
-              {player.name}
+                justifyContent:
+                  "space-between",
 
-              {" - "}
+                padding:
+                  "0 18px",
 
-              {player.points}
+                marginBottom:
+                  "10px",
 
-              pts
-            </h3>
-          </div>
-        )
+                transition:
+                  "all .2s ease",
+              }}
+            >
+              <div
+                style={{
+                  display:
+                    "flex",
+
+                  alignItems:
+                    "center",
+
+                  gap: "14px",
+                }}
+              >
+                <div
+                  style={{
+                    width:
+                      "34px",
+
+                    fontSize:
+                      "20px",
+
+                    textAlign:
+                      "center",
+                  }}
+                >
+                  {getMedal(
+                    index
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    fontSize:
+                      index === 0
+
+                        ? "18px"
+
+                        : "16px",
+
+                    fontWeight:
+                      700,
+                  }}
+                >
+                  {
+                    player.name
+                  }
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display:
+                    "flex",
+
+                  alignItems:
+                    "center",
+
+                  gap: "6px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize:
+                      index === 0
+
+                        ? "24px"
+
+                        : "22px",
+
+                    fontWeight:
+                      800,
+                  }}
+                >
+                  {
+                    player.points
+                  }
+                </div>
+
+                <div
+                  style={{
+                    color:
+                      "#9CA3AF",
+
+                    fontSize:
+                      "13px",
+                  }}
+                >
+                  pts
+                </div>
+              </div>
+            </div>
+          )
+        }
       )}
     </div>
   )

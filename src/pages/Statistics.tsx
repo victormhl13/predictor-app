@@ -7,13 +7,11 @@ function Statistics() {
     useState<any>({
       leader: "-",
 
-      leaderPoints: 0,
+      players: 0,
 
-      exactScores: 0,
+      openMatchdays: 0,
 
-      totalPredictions: 0,
-
-      successRate: 0,
+      finishedMatches: 0,
     })
 
   useEffect(() => {
@@ -23,33 +21,45 @@ function Statistics() {
   async function loadStatistics() {
     const { data: users } =
       await supabase
+
         .from("users")
+
+        .select("*")
+
+    const {
+      data: matchdays,
+    } = await supabase
+
+      .from("matchdays")
+
+      .select("*")
+
+    const { data: matches } =
+      await supabase
+
+        .from("matches")
+
         .select("*")
 
     const {
       data: predictions,
     } = await supabase
-      .from("predictions")
-      .select("*")
 
-    const { data: matches } =
-      await supabase
-        .from("matches")
-        .select("*")
+      .from("predictions")
+
+      .select("*")
 
     if (
       !users ||
 
-      !predictions ||
+      !matchdays ||
 
-      !matches
+      !matches ||
+
+      !predictions
     ) {
       return
     }
-
-    let exactScores = 0
-
-    let correctResults = 0
 
     const leaderboard =
       users.map((user) => {
@@ -94,10 +104,6 @@ function Statistics() {
               ) {
                 points += 3
 
-                exactScores += 1
-
-                correctResults += 1
-
                 return
               }
 
@@ -120,8 +126,6 @@ function Statistics() {
                 result
               ) {
                 points += 1
-
-                correctResults += 1
               }
             }
           )
@@ -138,99 +142,144 @@ function Statistics() {
         b.points - a.points
     )
 
-    const totalPredictions =
-      predictions.length
+    const finishedMatches =
+      matches.filter(
+        (match) =>
+          match.home_score !==
+            null &&
 
-    const successRate =
-      totalPredictions === 0
+          match.away_score !==
+            null
+      ).length
 
-        ? 0
-
-        : Math.round(
-            (correctResults /
-              totalPredictions) *
-
-              100
-          )
+    const openMatchdays =
+      matchdays.filter(
+        (matchday) =>
+          matchday.is_open
+      ).length
 
     setStats({
       leader:
         leaderboard[0]
           ?.name ?? "-",
 
-      leaderPoints:
-        leaderboard[0]
-          ?.points ?? 0,
+      players:
+        users.length,
 
-      exactScores,
+      openMatchdays,
 
-      totalPredictions,
-
-      successRate,
+      finishedMatches,
     })
+  }
+
+  function StatCard({
+    title,
+
+    value,
+  }: any) {
+    return (
+      <div
+        style={{
+          background:
+            "rgba(255,255,255,0.05)",
+
+          border:
+            "1px solid rgba(255,255,255,0.08)",
+
+          borderRadius:
+            "18px",
+
+          padding:
+            "16px",
+
+          marginBottom:
+            "10px",
+
+          minHeight:
+            "82px",
+
+          display:
+            "flex",
+
+          flexDirection:
+            "column",
+
+          justifyContent:
+            "center",
+
+          alignItems:
+            "center",
+        }}
+      >
+        <div
+          style={{
+            color:
+              "#9CA3AF",
+
+            fontSize:
+              "12px",
+
+            fontWeight:
+              600,
+
+            marginBottom:
+              "6px",
+          }}
+        >
+          {title}
+        </div>
+
+        <div
+          style={{
+            fontSize:
+              "22px",
+
+            fontWeight:
+              800,
+
+            textAlign:
+              "center",
+          }}
+        >
+          {value}
+        </div>
+      </div>
+    )
   }
 
   return (
     <div>
-      <h2>
-        📊 Statistics
-      </h2>
+      <StatCard
+        title="Leader"
 
-      <div
-        style={{
-          backgroundColor:
-            "#1E1E1E",
+        value={
+          stats.leader
+        }
+      />
 
-          border:
-            "1px solid #2A2A2A",
+      <StatCard
+        title="Players"
 
-          borderRadius:
-            "12px",
+        value={
+          stats.players
+        }
+      />
 
-          padding:
-            "20px",
-        }}
-      >
-        <p>
-          👑 Leader:
+      <StatCard
+        title="Open Matchdays"
 
-          {" "}
+        value={
+          stats.openMatchdays
+        }
+      />
 
-          {stats.leader}
-        </p>
+      <StatCard
+        title="Finished Matches"
 
-        <p>
-          🏆 Leader Points:
-
-          {" "}
-
-          {stats.leaderPoints}
-        </p>
-
-        <p>
-          🎯 Exact Scores:
-
-          {" "}
-
-          {stats.exactScores}
-        </p>
-
-        <p>
-          ⚽ Total Predictions:
-
-          {" "}
-
-          {stats.totalPredictions}
-        </p>
-
-        <p>
-          📈 Success Rate:
-
-          {" "}
-
-          {stats.successRate}%
-        </p>
-      </div>
+        value={
+          stats.finishedMatches
+        }
+      />
     </div>
   )
 }

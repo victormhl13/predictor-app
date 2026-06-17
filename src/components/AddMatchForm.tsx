@@ -28,6 +28,12 @@ function AddMatchForm({
   const [kickoff, setKickoff] =
     useState("")
 
+  const [
+    isOpen,
+
+    setIsOpen,
+  ] = useState(false)
+
   function handleSubmit() {
     if (
       !homeTeam.trim() ||
@@ -54,6 +60,8 @@ function AddMatchForm({
     setAwayTeam("")
 
     setKickoff("")
+
+    setIsOpen(false)
   }
 
   return (
@@ -61,89 +69,255 @@ function AddMatchForm({
       style={{
         marginTop: "16px",
 
-        marginBottom: "16px",
-
-        padding: "16px",
-
-        border:
-          "1px solid #2A2A2A",
-
-        borderRadius: "10px",
+        marginBottom:
+          "20px",
       }}
     >
-      <h4>➕ Add Match</h4>
+      {!isOpen ? (
+        <button
+          onClick={() =>
+            setIsOpen(true)
+          }
 
-      <input
-        placeholder="Home team"
+          style={{
+            width: "100%",
 
-        value={homeTeam}
+            height: "48px",
 
-        onChange={(e) =>
-          setHomeTeam(
-            e.target.value
-          )
-        }
+            border: "none",
 
-        style={{
-          width: "220px",
+            borderRadius:
+              "16px",
 
-          padding: "10px",
+            background:
+              "rgba(255,255,255,0.06)",
 
-          marginBottom: "10px",
-        }}
-      />
+            color:
+              "#FFFFFF",
 
-      <br />
+            fontSize:
+              "15px",
 
-      <input
-        placeholder="Away team"
+            fontWeight:
+              600,
+          }}
+        >
+          + Add Match
+        </button>
+      ) : (
+        <div
+          style={{
+            background:
+              "rgba(255,255,255,0.05)",
 
-        value={awayTeam}
+            border:
+              "1px solid rgba(255,255,255,0.08)",
 
-        onChange={(e) =>
-          setAwayTeam(
-            e.target.value
-          )
-        }
+            borderRadius:
+              "20px",
 
-        style={{
-          width: "220px",
+            padding:
+              "18px",
+          }}
+        >
+          <input
+            placeholder="Home team"
 
-          padding: "10px",
+            value={homeTeam}
 
-          marginBottom: "10px",
-        }}
-      />
+            onChange={(
+              e
+            ) =>
+              setHomeTeam(
+                e.target.value
+              )
+            }
 
-      <br />
+            style={{
+              width:
+                "100%",
 
-      <input
-        type="datetime-local"
+              height:
+                "48px",
 
-        value={kickoff}
+              padding:
+                "0 16px",
 
-        onChange={(e) =>
-          setKickoff(
-            e.target.value
-          )
-        }
+              border:
+                "1px solid rgba(255,255,255,0.10)",
 
-        style={{
-          width: "220px",
+              borderRadius:
+                "14px",
 
-          padding: "10px",
+              background:
+                "rgba(255,255,255,0.05)",
 
-          marginBottom: "10px",
-        }}
-      />
+              color:
+                "#FFFFFF",
 
-      <br />
+              marginBottom:
+                "12px",
 
-      <button
-        onClick={handleSubmit}
-      >
-        Add Match
-      </button>
+              outline:
+                "none",
+            }}
+          />
+
+          <input
+            placeholder="Away team"
+
+            value={awayTeam}
+
+            onChange={(
+              e
+            ) =>
+              setAwayTeam(
+                e.target.value
+              )
+            }
+
+            style={{
+              width:
+                "100%",
+
+              height:
+                "48px",
+
+              padding:
+                "0 16px",
+
+              border:
+                "1px solid rgba(255,255,255,0.10)",
+
+              borderRadius:
+                "14px",
+
+              background:
+                "rgba(255,255,255,0.05)",
+
+              color:
+                "#FFFFFF",
+
+              marginBottom:
+                "12px",
+
+              outline:
+                "none",
+            }}
+          />
+
+          <input
+            type="datetime-local"
+
+            value={kickoff}
+
+            onChange={(
+              e
+            ) =>
+              setKickoff(
+                e.target.value
+              )
+            }
+
+            style={{
+              width:
+                "100%",
+
+              height:
+                "48px",
+
+              padding:
+                "0 16px",
+
+              border:
+                "1px solid rgba(255,255,255,0.10)",
+
+              borderRadius:
+                "14px",
+
+              background:
+                "rgba(255,255,255,0.05)",
+
+              color:
+                "#FFFFFF",
+
+              marginBottom:
+                "16px",
+
+              outline:
+                "none",
+            }}
+          />
+
+          <div
+            style={{
+              display:
+                "flex",
+
+              gap: "12px",
+            }}
+          >
+            <button
+              onClick={
+                handleSubmit
+              }
+
+              style={{
+                flex: 1,
+
+                height:
+                  "48px",
+
+                border:
+                  "none",
+
+                borderRadius:
+                  "14px",
+
+                background:
+                  "#6DFF4E",
+
+                color:
+                  "#05080F",
+
+                fontWeight:
+                  700,
+              }}
+            >
+              Add Match
+            </button>
+
+            <button
+              onClick={() =>
+                setIsOpen(
+                  false
+                )
+              }
+
+              style={{
+                flex: 1,
+
+                height:
+                  "48px",
+
+                border:
+                  "1px solid rgba(255,255,255,0.10)",
+
+                borderRadius:
+                  "14px",
+
+                background:
+                  "transparent",
+
+                color:
+                  "#FFFFFF",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

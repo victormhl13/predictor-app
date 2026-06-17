@@ -1,39 +1,83 @@
 type InfoCardProps = {
   title: string
+
   value: string
 }
 
-function InfoCard({ title, value }: InfoCardProps) {
+function InfoCard({
+  title,
+
+  value,
+}: InfoCardProps) {
   return (
     <div
       style={{
-        backgroundColor: "#1E1E1E",
+        background:
+          "rgba(255,255,255,0.05)",
 
-        borderRadius: "16px",
+        border:
+          "1px solid rgba(255,255,255,0.08)",
 
-        padding: "20px",
+        borderRadius:
+          "20px",
 
-        marginBottom: "16px",
+        padding:
+          "18px 20px",
 
-        border: "1px solid #2A2A2A",
+        marginBottom:
+          "12px",
+
+        backdropFilter:
+          "blur(10px)",
+
+        WebkitBackdropFilter:
+          "blur(10px)",
+
+        boxShadow:
+          "0 6px 18px rgba(0,0,0,0.12)",
       }}
     >
-      <h3
+      <div
         style={{
-          marginTop: 0,
+          fontSize:
+            "12px",
+
+          fontWeight:
+            600,
+
+          color:
+            "#9CA3AF",
+
+          letterSpacing:
+            "0.6px",
+
+          textTransform:
+            "uppercase",
         }}
       >
         {title}
-      </h3>
+      </div>
 
-      <p
+      <div
         style={{
-          fontSize: "18px",
-          marginBottom: 0,
+          marginTop:
+            "8px",
+
+          fontSize:
+            "20px",
+
+          fontWeight:
+            700,
+
+          color:
+            "#FFFFFF",
+
+          lineHeight:
+            "1.25",
         }}
       >
         {value}
-      </p>
+      </div>
     </div>
   )
 }

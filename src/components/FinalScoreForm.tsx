@@ -3,9 +3,13 @@ import { useState } from "react"
 type Props = {
   matchId: string
 
-  currentHomeScore: number | null
+  currentHomeScore:
+    | number
+    | null
 
-  currentAwayScore: number | null
+  currentAwayScore:
+    | number
+    | null
 
   onSave: (
     matchId: string,
@@ -25,19 +29,28 @@ function FinalScoreForm({
 
   onSave,
 }: Props) {
-  const [homeScore, setHomeScore] =
-    useState(
-      currentHomeScore ?? ""
-    )
+  const [
+    homeScore,
 
-  const [awayScore, setAwayScore] =
-    useState(
-      currentAwayScore ?? ""
-    )
+    setHomeScore,
+  ] = useState(
+    currentHomeScore ??
+      ""
+  )
+
+  const [
+    awayScore,
+
+    setAwayScore,
+  ] = useState(
+    currentAwayScore ??
+      ""
+  )
 
   function handleSubmit() {
     if (
-      homeScore === "" ||
+      homeScore ===
+        "" ||
 
       awayScore === ""
     ) {
@@ -47,36 +60,71 @@ function FinalScoreForm({
     onSave(
       matchId,
 
-      Number(homeScore),
+      Number(
+        homeScore
+      ),
 
-      Number(awayScore)
+      Number(
+        awayScore
+      )
     )
   }
 
   return (
     <div
       style={{
-        marginTop: "12px",
+        marginTop:
+          "16px",
 
-        padding: "12px",
+        padding:
+          "16px",
+
+        background:
+          "rgba(255,255,255,0.04)",
 
         border:
-          "1px solid #2A2A2A",
+          "1px solid rgba(255,255,255,0.08)",
 
-        borderRadius: "10px",
+        borderRadius:
+          "18px",
       }}
     >
       <div
         style={{
-          display: "flex",
+          fontSize:
+            "13px",
+
+          color:
+            "#9CA3AF",
+
+          marginBottom:
+            "14px",
+
+          textAlign:
+            "center",
+
+          fontWeight:
+            600,
+        }}
+      >
+        Final score
+      </div>
+
+      <div
+        style={{
+          display:
+            "flex",
 
           justifyContent:
             "center",
 
-          gap: "12px",
+          alignItems:
+            "center",
+
+          gap: "16px",
 
           marginBottom:
-            "12px",
+            "18px",
         }}
       >
         <input
@@ -84,52 +132,152 @@ function FinalScoreForm({
 
           min="0"
 
-          value={homeScore}
+          value={
+            homeScore
+          }
 
-          onChange={(e) =>
+          onChange={(
+            e
+          ) =>
             setHomeScore(
               e.target.value
             )
           }
 
           style={{
-            width: "60px",
+            width:
+              "72px",
+
+            height:
+              "56px",
 
             textAlign:
               "center",
+
+            fontSize:
+              "22px",
+
+            fontWeight:
+              700,
+
+            border:
+              "1px solid rgba(255,255,255,0.10)",
+
+            borderRadius:
+              "16px",
+
+            background:
+              "rgba(255,255,255,0.05)",
+
+            color:
+              "#FFFFFF",
+
+            outline:
+              "none",
           }}
         />
 
-        <span>
+        <div
+          style={{
+            fontSize:
+              "28px",
+
+            color:
+              "#9CA3AF",
+
+            fontWeight:
+              700,
+          }}
+        >
           -
-        </span>
+        </div>
 
         <input
           type="number"
 
           min="0"
 
-          value={awayScore}
+          value={
+            awayScore
+          }
 
-          onChange={(e) =>
+          onChange={(
+            e
+          ) =>
             setAwayScore(
               e.target.value
             )
           }
 
           style={{
-            width: "60px",
+            width:
+              "72px",
+
+            height:
+              "56px",
 
             textAlign:
               "center",
+
+            fontSize:
+              "22px",
+
+            fontWeight:
+              700,
+
+            border:
+              "1px solid rgba(255,255,255,0.10)",
+
+            borderRadius:
+              "16px",
+
+            background:
+              "rgba(255,255,255,0.05)",
+
+            color:
+              "#FFFFFF",
+
+            outline:
+              "none",
           }}
         />
       </div>
 
       <button
-        onClick={handleSubmit}
+        onClick={
+          handleSubmit
+        }
+
+        style={{
+          width:
+            "100%",
+
+          height:
+            "48px",
+
+          border:
+            "none",
+
+          borderRadius:
+            "14px",
+
+          background:
+            "#6DFF4E",
+
+          color:
+            "#05080F",
+
+          fontWeight:
+            700,
+
+          fontSize:
+            "15px",
+
+          cursor:
+            "pointer",
+        }}
       >
-        💾 Save Final Score
+        Save Score
       </button>
     </div>
   )

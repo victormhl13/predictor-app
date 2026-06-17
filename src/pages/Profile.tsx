@@ -7,8 +7,7 @@ import { supabase } from "../lib/supabase"
 import { useAuth } from "../context/AuthContext"
 
 function Profile() {
-  const navigate =
-    useNavigate()
+  const navigate = useNavigate()
 
   const {
     currentUser,
@@ -202,8 +201,6 @@ function Profile() {
 
   return (
     <div>
-      {/* AVATAR */}
-
       <div
         style={{
           display:
@@ -281,9 +278,9 @@ function Profile() {
           currentUser?.role ===
           "admin"
 
-            ? "Admin"
+            ? "👑 Admin"
 
-            : "Player"
+            : "⚽ Player"
         }
       />
 
@@ -292,6 +289,54 @@ function Profile() {
 
         value={points}
       />
+
+      {currentUser?.role ===
+        "admin" && (
+        <button
+          onClick={() =>
+            navigate("/admin")
+          }
+          style={{
+            width:
+              "100%",
+
+            height:
+              "56px",
+
+            border:
+              "1px solid rgba(109,255,78,0.25)",
+
+            borderRadius:
+              "18px",
+
+            background:
+              "rgba(109,255,78,0.10)",
+
+            color:
+              "#FFFFFF",
+
+            fontSize:
+              "16px",
+
+            fontWeight:
+              800,
+
+            cursor:
+              "pointer",
+
+            marginTop:
+              "8px",
+
+            marginBottom:
+              "18px",
+
+            boxShadow:
+              "0 6px 18px rgba(109,255,78,0.12)",
+          }}
+        >
+          👥 Manage Users
+        </button>
+      )}
 
       <div
         style={{

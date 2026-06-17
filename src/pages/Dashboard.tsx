@@ -290,13 +290,13 @@ function Dashboard() {
       <div
         style={{
           background:
-            "rgba(255,255,255,0.04)",
+            "rgba(255,255,255,0.05)",
 
           border:
             "1px solid rgba(255,255,255,0.08)",
 
           borderRadius:
-            "22px",
+            "20px",
 
           padding:
             big
@@ -322,15 +322,6 @@ function Dashboard() {
 
           textAlign:
             "center",
-
-          backdropFilter:
-            "blur(12px)",
-
-          WebkitBackdropFilter:
-            "blur(12px)",
-
-          boxShadow:
-            "0 6px 17px rgba(0,0,0,0.12)",
         }}
       >
         <div
@@ -345,7 +336,7 @@ function Dashboard() {
               700,
 
             letterSpacing:
-              "1.4px",
+              "1.2px",
 
             textTransform:
               "uppercase",

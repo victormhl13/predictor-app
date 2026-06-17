@@ -91,7 +91,7 @@ function Matchdays() {
           name,
         
           is_open:true,
-        }
+        },
       ])
     if (error) {
       console.log(error)

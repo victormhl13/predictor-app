@@ -290,13 +290,13 @@ function Dashboard() {
       <div
         style={{
           background:
-            "rgba(255,255,255,0.05)",
+            "rgba(255,255,255,0.04)",
 
           border:
-            "1px solid rgba(255,255,255,0.10)",
+            "1px solid rgba(255,255,255,0.08)",
 
           borderRadius:
-            "24px",
+            "22px",
 
           padding:
             big
@@ -324,13 +324,13 @@ function Dashboard() {
             "center",
 
           backdropFilter:
-            "blur(22px)",
+            "blur(12px)",
 
           WebkitBackdropFilter:
-            "blur(22px)",
+            "blur(12px)",
 
           boxShadow:
-            "0 12px 34px rgba(0,0,0,0.22)",
+            "0 6px 17px rgba(0,0,0,0.12)",
         }}
       >
         <div

@@ -76,7 +76,7 @@ function AdminPanel() {
 
     if (error) {
       alert(
-        "Could not create player."
+        "Could not create user."
       )
 
       return
@@ -114,6 +114,8 @@ function AdminPanel() {
 
   return (
     <div>
+      {/* HEADER */}
+
       <div
         style={{
           marginBottom: "28px",
@@ -128,7 +130,7 @@ function AdminPanel() {
             marginBottom: "6px",
           }}
         >
-          👥 Manage Players
+          Manage Users
         </div>
 
         <div
@@ -138,7 +140,7 @@ function AdminPanel() {
             fontSize: "14px",
           }}
         >
-          Manage all GoalPredict participants
+          Manage all GoalPredict accounts
         </div>
       </div>
 
@@ -162,7 +164,7 @@ function AdminPanel() {
         }}
       >
         <input
-          placeholder="Player name"
+          placeholder="User name"
 
           value={name}
 
@@ -321,11 +323,11 @@ function AdminPanel() {
               "0 6px 18px rgba(109,255,78,0.12)",
           }}
         >
-          ➕ Add Player
+          Add User
         </button>
       </div>
 
-      {/* PLAYERS */}
+      {/* USERS */}
 
       {users.map((user) => (
         <div
@@ -353,11 +355,6 @@ function AdminPanel() {
               fontWeight: 800,
             }}
           >
-            {user.role ===
-            "admin"
-              ? "👑 "
-              : "👤 "}
-
             {user.name}
           </div>
 
@@ -369,12 +366,14 @@ function AdminPanel() {
                 "#9CA3AF",
 
               fontSize: "13px",
+
+              fontWeight: 700,
             }}
           >
             {user.role ===
             "admin"
-              ? "ADMIN"
-              : "PLAYER"}
+              ? "Admin"
+              : "Player"}
           </div>
 
           <div
@@ -387,9 +386,12 @@ function AdminPanel() {
               fontSize: "14px",
 
               fontWeight: 700,
+
+              letterSpacing:
+                "0.5px",
             }}
           >
-            🟢 Active
+            Active
           </div>
         </div>
       ))}

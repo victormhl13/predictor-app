@@ -278,9 +278,9 @@ function Profile() {
           currentUser?.role ===
           "admin"
 
-            ? "👑 Admin"
+            ? "Admin"
 
-            : "⚽ Player"
+            : "Player"
         }
       />
 
@@ -334,7 +334,7 @@ function Profile() {
               "0 6px 18px rgba(109,255,78,0.12)",
           }}
         >
-          👥 Manage Users
+          Manage Users
         </button>
       )}
 

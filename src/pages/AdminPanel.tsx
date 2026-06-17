@@ -9,7 +9,17 @@ import { useAuth } from "../context/AuthContext"
 function AdminPanel() {
   const { currentUser } = useAuth()
 
-  const [users, setUsers] = useState<any[]>([])
+  const [users, setUsers] =
+    useState<any[]>([])
+
+  const [name, setName] =
+    useState("")
+
+  const [pin, setPin] =
+    useState("")
+
+  const [role, setRole] =
+    useState("user")
 
   useEffect(() => {
     if (
@@ -21,10 +31,11 @@ function AdminPanel() {
   }, [currentUser])
 
   async function loadUsers() {
-    const { data } = await supabase
-      .from("users")
-      .select("*")
-      .order("name")
+    const { data } =
+      await supabase
+        .from("users")
+        .select("*")
+        .order("name")
 
     if (data) {
       setUsers(data)
@@ -32,78 +43,356 @@ function AdminPanel() {
   }
 
   async function addUser() {
-    const name = prompt("Enter name")
+    if (
+      !name ||
 
-    if (!name) return
+      !pin ||
 
-    const pin = prompt("Enter 4-digit PIN")
+      pin.length !== 4
+    ) {
+      alert(
+        "Enter a name and a 4-digit PIN."
+      )
 
-    if (!pin) return
+      return
+    }
 
-    await supabase
-      .from("users")
-      .insert([
-        {
-          name,
+    const { error } =
+      await supabase
 
-          pin,
+        .from("users")
 
-          role: "user",
+        .insert([
+          {
+            name,
 
-          active: true,
-        },
-      ])
+            pin,
+
+            role,
+
+            active: true,
+          },
+        ])
+
+    if (error) {
+      alert(
+        "Could not create player."
+      )
+
+      return
+    }
+
+    setName("")
+
+    setPin("")
+
+    setRole("user")
 
     loadUsers()
   }
 
   if (!currentUser) {
-    return <Navigate to="/" replace />
+    return (
+      <Navigate
+        to="/"
+        replace
+      />
+    )
   }
 
-  if (currentUser.role !== "admin") {
-    return <Navigate to="/" replace />
+  if (
+    currentUser.role !==
+    "admin"
+  ) {
+    return (
+      <Navigate
+        to="/"
+        replace
+      />
+    )
   }
 
   return (
     <div>
-      <h2>👑 Manage Users</h2>
+      <div
+        style={{
+          marginBottom: "28px",
+        }}
+      >
+        <div
+          style={{
+            fontSize: "28px",
 
-      <button onClick={addUser}>
-        ➕ Add User
-      </button>
+            fontWeight: 800,
+
+            marginBottom: "6px",
+          }}
+        >
+          👥 Manage Players
+        </div>
+
+        <div
+          style={{
+            color: "#9CA3AF",
+
+            fontSize: "14px",
+          }}
+        >
+          Manage all GoalPredict participants
+        </div>
+      </div>
+
+      {/* FORM */}
 
       <div
         style={{
-          marginTop: "20px",
+          background:
+            "rgba(255,255,255,0.05)",
+
+          border:
+            "1px solid rgba(255,255,255,0.08)",
+
+          borderRadius:
+            "22px",
+
+          padding: "18px",
+
+          marginBottom:
+            "26px",
         }}
       >
-        {users.map((user) => (
+        <input
+          placeholder="Player name"
+
+          value={name}
+
+          onChange={(e) =>
+            setName(
+              e.target.value
+            )
+          }
+
+          style={{
+            width: "100%",
+
+            height: "50px",
+
+            marginBottom: "14px",
+
+            padding:
+              "0 16px",
+
+            boxSizing:
+              "border-box",
+
+            borderRadius:
+              "16px",
+
+            border:
+              "1px solid rgba(255,255,255,0.08)",
+
+            background:
+              "rgba(255,255,255,0.05)",
+
+            color:
+              "#FFFFFF",
+
+            fontSize: "15px",
+
+            outline: "none",
+          }}
+        />
+
+        <input
+          maxLength={4}
+
+          placeholder="4-digit PIN"
+
+          value={pin}
+
+          onChange={(e) =>
+            setPin(
+              e.target.value
+            )
+          }
+
+          style={{
+            width: "100%",
+
+            height: "50px",
+
+            marginBottom: "14px",
+
+            padding:
+              "0 16px",
+
+            boxSizing:
+              "border-box",
+
+            borderRadius:
+              "16px",
+
+            border:
+              "1px solid rgba(255,255,255,0.08)",
+
+            background:
+              "rgba(255,255,255,0.05)",
+
+            color:
+              "#FFFFFF",
+
+            fontSize: "15px",
+
+            outline: "none",
+          }}
+        />
+
+        <select
+          value={role}
+
+          onChange={(e) =>
+            setRole(
+              e.target.value
+            )
+          }
+
+          style={{
+            width: "100%",
+
+            height: "50px",
+
+            marginBottom: "18px",
+
+            padding:
+              "0 16px",
+
+            borderRadius:
+              "16px",
+
+            border:
+              "1px solid rgba(255,255,255,0.08)",
+
+            background:
+              "#1C1C1C",
+
+            color:
+              "#FFFFFF",
+
+            fontSize: "15px",
+          }}
+        >
+          <option value="user">
+            Player
+          </option>
+
+          <option value="admin">
+            Admin
+          </option>
+        </select>
+
+        <button
+          onClick={addUser}
+          style={{
+            width: "100%",
+
+            height: "52px",
+
+            borderRadius:
+              "999px",
+
+            border:
+              "1px solid rgba(109,255,78,0.25)",
+
+            background:
+              "rgba(109,255,78,0.12)",
+
+            color:
+              "#FFFFFF",
+
+            fontWeight:
+              800,
+
+            fontSize: "15px",
+
+            cursor:
+              "pointer",
+
+            boxShadow:
+              "0 6px 18px rgba(109,255,78,0.12)",
+          }}
+        >
+          ➕ Add Player
+        </button>
+      </div>
+
+      {/* PLAYERS */}
+
+      {users.map((user) => (
+        <div
+          key={user.id}
+          style={{
+            background:
+              "rgba(255,255,255,0.05)",
+
+            border:
+              "1px solid rgba(255,255,255,0.08)",
+
+            borderRadius:
+              "18px",
+
+            padding: "18px",
+
+            marginBottom:
+              "14px",
+          }}
+        >
           <div
-            key={user.id}
             style={{
-              background:
-                "#1E1E1E",
+              fontSize: "18px",
 
-              border:
-                "1px solid #2A2A2A",
-
-              borderRadius:
-                "12px",
-
-              padding: "16px",
-
-              marginBottom:
-                "12px",
+              fontWeight: 800,
             }}
           >
-            👤 {user.name}
-
             {user.role ===
-              "admin" && " 👑"}
+            "admin"
+              ? "👑 "
+              : "👤 "}
+
+            {user.name}
           </div>
-        ))}
-      </div>
+
+          <div
+            style={{
+              marginTop: "8px",
+
+              color:
+                "#9CA3AF",
+
+              fontSize: "13px",
+            }}
+          >
+            {user.role ===
+            "admin"
+              ? "ADMIN"
+              : "PLAYER"}
+          </div>
+
+          <div
+            style={{
+              marginTop: "10px",
+
+              color:
+                "#6DFF4E",
+
+              fontSize: "14px",
+
+              fontWeight: 700,
+            }}
+          >
+            🟢 Active
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

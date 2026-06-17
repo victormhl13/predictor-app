@@ -48,7 +48,7 @@ function CreateMatchdayForm({
             height: "52px",
 
             border:
-              "1px solid rgba(255,255,255,0,08)"
+              "1px solid rgba(255,255,255,0.08)",
 
             borderRadius:
               "18px",

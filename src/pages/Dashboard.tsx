@@ -8,9 +8,7 @@ import { useAuth } from "../context/AuthContext"
 
 import type {
   Match,
-
   Prediction,
-
   User,
 } from "../types"
 
@@ -42,7 +40,7 @@ function Dashboard() {
     leader,
 
     setLeader,
-  ] = useState("No data")
+  ] = useState("No leader yet")
 
   useEffect(() => {
     loadDashboard()
@@ -277,7 +275,7 @@ function Dashboard() {
     }
 
     setLeader(
-      `${top.name} • ${top.points} pts`
+      `${top.name}\n${top.points} pts`
     )
   }
 
@@ -295,24 +293,20 @@ function Dashboard() {
             "rgba(255,255,255,0.05)",
 
           border:
-            "1px solid rgba(255,255,255,0.08)",
+            "1px solid rgba(255,255,255,0.10)",
 
           borderRadius:
-            "22px",
+            "24px",
 
           padding:
             big
-
-              ? "24px"
-
+              ? "22px"
               : "18px",
 
           minHeight:
             big
-
-              ? "120px"
-
-              : "95px",
+              ? "118px"
+              : "98px",
 
           display:
             "flex",
@@ -328,6 +322,15 @@ function Dashboard() {
 
           textAlign:
             "center",
+
+          backdropFilter:
+            "blur(22px)",
+
+          WebkitBackdropFilter:
+            "blur(22px)",
+
+          boxShadow:
+            "0 12px 34px rgba(0,0,0,0.22)",
         }}
       >
         <div
@@ -336,13 +339,19 @@ function Dashboard() {
               "#9CA3AF",
 
             fontSize:
-              "12px",
+              "11px",
 
             fontWeight:
               700,
 
+            letterSpacing:
+              "1.4px",
+
+            textTransform:
+              "uppercase",
+
             marginBottom:
-              "10px",
+              "12px",
           }}
         >
           {title}
@@ -352,16 +361,17 @@ function Dashboard() {
           style={{
             fontSize:
               big
-
-                ? "24px"
-
+                ? "22px"
                 : "20px",
 
             fontWeight:
               800,
 
             lineHeight:
-              1.2,
+              1.35,
+
+            whiteSpace:
+              "pre-line",
           }}
         >
           {value}
@@ -371,7 +381,11 @@ function Dashboard() {
   }
 
   return (
-    <div>
+    <div
+      style={{
+        marginTop: "-85px",
+      }}
+    >
       <div
         style={{
           marginBottom:
@@ -430,7 +444,7 @@ function Dashboard() {
         }}
       >
         <DashboardCard
-          title="My Predictions"
+          title="Predictions"
 
           value={
             myPredictions

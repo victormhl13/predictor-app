@@ -2,6 +2,7 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom"
 
 import BottomNavigation from "./components/BottomNavigation"
@@ -35,7 +36,6 @@ function App() {
           margin: "0 auto",
         }}
       >
-        {/* HEADER */}
         <div
           style={{
             display: "flex",
@@ -72,7 +72,6 @@ function App() {
           </div>
         </div>
 
-        {/* AUTH GATE */}
         {!currentUser ? (
           <Routes>
             <Route path="*" element={<Login />} />
@@ -81,12 +80,45 @@ function App() {
           <>
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/matchdays" element={<Matchdays />} />
-              <Route path="/predictions" element={<MyPredictions />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route path="/statistics" element={<Statistics />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/admin" element={<AdminPanel />} />
+
+              <Route
+                path="/matchdays"
+                element={<Matchdays />}
+              />
+
+              <Route
+                path="/predictions"
+                element={<MyPredictions />}
+              />
+
+              <Route
+                path="/leaderboard"
+                element={<Leaderboard />}
+              />
+
+              <Route
+                path="/statistics"
+                element={<Statistics />}
+              />
+
+              <Route
+                path="/profile"
+                element={<Profile />}
+              />
+
+              <Route
+                path="/admin"
+                element={
+                  currentUser.role === "admin"
+                    ? <AdminPanel />
+                    : <Navigate to="/" replace />
+                }
+              />
+
+              <Route
+                path="*"
+                element={<Navigate to="/" replace />}
+              />
             </Routes>
 
             <BottomNavigation />

@@ -54,7 +54,7 @@ function App() {
 
             justifyContent: "center",
 
-            marginBottom: "53px",
+            marginBottom: "51px",
           }}
         >
           <h1

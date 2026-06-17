@@ -126,6 +126,9 @@ function CreateMatchdayForm({
 
               marginBottom:
                 "12px",
+
+              boxSizing:
+                "border-box",
             }}
           />
 
@@ -149,19 +152,34 @@ function CreateMatchdayForm({
                   "48px",
 
                 border:
-                  "none",
+                  "1px solid rgba(109,255,78,0.25)",
 
                 borderRadius:
-                  "14px",
+                  "999px",
 
                 background:
-                  "#6DFF4E",
+                  "rgba(109,255,78,0.12)",
+
+                backdropFilter:
+                  "blur(18px)",
+
+                WebkitBackdropFilter:
+                  "blur(18px)",
+
+                boxShadow:
+                  "0 6px 18px rgba(109,255,78,0.12)",
 
                 color:
-                  "#05080F",
+                  "#FFFFFF",
+
+                fontSize:
+                  "14px",
 
                 fontWeight:
                   700,
+
+                cursor:
+                  "pointer",
               }}
             >
               Create
@@ -181,16 +199,34 @@ function CreateMatchdayForm({
                   "48px",
 
                 border:
-                  "1px solid rgba(255,255,255,0.10)",
+                  "1px solid rgba(255,92,92,0.25)",
 
                 borderRadius:
-                  "14px",
+                  "999px",
 
                 background:
-                  "transparent",
+                  "rgba(255,92,92,0.10)",
+
+                backdropFilter:
+                  "blur(18px)",
+
+                WebkitBackdropFilter:
+                  "blur(18px)",
+
+                boxShadow:
+                  "0 6px 18px rgba(255,92,92,0.12)",
 
                 color:
-                  "#FFFFFF",
+                  "#FF6B6B",
+
+                fontSize:
+                  "14px",
+
+                fontWeight:
+                  700,
+
+                cursor:
+                  "pointer",
               }}
             >
               Cancel

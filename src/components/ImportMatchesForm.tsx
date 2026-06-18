@@ -38,7 +38,7 @@ function ImportMatchesForm({
   onImported,
 }: Props) {
   const [season, setSeason] =
-    useState("2025")
+    useState("2024")
   const [round, setRound] =
     useState("Regular Season - 1")
   const [fixtures, setFixtures] =
@@ -312,8 +312,8 @@ function ImportMatchesForm({
               background: "#1C1C1C",
             }}
           >
-            <option value="2025">
-              2025
+            <option value="2024">
+              2024
             </option>
             <option value="2026">
               2026

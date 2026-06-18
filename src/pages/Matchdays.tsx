@@ -547,47 +547,51 @@ function Matchdays() {
                                   "center",
                               }}
                             >
-                              <div
-                                style={{
-                                  minWidth:
-                                    "74px",
+                              {finished && (
+                                <div
+                                  style={{
+                                    minWidth:
+                                      "74px",
 
-                                  height:
-                                    "34px",
+                                    height:
+                                      "34px",
 
-                                  display:
-                                    "flex",
+                                    display:
+                                      "flex",
 
-                                  alignItems:
-                                    "center",
+                                    alignItems:
+                                      "center",
 
-                                  justifyContent:
-                                    "center",
+                                    justifyContent:
+                                      "center",
 
-                                  border:
-                                    "1px solid rgba(255,255,255,0.08)",
+                                    border:
+                                      "1px solid rgba(255,255,255,0.08)",
 
-                                  borderRadius:
-                                    "12px",
+                                    borderRadius:
+                                      "12px",
 
-                                  fontSize:
-                                    "18px",
+                                    fontSize:
+                                      "18px",
 
-                                  fontWeight:
-                                    700,
+                                    fontWeight:
+                                      700,
 
-                                  background:
-                                    "rgba(255,255,255,0.03)",
-                                }}
-                              >
-                                {match.home_score ??
-                                  "-"}
+                                    background:
+                                      "rgba(255,255,255,0.03)",
+                                  }}
+                                >
+                                  {
+                                    match.home_score
+                                  }
 
-                                {" - "}
+                                  {" - "}
 
-                                {match.away_score ??
-                                  "-"}
-                              </div>
+                                  {
+                                    match.away_score
+                                  }
+                                </div>
+                              )}
 
                               {!finished && (
                                 <>

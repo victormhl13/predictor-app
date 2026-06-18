@@ -2,109 +2,199 @@ import { useState } from "react"
 
 type Props = {
   matchId: string
-
-  currentHomeScore:
-    | number
-    | null
-
-  currentAwayScore:
-    | number
-    | null
-
+  currentHomeScore: number | null
+  currentAwayScore: number | null
   onSave: (
     matchId: string,
-
     homeScore: number,
-
     awayScore: number
   ) => void
 }
 
+type ScoreControlProps = {
+  side: "home" | "away"
+  score: number
+  onChange: (
+    side: "home" | "away",
+    difference: number
+  ) => void
+}
+
+function ScoreControl({
+  side,
+  score,
+  onChange,
+}: ScoreControlProps) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        justifyItems: "center",
+        gap: "7px",
+      }}
+    >
+      <div
+        style={{
+          width: "52px",
+          height: "44px",
+          display: "grid",
+          placeItems: "center",
+          border:
+            "1px solid rgba(255,255,255,0.12)",
+          borderRadius: "13px",
+          background:
+            "linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.025))",
+          boxShadow:
+            "inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 20px rgba(0,0,0,0.16)",
+          color: "#FFFFFF",
+          fontSize: "20px",
+          fontWeight: 800,
+        }}
+      >
+        {score}
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: "6px",
+        }}
+      >
+        <button
+          type="button"
+          aria-label={`Decrease ${side} score`}
+          onClick={() =>
+            onChange(side, -1)
+          }
+          disabled={score === 0}
+          style={{
+            width: "30px",
+            height: "28px",
+            padding: 0,
+            border:
+              "1px solid rgba(255,255,255,0.12)",
+            borderRadius: "9px",
+            background:
+              "linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03))",
+            color: "#FFFFFF",
+            fontSize: "18px",
+            lineHeight: 1,
+            cursor:
+              score === 0
+                ? "default"
+                : "pointer",
+            opacity:
+              score === 0
+                ? 0.35
+                : 1,
+          }}
+        >
+          −
+        </button>
+
+        <button
+          type="button"
+          aria-label={`Increase ${side} score`}
+          onClick={() =>
+            onChange(side, 1)
+          }
+          style={{
+            width: "30px",
+            height: "28px",
+            padding: 0,
+            border:
+              "1px solid rgba(109,255,78,0.28)",
+            borderRadius: "9px",
+            background:
+              "linear-gradient(145deg, rgba(109,255,78,0.20), rgba(109,255,78,0.06))",
+            boxShadow:
+              "inset 0 1px 0 rgba(255,255,255,0.10)",
+            color: "#FFFFFF",
+            fontSize: "18px",
+            lineHeight: 1,
+            cursor: "pointer",
+          }}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function FinalScoreForm({
   matchId,
-
   currentHomeScore,
-
   currentAwayScore,
-
   onSave,
 }: Props) {
-  const [
-    homeScore,
+  const [homeScore, setHomeScore] =
+    useState(
+      currentHomeScore ?? 0
+    )
+  const [awayScore, setAwayScore] =
+    useState(
+      currentAwayScore ?? 0
+    )
 
-    setHomeScore,
-  ] = useState(
-    currentHomeScore ??
-      ""
-  )
-
-  const [
-    awayScore,
-
-    setAwayScore,
-  ] = useState(
-    currentAwayScore ??
-      ""
-  )
-
-  function handleSubmit() {
-    if (
-      homeScore ===
-        "" ||
-
-      awayScore === ""
-    ) {
+  function updateScore(
+    side: "home" | "away",
+    difference: number
+  ) {
+    if (side === "home") {
+      setHomeScore((score) =>
+        Math.max(
+          0,
+          score + difference
+        )
+      )
       return
     }
 
+    setAwayScore((score) =>
+      Math.max(
+        0,
+        score + difference
+      )
+    )
+  }
+
+  function handleSubmit() {
     onSave(
       matchId,
-
-      Number(
-        homeScore
-      ),
-
-      Number(
-        awayScore
-      )
+      homeScore,
+      awayScore
     )
   }
 
   return (
     <div
       style={{
-        marginTop:
-          "16px",
-
-        padding:
-          "16px",
-
+        width: "fit-content",
+        minWidth: "210px",
+        margin: "12px auto 0",
+        padding: "12px 14px",
         background:
-          "rgba(255,255,255,0.04)",
-
+          "linear-gradient(145deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025))",
         border:
-          "1px solid rgba(255,255,255,0.08)",
-
-        borderRadius:
-          "18px",
+          "1px solid rgba(255,255,255,0.10)",
+        borderRadius: "16px",
+        boxShadow:
+          "inset 0 1px 0 rgba(255,255,255,0.07), 0 12px 28px rgba(0,0,0,0.16)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter:
+          "blur(16px)",
       }}
     >
       <div
         style={{
-          fontSize:
-            "13px",
-
-          color:
-            "#9CA3AF",
-
-          marginBottom:
-            "14px",
-
-          textAlign:
-            "center",
-
-          fontWeight:
-            600,
+          color: "#9CA3AF",
+          fontSize: "11px",
+          fontWeight: 700,
+          marginBottom: "10px",
+          textAlign: "center",
+          textTransform: "uppercase",
+          letterSpacing: "0.5px",
         }}
       >
         Final score
@@ -112,172 +202,62 @@ function FinalScoreForm({
 
       <div
         style={{
-          display:
-            "flex",
-
-          justifyContent:
-            "center",
-
-          alignItems:
-            "center",
-
-          gap: "16px",
-
-          marginBottom:
-            "18px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "start",
+          gap: "12px",
         }}
       >
-        <input
-          type="number"
-
-          min="0"
-
-          value={
-            homeScore
-          }
-
-          onChange={(
-            e
-          ) =>
-            setHomeScore(
-              e.target.value
-            )
-          }
-
-          style={{
-            width:
-              "72px",
-
-            height:
-              "56px",
-
-            textAlign:
-              "center",
-
-            fontSize:
-              "22px",
-
-            fontWeight:
-              700,
-
-            border:
-              "1px solid rgba(255,255,255,0.10)",
-
-            borderRadius:
-              "16px",
-
-            background:
-              "rgba(255,255,255,0.05)",
-
-            color:
-              "#FFFFFF",
-
-            outline:
-              "none",
-          }}
+        <ScoreControl
+          side="home"
+          score={homeScore}
+          onChange={updateScore}
         />
 
         <div
           style={{
-            fontSize:
-              "28px",
-
-            color:
-              "#9CA3AF",
-
-            fontWeight:
-              700,
+            paddingTop: "8px",
+            color: "#9CA3AF",
+            fontSize: "20px",
+            fontWeight: 700,
           }}
         >
           -
         </div>
 
-        <input
-          type="number"
-
-          min="0"
-
-          value={
-            awayScore
-          }
-
-          onChange={(
-            e
-          ) =>
-            setAwayScore(
-              e.target.value
-            )
-          }
-
-          style={{
-            width:
-              "72px",
-
-            height:
-              "56px",
-
-            textAlign:
-              "center",
-
-            fontSize:
-              "22px",
-
-            fontWeight:
-              700,
-
-            border:
-              "1px solid rgba(255,255,255,0.10)",
-
-            borderRadius:
-              "16px",
-
-            background:
-              "rgba(255,255,255,0.05)",
-
-            color:
-              "#FFFFFF",
-
-            outline:
-              "none",
-          }}
+        <ScoreControl
+          side="away"
+          score={awayScore}
+          onChange={updateScore}
         />
       </div>
 
       <button
-        onClick={
-          handleSubmit
-        }
-
+        type="button"
+        onClick={handleSubmit}
         style={{
-          width:
-            "100%",
-
-          height:
-            "48px",
-
+          display: "block",
+          minWidth: "92px",
+          height: "34px",
+          margin: "11px auto 0",
+          padding: "0 18px",
           border:
-            "none",
-
-          borderRadius:
-            "14px",
-
+            "1px solid rgba(109,255,78,0.34)",
+          borderRadius: "999px",
           background:
-            "#6DFF4E",
-
-          color:
-            "#05080F",
-
-          fontWeight:
-            700,
-
-          fontSize:
-            "15px",
-
-          cursor:
-            "pointer",
+            "linear-gradient(145deg, rgba(109,255,78,0.30), rgba(109,255,78,0.10))",
+          color: "#FFFFFF",
+          boxShadow:
+            "inset 0 1px 0 rgba(255,255,255,0.16), 0 7px 18px rgba(109,255,78,0.12)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter:
+            "blur(14px)",
+          fontSize: "12px",
+          fontWeight: 800,
+          cursor: "pointer",
         }}
       >
-        Save Score
+        Save
       </button>
     </div>
   )

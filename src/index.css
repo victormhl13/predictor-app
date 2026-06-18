@@ -34,35 +34,51 @@ body {
 
   min-height: 100vh;
 
+  position: relative;
+
+  isolation: isolate;
+
+  background: #05080f;
+
+  color:
+    var(--text-primary);
+}
+
+body::before,
+body::after {
+  content: "";
+
+  position: fixed;
+
+  inset: 0;
+
+  pointer-events: none;
+}
+
+body::before {
+  z-index: -2;
+
+  background:
+    url("/football-bg.jpg")
+    center top / cover
+    no-repeat;
+}
+
+body::after {
+  z-index: -1;
+
   background:
     linear-gradient(
       180deg,
 
-      rgba(5,8,15,0.28) 0%,
+      rgba(5,8,15,0.34) 0%,
 
-      rgba(5,8,15,0.58) 30%,
+      rgba(5,8,15,0.50) 38%,
 
-      rgba(5,8,15,0.88) 55%,
+      rgba(5,8,15,0.68) 72%,
 
-      rgba(5,8,15,1) 100%
-    ),
-
-    url("/football-bg.jpg");
-
-  background-size:
-    118% auto;
-
-  background-position:
-    center top;
-
-  background-repeat:
-    no-repeat;
-
-  background-attachment:
-    fixed;
-
-  color:
-    var(--text-primary);
+      rgba(5,8,15,0.78) 100%
+    );
 }
 
 #root {

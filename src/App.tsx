@@ -47,6 +47,12 @@ function App() {
 
         <div
           style={{
+            position: "sticky",
+
+            top: 0,
+
+            zIndex: 30,
+
             display: "flex",
 
             flexDirection: "column",
@@ -56,6 +62,13 @@ function App() {
             justifyContent: "center",
 
             marginBottom: "30px",
+
+            paddingTop: "2px",
+
+            paddingBottom: "8px",
+
+            background:
+              "linear-gradient(180deg, rgba(5,8,15,0.74) 0%, rgba(5,8,15,0.28) 72%, transparent 100%)",
           }}
         >
           <h1

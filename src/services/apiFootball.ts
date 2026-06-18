@@ -1,46 +1,36 @@
-const API_URL =
-  import.meta.env
-    .VITE_API_FOOTBALL_URL
-
-const API_KEY =
-  import.meta.env
-    .VITE_API_FOOTBALL_KEY
-
-async function apiRequest(
-  endpoint: string
-) {
-  try {
-    const response =
-      await fetch(
-        `${API_URL}${endpoint}`,
-        {
-          headers: {
-            "x-apisports-key":
-              API_KEY,
-          },
-        }
-      )
-
-    const data =
-      await response.json()
-
-    return data.response
-  } catch (error) {
-    console.log(error)
-
-    return []
-  }
+export type ApiFixture = {
+  id: number
+  kickoff: string
+  homeTeam: string
+  awayTeam: string
 }
 
-export async function getLeagues() {
-  return apiRequest("/leagues")
+type FixturesResponse = {
+  fixtures?: ApiFixture[]
+  error?: string
 }
 
 export async function getFixtures(
-  league: number,
-  season: number
+  season: number,
+  round: string
 ) {
-  return apiRequest(
-    `/fixtures?league=${league}&season=${season}`
+  const params = new URLSearchParams({
+    season: String(season),
+    round,
+  })
+
+  const response = await fetch(
+    `/api/import-superliga?${params.toString()}`
   )
+  const data =
+    (await response.json()) as FixturesResponse
+
+  if (!response.ok) {
+    throw new Error(
+      data.error ||
+        "Could not load fixtures."
+    )
+  }
+
+  return data.fixtures || []
 }

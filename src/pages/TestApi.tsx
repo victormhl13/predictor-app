@@ -6,23 +6,28 @@ function TestApi() {
 
   async function testApi() {
     try {
-      const response =
-        await fetch(
-          `${import.meta.env.VITE_API_FOOTBALL_URL}/leagues`,
-          {
-            headers: {
-              "x-apisports-key":
-                import.meta.env
-                  .VITE_API_FOOTBALL_KEY,
-            },
-          }
-        )
+      const params =
+        new URLSearchParams({
+          season: "2025",
+          round:
+            "Regular Season - 1",
+        })
+
+      const response = await fetch(
+        `/api/import-superliga?${params.toString()}`
+      )
 
       const data =
         await response.json()
 
       setResult(
-        `Success: ${data.results} leagues found`
+        response.ok
+          ? `Success: ${
+              data.fixtures?.length ||
+              0
+            } matches found`
+          : data.error ||
+              "API error"
       )
 
       console.log(data)

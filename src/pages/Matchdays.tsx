@@ -456,8 +456,14 @@ function Matchdays() {
                       }
                     />
                     <ImportMatchesForm
-  matchdayId={matchday.id}
-/>
+                      matchdayId={
+                        matchday.id
+                      }
+
+                      onImported={
+                        loadMatches
+                      }
+                    />
                   </>
                 )}
 

@@ -32,6 +32,8 @@ export type Match = {
   home_score: number | null
 
   away_score: number | null
+
+  api_fixture_id: number | null
 }
 
 export type Prediction = {

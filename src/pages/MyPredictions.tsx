@@ -256,9 +256,37 @@ function MyPredictions() {
     )
   }
 
-  return (
+  const visibleMatches =
+    matches.filter(
+      (match) =>
+        match.home_score ===null ||
+        match.away_score ===null
+    )
+    
+      return (
     <div>
-      {matches.map(
+      {visibleMatches.length ===
+        0 && (
+        <div
+          style={{
+            color:
+              "#9CA3AF",
+
+            textAlign:
+              "center",
+
+            marginTop:
+              "40px",
+
+            fontSize:
+              "14px",
+          }}
+        >
+          No upcoming matches ⚽
+        </div>
+      )}
+
+      {visibleMatches.map(
         (match) => {
           const locked =
             isLocked(
@@ -502,7 +530,7 @@ function MyPredictions() {
                         "10px",
                     }}
                   >
-                    Predictions locked
+                    🔒 Predictions locked
                   </div>
 
                   {prediction ? (
@@ -570,7 +598,7 @@ function MyPredictions() {
         }
       )}
 
-      {matches.length >
+      {visibleMatches.length >
         0 && (
         <div
           style={{

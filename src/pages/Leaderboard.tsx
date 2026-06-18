@@ -1,324 +1,195 @@
-import { useEffect, useState } from "react"
+import {
+  useEffect,
+  useState,
+} from "react"
+import { Crown } from "lucide-react"
 
 import { supabase } from "../lib/supabase"
-
 import { calculateLeaderboard } from "../utils/calculateLeaderboard"
-
+import PageHeader from "../components/PageHeader"
 import type {
-  User,
-
   Match,
-
   Prediction,
+  User,
 } from "../types"
 
-type LeaderboardPlayer =
-  User & {
-    points: number
-  }
+type Player = User & {
+  points: number
+}
 
 function Leaderboard() {
-  const [
-    leaderboard,
-
-    setLeaderboard,
-  ] = useState<
-    LeaderboardPlayer[]
-  >([])
+  const [players, setPlayers] =
+    useState<Player[]>([])
 
   useEffect(() => {
-    loadLeaderboard()
+    async function load() {
+      const [
+        usersResult,
+        predictionsResult,
+        matchesResult,
+      ] = await Promise.all([
+        supabase
+          .from("users")
+          .select("*")
+          .eq("active", true),
+        supabase
+          .from("predictions")
+          .select("*"),
+        supabase
+          .from("matches")
+          .select("*"),
+      ])
+
+      if (
+        !usersResult.data ||
+        !predictionsResult.data ||
+        !matchesResult.data
+      ) {
+        return
+      }
+
+      setPlayers(
+        calculateLeaderboard(
+          usersResult.data as User[],
+          predictionsResult.data as Prediction[],
+          matchesResult.data as Match[]
+        )
+      )
+    }
+
+    load()
   }, [])
 
-  async function loadLeaderboard() {
-    const {
-      data: users,
-    } = await supabase
-
-      .from("users")
-
-      .select("*")
-
-    const {
-      data: predictions,
-    } = await supabase
-
-      .from("predictions")
-
-      .select("*")
-
-    const {
-      data: matches,
-    } = await supabase
-
-      .from("matches")
-
-      .select("*")
-
-    if (
-      !users ||
-
-      !predictions ||
-
-      !matches
-    ) {
-      return
-    }
-
-    const scores =
-      calculateLeaderboard(
-        users as User[],
-
-        predictions as Prediction[],
-
-        matches as Match[]
-      )
-
-    setLeaderboard(
-      scores
-    )
-  }
-
-  function getCardStyle(
-    index: number
-  ) {
-    if (index === 0) {
-      return {
-        background:
-          "rgba(255,215,0,0.12)",
-
-        border:
-          "1px solid rgba(255,215,0,0.30)",
-
-        height: "78px",
-      }
-    }
-
-    if (index === 1) {
-      return {
-        background:
-          "rgba(192,192,192,0.10)",
-
-        border:
-          "1px solid rgba(192,192,192,0.22)",
-
-        height: "70px",
-      }
-    }
-
-    if (index === 2) {
-      return {
-        background:
-          "rgba(205,127,50,0.10)",
-
-        border:
-          "1px solid rgba(205,127,50,0.22)",
-
-        height: "70px",
-      }
-    }
-
-    return {
-      background:
-        "rgba(255,255,255,0.05)",
-
-      border:
-        "1px solid rgba(255,255,255,0.08)",
-
-      height: "66px",
-    }
-  }
-
-  function getMedal(
-    index: number
-  ) {
-    if (index === 0)
-      return "🥇"
-
-    if (index === 1)
-      return "🥈"
-
-    if (index === 2)
-      return "🥉"
-
-    return `#${index + 1}`
-  }
-
-  const hasPoints =
-    leaderboard.some(
-      (
-        player
-      ) =>
-        player.points > 0
-    )
-
   return (
-    <div>
-      {!hasPoints && (
+    <div className="page">
+      <PageHeader
+        title="Ranking"
+        subtitle="3 points for the exact score, 1 for the correct outcome."
+      />
+
+      {players.length === 0 ? (
+        <div className="surface empty-state">
+          No ranking yet.
+        </div>
+      ) : (
         <div
+          className="surface"
           style={{
-            background:
-              "rgba(255,255,255,0.05)",
-
-            border:
-              "1px solid rgba(255,255,255,0.08)",
-
-            borderRadius:
-              "20px",
-
-            padding:
-              "18px",
-
-            marginBottom:
-              "14px",
-
-            textAlign:
-              "center",
-
-            color:
-              "#9CA3AF",
-
-            fontSize:
-              "14px",
+            overflow: "hidden",
           }}
         >
-          No leaderboard yet
+          {players.map(
+            (player, index) => {
+              const podium =
+                index < 3
+              const colors = [
+                "#F8D477",
+                "#C9CFD8",
+                "#D99A68",
+              ]
+
+              return (
+                <div
+                  key={player.id}
+                  className="compact-row"
+                  style={{
+                    minHeight:
+                      index === 0
+                        ? "62px"
+                        : "54px",
+                    background:
+                      index === 0
+                        ? "linear-gradient(90deg, rgba(248,212,119,0.10), transparent)"
+                        : "transparent",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "30px",
+                      color: podium
+                        ? colors[index]
+                        : "#6B7280",
+                      fontSize:
+                        podium
+                          ? "17px"
+                          : "11px",
+                      fontWeight: 850,
+                      textAlign:
+                        "center",
+                    }}
+                  >
+                    {index === 0 ? (
+                      <Crown
+                        size={18}
+                      />
+                    ) : (
+                      `#${index + 1}`
+                    )}
+                  </div>
+
+                  <div
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize:
+                          index === 0
+                            ? "14px"
+                            : "12px",
+                        fontWeight: 800,
+                      }}
+                    >
+                      {player.name}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "2px",
+                        color:
+                          "#6B7280",
+                        fontSize: "9px",
+                        textTransform:
+                          "capitalize",
+                      }}
+                    >
+                      {player.role}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      textAlign:
+                        "right",
+                    }}
+                  >
+                    <strong
+                      style={{
+                        fontSize:
+                          index === 0
+                            ? "20px"
+                            : "17px",
+                      }}
+                    >
+                      {player.points}
+                    </strong>
+                    <span
+                      style={{
+                        marginLeft: "4px",
+                        color:
+                          "#9CA3AF",
+                        fontSize: "9px",
+                      }}
+                    >
+                      pts
+                    </span>
+                  </div>
+                </div>
+              )
+            }
+          )}
         </div>
-      )}
-
-      {leaderboard.map(
-        (
-          player,
-
-          index
-        ) => {
-          const style =
-            getCardStyle(
-              index
-            )
-
-          return (
-            <div
-              key={
-                player.id
-              }
-
-              style={{
-                ...style,
-
-                borderRadius:
-                  "20px",
-
-                display:
-                  "flex",
-
-                alignItems:
-                  "center",
-
-                justifyContent:
-                  "space-between",
-
-                padding:
-                  "0 18px",
-
-                marginBottom:
-                  "10px",
-
-                transition:
-                  "all .2s ease",
-              }}
-            >
-              <div
-                style={{
-                  display:
-                    "flex",
-
-                  alignItems:
-                    "center",
-
-                  gap: "14px",
-                }}
-              >
-                <div
-                  style={{
-                    width:
-                      "34px",
-
-                    fontSize:
-                      "20px",
-
-                    textAlign:
-                      "center",
-                  }}
-                >
-                  {getMedal(
-                    index
-                  )}
-                </div>
-
-                <div
-                  style={{
-                    fontSize:
-                      index === 0
-
-                        ? "18px"
-
-                        : "16px",
-
-                    fontWeight:
-                      700,
-                  }}
-                >
-                  {
-                    player.name
-                  }
-                </div>
-              </div>
-
-              <div
-                style={{
-                  display:
-                    "flex",
-
-                  alignItems:
-                    "center",
-
-                  gap: "6px",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize:
-                      index === 0
-
-                        ? "24px"
-
-                        : "22px",
-
-                    fontWeight:
-                      800,
-                  }}
-                >
-                  {
-                    player.points
-                  }
-                </div>
-
-                <div
-                  style={{
-                    color:
-                      "#9CA3AF",
-
-                    fontSize:
-                      "13px",
-                  }}
-                >
-                  pts
-                </div>
-              </div>
-            </div>
-          )
-        }
       )}
     </div>
   )

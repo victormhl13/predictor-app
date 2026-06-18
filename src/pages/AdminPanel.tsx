@@ -1,34 +1,32 @@
-import { useEffect, useState } from "react"
-
+import {
+  useEffect,
+  useState,
+} from "react"
 import { Navigate } from "react-router-dom"
+import {
+  Plus,
+  UserRound,
+} from "lucide-react"
 
 import { supabase } from "../lib/supabase"
-
 import { useAuth } from "../context/AuthContext"
+import PageHeader from "../components/PageHeader"
+import type { User } from "../types"
 
 function AdminPanel() {
   const { currentUser } = useAuth()
-
   const [users, setUsers] =
-    useState<any[]>([])
-
+    useState<User[]>([])
+  const [formOpen, setFormOpen] =
+    useState(false)
   const [name, setName] =
     useState("")
-
   const [pin, setPin] =
     useState("")
-
   const [role, setRole] =
     useState("user")
-
-  useEffect(() => {
-    if (
-      currentUser &&
-      currentUser.role === "admin"
-    ) {
-      loadUsers()
-    }
-  }, [currentUser])
+  const [error, setError] =
+    useState("")
 
   async function loadUsers() {
     const { data } =
@@ -36,73 +34,100 @@ function AdminPanel() {
         .from("users")
         .select("*")
         .order("name")
-
-    if (data) {
-      setUsers(data)
-    }
+    setUsers(
+      (data || []) as User[]
+    )
   }
 
-  async function addUser() {
+  useEffect(() => {
     if (
-      !name ||
-
-      !pin ||
-
-      pin.length !== 4
+      currentUser?.role !==
+      "admin"
     ) {
-      alert(
-        "Enter a name and a 4-digit PIN."
-      )
-
       return
     }
 
-    const { error } =
+    let active = true
+
+    supabase
+      .from("users")
+      .select("*")
+      .order("name")
+      .then(({ data }) => {
+        if (active) {
+          setUsers(
+            (data || []) as User[]
+          )
+        }
+      })
+
+    return () => {
+      active = false
+    }
+  }, [currentUser])
+
+  async function addUser() {
+    if (
+      !name.trim() ||
+      pin.length !== 4
+    ) {
+      setError(
+        "Enter a name and a 4-digit PIN."
+      )
+      return
+    }
+
+    const { error: addError } =
       await supabase
-
         .from("users")
-
         .insert([
           {
-            name,
-
+            name: name.trim(),
             pin,
-
             role,
-
             active: true,
           },
         ])
 
-    if (error) {
-      alert(
+    if (addError) {
+      setError(
         "Could not create user."
       )
-
       return
     }
 
     setName("")
-
     setPin("")
-
     setRole("user")
-
-    loadUsers()
+    setError("")
+    setFormOpen(false)
+    await loadUsers()
   }
 
-  if (!currentUser) {
-    return (
-      <Navigate
-        to="/"
-        replace
-      />
-    )
+  async function toggleUser(
+    user: User
+  ) {
+    if (
+      user.id === currentUser?.id
+    ) {
+      setError(
+        "You cannot disable your own account."
+      )
+      return
+    }
+
+    await supabase
+      .from("users")
+      .update({
+        active: !user.active,
+      })
+      .eq("id", user.id)
+    await loadUsers()
   }
 
   if (
-    currentUser.role !==
-    "admin"
+    !currentUser ||
+    currentUser.role !== "admin"
   ) {
     return (
       <Navigate
@@ -113,288 +138,199 @@ function AdminPanel() {
   }
 
   return (
-    <div>
-      {/* HEADER */}
+    <div className="page">
+      <PageHeader
+        title="Users"
+        subtitle={`${users.length} GoalPredict accounts`}
+        action={
+          <button
+            type="button"
+            onClick={() =>
+              setFormOpen(
+                !formOpen
+              )
+            }
+            className="primary-button"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+            }}
+          >
+            <Plus size={14} />
+            Add
+          </button>
+        }
+      />
+
+      {formOpen && (
+        <div
+          className="surface"
+          style={{
+            padding: "13px",
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gap: "9px",
+            }}
+          >
+            <input
+              className="field"
+              placeholder="Name"
+              value={name}
+              onChange={(event) =>
+                setName(
+                  event.target.value
+                )
+              }
+            />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "1fr 1fr",
+                gap: "9px",
+              }}
+            >
+              <input
+                className="field"
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="PIN"
+                value={pin}
+                onChange={(event) =>
+                  setPin(
+                    event.target.value.replace(
+                      /\D/g,
+                      ""
+                    )
+                  )
+                }
+              />
+              <select
+                className="field"
+                value={role}
+                onChange={(event) =>
+                  setRole(
+                    event.target.value
+                  )
+                }
+              >
+                <option value="user">
+                  Player
+                </option>
+                <option value="admin">
+                  Admin
+                </option>
+              </select>
+            </div>
+            <button
+              type="button"
+              onClick={addUser}
+              className="primary-button"
+            >
+              Create account
+            </button>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div
+          style={{
+            color: "#FF8585",
+            fontSize: "11px",
+          }}
+        >
+          {error}
+        </div>
+      )}
 
       <div
+        className="surface"
         style={{
-          marginBottom: "28px",
+          overflow: "hidden",
         }}
       >
-        <div
-          style={{
-            fontSize: "28px",
-
-            fontWeight: 800,
-
-            marginBottom: "6px",
-          }}
-        >
-          Manage Users
-        </div>
-
-        <div
-          style={{
-            color: "#9CA3AF",
-
-            fontSize: "14px",
-          }}
-        >
-          Manage all GoalPredict accounts
-        </div>
+        {users.map((user) => (
+          <div
+            key={user.id}
+            className="compact-row"
+          >
+            <div
+              style={{
+                width: "34px",
+                height: "34px",
+                display: "grid",
+                placeItems: "center",
+                borderRadius: "50%",
+                background:
+                  "rgba(255,255,255,0.055)",
+              }}
+            >
+              <UserRound
+                size={16}
+                color={
+                  user.active
+                    ? "#9CF989"
+                    : "#6B7280"
+                }
+              />
+            </div>
+            <div
+              style={{
+                flex: 1,
+                minWidth: 0,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 800,
+                }}
+              >
+                {user.name}
+              </div>
+              <div
+                style={{
+                  marginTop: "2px",
+                  color: "#6B7280",
+                  fontSize: "9px",
+                  textTransform:
+                    "capitalize",
+                }}
+              >
+                {user.role}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                toggleUser(user)
+              }
+              className={
+                user.active
+                  ? "glass-button"
+                  : "primary-button"
+              }
+              style={{
+                minHeight: "30px",
+                padding: "0 10px",
+                color: user.active
+                  ? "#9CA3AF"
+                  : "#B7FFA7",
+                fontSize: "9px",
+              }}
+            >
+              {user.active
+                ? "Disable"
+                : "Enable"}
+            </button>
+          </div>
+        ))}
       </div>
-
-      {/* FORM */}
-
-      <div
-        style={{
-          background:
-            "rgba(255,255,255,0.05)",
-
-          border:
-            "1px solid rgba(255,255,255,0.08)",
-
-          borderRadius:
-            "22px",
-
-          padding: "18px",
-
-          marginBottom:
-            "26px",
-        }}
-      >
-        <input
-          placeholder="User name"
-
-          value={name}
-
-          onChange={(e) =>
-            setName(
-              e.target.value
-            )
-          }
-
-          style={{
-            width: "100%",
-
-            height: "50px",
-
-            marginBottom: "14px",
-
-            padding:
-              "0 16px",
-
-            boxSizing:
-              "border-box",
-
-            borderRadius:
-              "16px",
-
-            border:
-              "1px solid rgba(255,255,255,0.08)",
-
-            background:
-              "rgba(255,255,255,0.05)",
-
-            color:
-              "#FFFFFF",
-
-            fontSize: "15px",
-
-            outline: "none",
-          }}
-        />
-
-        <input
-          maxLength={4}
-
-          placeholder="4-digit PIN"
-
-          value={pin}
-
-          onChange={(e) =>
-            setPin(
-              e.target.value
-            )
-          }
-
-          style={{
-            width: "100%",
-
-            height: "50px",
-
-            marginBottom: "14px",
-
-            padding:
-              "0 16px",
-
-            boxSizing:
-              "border-box",
-
-            borderRadius:
-              "16px",
-
-            border:
-              "1px solid rgba(255,255,255,0.08)",
-
-            background:
-              "rgba(255,255,255,0.05)",
-
-            color:
-              "#FFFFFF",
-
-            fontSize: "15px",
-
-            outline: "none",
-          }}
-        />
-
-        <select
-          value={role}
-
-          onChange={(e) =>
-            setRole(
-              e.target.value
-            )
-          }
-
-          style={{
-            width: "100%",
-
-            height: "50px",
-
-            marginBottom: "18px",
-
-            padding:
-              "0 16px",
-
-            borderRadius:
-              "16px",
-
-            border:
-              "1px solid rgba(255,255,255,0.08)",
-
-            background:
-              "#1C1C1C",
-
-            color:
-              "#FFFFFF",
-
-            fontSize: "15px",
-          }}
-        >
-          <option value="user">
-            Player
-          </option>
-
-          <option value="admin">
-            Admin
-          </option>
-        </select>
-
-        <button
-          onClick={addUser}
-          style={{
-            width: "100%",
-
-            height: "52px",
-
-            borderRadius:
-              "999px",
-
-            border:
-              "1px solid rgba(109,255,78,0.25)",
-
-            background:
-              "rgba(109,255,78,0.12)",
-
-            color:
-              "#FFFFFF",
-
-            fontWeight:
-              800,
-
-            fontSize: "15px",
-
-            cursor:
-              "pointer",
-
-            boxShadow:
-              "0 6px 18px rgba(109,255,78,0.12)",
-          }}
-        >
-          Add User
-        </button>
-      </div>
-
-      {/* USERS */}
-
-      {users.map((user) => (
-        <div
-          key={user.id}
-          style={{
-            background:
-              "rgba(255,255,255,0.05)",
-
-            border:
-              "1px solid rgba(255,255,255,0.08)",
-
-            borderRadius:
-              "18px",
-
-            padding: "18px",
-
-            marginBottom:
-              "14px",
-          }}
-        >
-          <div
-            style={{
-              fontSize: "18px",
-
-              fontWeight: 800,
-            }}
-          >
-            {user.name}
-          </div>
-
-          <div
-            style={{
-              marginTop: "8px",
-
-              color:
-                "#9CA3AF",
-
-              fontSize: "13px",
-
-              fontWeight: 700,
-            }}
-          >
-            {user.role ===
-            "admin"
-              ? "Admin"
-              : "Player"}
-          </div>
-
-          <div
-            style={{
-              marginTop: "10px",
-
-              color:
-                "#6DFF4E",
-
-              fontSize: "14px",
-
-              fontWeight: 700,
-
-              letterSpacing:
-                "0.5px",
-            }}
-          >
-            Active
-          </div>
-        </div>
-      ))}
     </div>
   )
 }

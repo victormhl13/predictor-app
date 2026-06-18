@@ -1,285 +1,207 @@
-import { useEffect, useState } from "react"
+import {
+  useEffect,
+  useState,
+} from "react"
+import {
+  CalendarCheck,
+  CheckCircle2,
+  Trophy,
+  Users,
+} from "lucide-react"
 
 import { supabase } from "../lib/supabase"
+import { calculateLeaderboard } from "../utils/calculateLeaderboard"
+import PageHeader from "../components/PageHeader"
+import type {
+  Match,
+  Matchday,
+  Prediction,
+  User,
+} from "../types"
+
+type Stats = {
+  leader: string
+  players: number
+  openMatchdays: number
+  finishedMatches: number
+}
 
 function Statistics() {
   const [stats, setStats] =
-    useState<any>({
+    useState<Stats>({
       leader: "-",
-
       players: 0,
-
       openMatchdays: 0,
-
       finishedMatches: 0,
     })
 
   useEffect(() => {
-    loadStatistics()
-  }, [])
+    async function load() {
+      const [
+        usersResult,
+        matchdaysResult,
+        matchesResult,
+        predictionsResult,
+      ] = await Promise.all([
+        supabase
+          .from("users")
+          .select("*")
+          .eq("active", true),
+        supabase
+          .from("matchdays")
+          .select("*"),
+        supabase
+          .from("matches")
+          .select("*"),
+        supabase
+          .from("predictions")
+          .select("*"),
+      ])
 
-  async function loadStatistics() {
-    const { data: users } =
-      await supabase
+      const users =
+        (usersResult.data ||
+          []) as User[]
+      const matchdays =
+        (matchdaysResult.data ||
+          []) as Matchday[]
+      const matches =
+        (matchesResult.data ||
+          []) as Match[]
+      const predictions =
+        (predictionsResult.data ||
+          []) as Prediction[]
+      const ranking =
+        calculateLeaderboard(
+          users,
+          predictions,
+          matches
+        )
 
-        .from("users")
-
-        .select("*")
-
-    const {
-      data: matchdays,
-    } = await supabase
-
-      .from("matchdays")
-
-      .select("*")
-
-    const { data: matches } =
-      await supabase
-
-        .from("matches")
-
-        .select("*")
-
-    const {
-      data: predictions,
-    } = await supabase
-
-      .from("predictions")
-
-      .select("*")
-
-    if (
-      !users ||
-
-      !matchdays ||
-
-      !matches ||
-
-      !predictions
-    ) {
-      return
+      setStats({
+        leader:
+          ranking[0]?.points > 0
+            ? `${ranking[0].name} · ${ranking[0].points} pts`
+            : "No leader yet",
+        players: users.length,
+        openMatchdays:
+          matchdays.filter(
+            (item) => item.is_open
+          ).length,
+        finishedMatches:
+          matches.filter(
+            (match) =>
+              match.home_score !==
+                null &&
+              match.away_score !==
+                null
+          ).length,
+      })
     }
 
-    const leaderboard =
-      users.map((user) => {
-        let points = 0
+    load()
+  }, [])
 
-        predictions
-
-          .filter(
-            (prediction) =>
-              prediction.user_id ===
-              user.id
-          )
-
-          .forEach(
-            (prediction) => {
-              const match =
-                matches.find(
-                  (m) =>
-                    m.id ===
-                    prediction.match_id
-                )
-
-              if (!match)
-                return
-
-              if (
-                match.home_score ===
-                  null ||
-
-                match.away_score ===
-                  null
-              ) {
-                return
-              }
-
-              if (
-                prediction.home_prediction ===
-                  match.home_score &&
-
-                prediction.away_prediction ===
-                  match.away_score
-              ) {
-                points += 3
-
-                return
-              }
-
-              const predicted =
-                Math.sign(
-                  prediction.home_prediction -
-
-                    prediction.away_prediction
-                )
-
-              const result =
-                Math.sign(
-                  match.home_score -
-
-                    match.away_score
-                )
-
-              if (
-                predicted ===
-                result
-              ) {
-                points += 1
-              }
-            }
-          )
-
-        return {
-          ...user,
-
-          points,
-        }
-      })
-
-    leaderboard.sort(
-      (a, b) =>
-        b.points - a.points
-    )
-
-    const finishedMatches =
-      matches.filter(
-        (match) =>
-          match.home_score !==
-            null &&
-
-          match.away_score !==
-            null
-      ).length
-
-    const openMatchdays =
-      matchdays.filter(
-        (matchday) =>
-          matchday.is_open
-      ).length
-
-    setStats({
-      leader:
-        leaderboard[0]
-          ?.name ?? "-",
-
-      players:
-        users.length,
-
-      openMatchdays,
-
-      finishedMatches,
-    })
-  }
-
-  function StatCard({
-    title,
-
-    value,
-  }: any) {
-    return (
-      <div
-        style={{
-          background:
-            "rgba(255,255,255,0.05)",
-
-          border:
-            "1px solid rgba(255,255,255,0.08)",
-
-          borderRadius:
-            "18px",
-
-          padding:
-            "16px",
-
-          marginBottom:
-            "10px",
-
-          minHeight:
-            "82px",
-
-          display:
-            "flex",
-
-          flexDirection:
-            "column",
-
-          justifyContent:
-            "center",
-
-          alignItems:
-            "center",
-        }}
-      >
-        <div
-          style={{
-            color:
-              "#9CA3AF",
-
-            fontSize:
-              "12px",
-
-            fontWeight:
-              600,
-
-            marginBottom:
-              "6px",
-          }}
-        >
-          {title}
-        </div>
-
-        <div
-          style={{
-            fontSize:
-              "22px",
-
-            fontWeight:
-              800,
-
-            textAlign:
-              "center",
-          }}
-        >
-          {value}
-        </div>
-      </div>
-    )
-  }
+  const rows = [
+    {
+      icon: Trophy,
+      label: "Current leader",
+      value: stats.leader,
+      color: "#F8D477",
+    },
+    {
+      icon: Users,
+      label: "Active players",
+      value: String(
+        stats.players
+      ),
+      color: "#9CF989",
+    },
+    {
+      icon: CalendarCheck,
+      label: "Open matchdays",
+      value: String(
+        stats.openMatchdays
+      ),
+      color: "#60A5FA",
+    },
+    {
+      icon: CheckCircle2,
+      label: "Finished matches",
+      value: String(
+        stats.finishedMatches
+      ),
+      color: "#C9CFD8",
+    },
+  ]
 
   return (
-    <div>
-      <StatCard
-        title="Leader"
-
-        value={
-          stats.leader
-        }
+    <div className="page">
+      <PageHeader
+        title="Statistics"
+        subtitle="A compact overview of the competition."
       />
 
-      <StatCard
-        title="Players"
-
-        value={
-          stats.players
-        }
-      />
-
-      <StatCard
-        title="Open Matchdays"
-
-        value={
-          stats.openMatchdays
-        }
-      />
-
-      <StatCard
-        title="Finished Matches"
-
-        value={
-          stats.finishedMatches
-        }
-      />
+      <div
+        className="surface"
+        style={{
+          overflow: "hidden",
+        }}
+      >
+        {rows.map((row) => {
+          const Icon = row.icon
+          return (
+            <div
+              key={row.label}
+              className="compact-row"
+              style={{
+                minHeight: "58px",
+              }}
+            >
+              <div
+                style={{
+                  width: "34px",
+                  height: "34px",
+                  display: "grid",
+                  placeItems: "center",
+                  borderRadius:
+                    "11px",
+                  background:
+                    "rgba(255,255,255,0.045)",
+                }}
+              >
+                <Icon
+                  size={17}
+                  color={row.color}
+                />
+              </div>
+              <div
+                style={{
+                  flex: 1,
+                }}
+              >
+                <div
+                  style={{
+                    color:
+                      "#9CA3AF",
+                    fontSize: "10px",
+                  }}
+                >
+                  {row.label}
+                </div>
+                <div
+                  style={{
+                    marginTop: "2px",
+                    fontSize: "13px",
+                    fontWeight: 800,
+                  }}
+                >
+                  {row.value}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

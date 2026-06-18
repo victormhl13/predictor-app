@@ -30,24 +30,24 @@ function ScoreControl({
       style={{
         display: "grid",
         justifyItems: "center",
-        gap: "7px",
+        gap: "10px",
       }}
     >
       <div
         style={{
-          width: "52px",
-          height: "44px",
+          width: "60px",
+          height: "50px",
           display: "grid",
           placeItems: "center",
           border:
             "1px solid rgba(255,255,255,0.12)",
-          borderRadius: "13px",
+          borderRadius: "15px",
           background:
             "linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.025))",
           boxShadow:
             "inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 20px rgba(0,0,0,0.16)",
           color: "#FFFFFF",
-          fontSize: "20px",
+          fontSize: "22px",
           fontWeight: 800,
         }}
       >
@@ -57,7 +57,7 @@ function ScoreControl({
       <div
         style={{
           display: "flex",
-          gap: "6px",
+          gap: "10px",
         }}
       >
         <button
@@ -68,16 +68,16 @@ function ScoreControl({
           }
           disabled={score === 0}
           style={{
-            width: "30px",
-            height: "28px",
+            width: "42px",
+            height: "40px",
             padding: 0,
             border:
               "1px solid rgba(255,255,255,0.12)",
-            borderRadius: "9px",
+            borderRadius: "12px",
             background:
               "linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03))",
             color: "#FFFFFF",
-            fontSize: "18px",
+            fontSize: "22px",
             lineHeight: 1,
             cursor:
               score === 0
@@ -99,18 +99,18 @@ function ScoreControl({
             onChange(side, 1)
           }
           style={{
-            width: "30px",
-            height: "28px",
+            width: "42px",
+            height: "40px",
             padding: 0,
             border:
               "1px solid rgba(109,255,78,0.28)",
-            borderRadius: "9px",
+            borderRadius: "12px",
             background:
               "linear-gradient(145deg, rgba(109,255,78,0.20), rgba(109,255,78,0.06))",
             boxShadow:
               "inset 0 1px 0 rgba(255,255,255,0.10)",
             color: "#FFFFFF",
-            fontSize: "18px",
+            fontSize: "22px",
             lineHeight: 1,
             cursor: "pointer",
           }}
@@ -172,7 +172,7 @@ function FinalScoreForm({
       style={{
         width: "100%",
         margin: "12px auto 0",
-        padding: "10px 12px",
+        padding: "14px 12px 13px",
         background:
           "rgba(255,255,255,0.015)",
         border:
@@ -185,7 +185,7 @@ function FinalScoreForm({
           color: "#9CA3AF",
           fontSize: "11px",
           fontWeight: 700,
-          marginBottom: "7px",
+          marginBottom: "12px",
           textAlign: "center",
           textTransform: "uppercase",
           letterSpacing: "0.5px",
@@ -199,7 +199,7 @@ function FinalScoreForm({
           display: "flex",
           justifyContent: "center",
           alignItems: "start",
-          gap: "14px",
+          gap: "18px",
         }}
       >
         <ScoreControl
@@ -210,7 +210,7 @@ function FinalScoreForm({
 
         <div
           style={{
-            paddingTop: "8px",
+            paddingTop: "11px",
             color: "#9CA3AF",
             fontSize: "20px",
             fontWeight: 700,
@@ -232,9 +232,9 @@ function FinalScoreForm({
         style={{
           display: "block",
           minWidth: "92px",
-          height: "32px",
-          margin: "8px auto 0",
-          padding: "0 18px",
+          height: "38px",
+          margin: "13px auto 0",
+          padding: "0 22px",
           border:
             "1px solid rgba(109,255,78,0.34)",
           borderRadius: "999px",
@@ -246,7 +246,7 @@ function FinalScoreForm({
           backdropFilter: "blur(14px)",
           WebkitBackdropFilter:
             "blur(14px)",
-          fontSize: "12px",
+          fontSize: "13px",
           fontWeight: 800,
           cursor: "pointer",
         }}

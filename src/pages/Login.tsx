@@ -1,132 +1,164 @@
-import { useEffect, useState } from "react"
-
+import {
+  useEffect,
+  useState,
+} from "react"
 import { useNavigate } from "react-router-dom"
 
 import { supabase } from "../lib/supabase"
-
 import { useAuth } from "../context/AuthContext"
+import type { User } from "../types"
 
 function Login() {
   const navigate = useNavigate()
-
-  const { currentUser, setCurrentUser } = useAuth()
-
-  const [name, setName] = useState("")
-
-  const [pin, setPin] = useState("")
+  const {
+    currentUser,
+    setCurrentUser,
+  } = useAuth()
+  const [name, setName] =
+    useState("")
+  const [pin, setPin] =
+    useState("")
+  const [loading, setLoading] =
+    useState(false)
+  const [error, setError] =
+    useState("")
 
   useEffect(() => {
     if (currentUser) {
       navigate("/")
     }
-  }, [currentUser])
+  }, [currentUser, navigate])
 
   async function handleLogin() {
-    if (!name || !pin) {
-      alert("Please fill all fields")
+    if (!name.trim() || !pin) {
+      setError(
+        "Enter your name and PIN."
+      )
       return
     }
 
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("name", name)
-      .eq("pin", pin)
-      .single()
+    setLoading(true)
+    setError("")
 
-    if (error || !data) {
-      alert("Invalid name or PIN")
+    const { data, error: loginError } =
+      await supabase
+        .from("users")
+        .select("*")
+        .eq("name", name.trim())
+        .eq("pin", pin)
+        .eq("active", true)
+        .single()
+
+    if (loginError || !data) {
+      setLoading(false)
+      setError(
+        "Name or PIN is incorrect."
+      )
       return
     }
 
+    const user = data as User
     localStorage.setItem(
       "goalpredict_user",
-      JSON.stringify(data)
+      JSON.stringify(user)
     )
-
-    setCurrentUser(data)
-
+    setCurrentUser(user)
     navigate("/")
   }
 
   return (
     <div
       style={{
-        minHeight: "60vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+        minHeight: "58vh",
+        display: "grid",
+        alignContent: "center",
       }}
     >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "340px",
-          background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "24px",
-          padding: "24px",
-        }}
-      >
-        <input
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+      <div>
+        <div
           style={{
-            width: "100%",
-            height: "52px",
-            padding: "0 18px",
-            border: "1px solid rgba(255,255,255,0.10)",
-            borderRadius: "16px",
-            background: "rgba(255,255,255,0.05)",
-            color: "#FFFFFF",
-            fontSize: "16px",
-            outline: "none",
-            marginBottom: "16px",
-            boxSizing: "border-box",
-          }}
-        />
-
-        <input
-          type="password"
-          maxLength={4}
-          placeholder="4-digit PIN"
-          value={pin}
-          onChange={(e) => setPin(e.target.value)}
-          style={{
-            width: "100%",
-            height: "52px",
-            padding: "0 18px",
-            border: "1px solid rgba(255,255,255,0.10)",
-            borderRadius: "16px",
-            background: "rgba(255,255,255,0.05)",
-            color: "#FFFFFF",
-            fontSize: "16px",
-            outline: "none",
             marginBottom: "22px",
-            boxSizing: "border-box",
-          }}
-        />
-
-        <button
-          onClick={handleLogin}
-          style={{
-            width: "100%",
-            height: "50px",
-            border: "1px solid rgba(109,255,78,0.25)",
-            borderRadius: "999px",
-            background: "rgba(109,255,78,0.12)",
-            color: "#EFFFF5",
-            fontSize: "15px",
-            fontWeight: 700,
-            cursor: "pointer",
-            boxShadow: "0 6px 18px rgba(109,255,78,0.12)",
-            backdropFilter: "blur(18px)",
-            WebkitBackdropFilter: "blur(18px)",
-            transition: "all .2s ease",
+            textAlign: "center",
           }}
         >
-          Login
+          <h2 className="page-title">
+            Welcome back
+          </h2>
+          <p className="page-subtitle">
+            Sign in to submit your
+            predictions.
+          </p>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gap: "10px",
+          }}
+        >
+          <input
+            className="field"
+            placeholder="Name"
+            value={name}
+            autoComplete="username"
+            onChange={(event) =>
+              setName(
+                event.target.value
+              )
+            }
+          />
+          <input
+            className="field"
+            type="password"
+            inputMode="numeric"
+            maxLength={4}
+            placeholder="4-digit PIN"
+            value={pin}
+            autoComplete="current-password"
+            onChange={(event) =>
+              setPin(
+                event.target.value.replace(
+                  /\D/g,
+                  ""
+                )
+              )
+            }
+            onKeyDown={(event) => {
+              if (
+                event.key === "Enter"
+              ) {
+                handleLogin()
+              }
+            }}
+          />
+        </div>
+
+        {error && (
+          <div
+            style={{
+              marginTop: "10px",
+              color: "#FF8585",
+              fontSize: "11px",
+              textAlign: "center",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={handleLogin}
+          disabled={loading}
+          className="primary-button"
+          style={{
+            width: "100%",
+            marginTop: "14px",
+          }}
+        >
+          {loading
+            ? "Signing in..."
+            : "Sign in"}
         </button>
       </div>
     </div>

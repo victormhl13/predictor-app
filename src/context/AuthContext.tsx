@@ -4,8 +4,6 @@ import {
   useContext,
 
   useState,
-
-  useEffect,
 } from "react"
 
 import type { ReactNode } from "react"
@@ -33,20 +31,27 @@ export function AuthProvider({
   children: ReactNode
 }) {
   const [currentUser, setCurrentUser] =
-    useState<User | null>(null)
+    useState<User | null>(() => {
+      const savedUser =
+        localStorage.getItem(
+          "goalpredict_user"
+        )
 
-  useEffect(() => {
-    const savedUser =
-      localStorage.getItem(
-        "goalpredict_user"
-      )
+      if (!savedUser) {
+        return null
+      }
 
-    if (savedUser) {
-      setCurrentUser(
-        JSON.parse(savedUser)
-      )
-    }
-  }, [])
+      try {
+        return JSON.parse(
+          savedUser
+        ) as User
+      } catch {
+        localStorage.removeItem(
+          "goalpredict_user"
+        )
+        return null
+      }
+    })
 
   return (
     <AuthContext.Provider
@@ -61,6 +66,7 @@ export function AuthProvider({
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext)
 }

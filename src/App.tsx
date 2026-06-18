@@ -55,18 +55,18 @@ function App() {
 
             justifyContent: "center",
 
-            marginBottom: "50.5px",
+            marginBottom: "30px",
           }}
         >
           <h1
             style={{
-              fontSize: "20px",
+              fontSize: "17px",
 
               fontWeight: 900,
 
               margin: 0,
 
-              letterSpacing: "2.5px",
+              letterSpacing: "2.2px",
 
               textTransform: "uppercase",
 
@@ -81,9 +81,9 @@ function App() {
 
           <div
             style={{
-              fontSize: "33px",
+              fontSize: "25px",
 
-              marginTop: "6px",
+              marginTop: "4px",
 
               filter:
                 "drop-shadow(0 0 14px rgba(109,255,78,0.4))",

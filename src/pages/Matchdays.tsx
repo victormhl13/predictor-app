@@ -12,7 +12,8 @@ import {
 
 import { supabase } from "../lib/supabase"
 import { useAuth } from "../context/AuthContext"
-import CreateMatchdayForm from "../components/CreateMatchdayForm"
+import AddMatchdayFlow from "../components/AddMatchdayFlow"
+import PageHeader from "../components/PageHeader"
 import AddMatchForm from "../components/AddMatchForm"
 import FinalScoreForm from "../components/FinalScoreForm"
 import ImportMatchesForm from "../components/ImportMatchesForm"
@@ -58,6 +59,14 @@ function Matchdays() {
     scoreEditor,
     setScoreEditor,
   ] = useState<string | null>(null)
+  const [
+    matchFilter,
+    setMatchFilter,
+  ] = useState<
+    "all" | "upcoming" | "finished"
+  >("all")
+  const [notice, setNotice] =
+    useState("")
 
   useEffect(() => {
     loadMatchdays()
@@ -96,26 +105,6 @@ function Matchdays() {
     setMatches(
       (data || []) as Match[]
     )
-  }
-
-  async function addMatchday(
-    name: string
-  ) {
-    const { error } = await supabase
-      .from("matchdays")
-      .insert([
-        {
-          name,
-          is_open: true,
-        },
-      ])
-
-    if (error) {
-      console.error(error)
-      return
-    }
-
-    await loadMatchdays()
   }
 
   async function addMatch(
@@ -163,11 +152,23 @@ function Matchdays() {
 
     setScoreEditor(null)
     await loadMatches()
+    setNotice("Score saved.")
+    window.setTimeout(
+      () => setNotice(""),
+      2200
+    )
   }
 
   async function closeMatchday(
     matchdayId: string
   ) {
+    const confirmed =
+      window.confirm(
+        "Close this matchday? Predictions and results will remain visible."
+      )
+
+    if (!confirmed) return
+
     const { error } = await supabase
       .from("matchdays")
       .update({
@@ -213,19 +214,52 @@ function Matchdays() {
 
   return (
     <div>
-      {currentUser?.role ===
-        "admin" && (
-        <CreateMatchdayForm
-          onCreate={addMatchday}
-        />
-      )}
+      <PageHeader
+        title="Matchdays"
+        subtitle="Fixtures, results and matchday management"
+        action={
+          currentUser?.role ===
+          "admin" ? (
+            <AddMatchdayFlow
+              onCreated={async () => {
+                await loadMatchdays()
+                await loadMatches()
+              }}
+            />
+          ) : undefined
+        }
+      />
 
       {matchdays.map((matchday) => {
-        const matchdayMatches =
+        const allMatchdayMatches =
           matches.filter(
             (match) =>
               match.matchday_id ===
               matchday.id
+          )
+        const matchdayMatches =
+          allMatchdayMatches.filter(
+            (match) => {
+              const finished =
+                match.home_score !==
+                  null &&
+                match.away_score !==
+                  null
+
+              if (
+                matchFilter ===
+                "finished"
+              ) {
+                return finished
+              }
+              if (
+                matchFilter ===
+                "upcoming"
+              ) {
+                return !finished
+              }
+              return true
+            }
           )
         const expanded =
           expandedMatchdays[
@@ -276,7 +310,7 @@ function Matchdays() {
                     fontSize: "11px",
                   }}
                 >
-                  {matchdayMatches.length}{" "}
+                  {allMatchdayMatches.length}{" "}
                   matches
                 </div>
               </div>
@@ -486,10 +520,10 @@ function Matchdays() {
                             display:
                               "grid",
                             gridTemplateColumns:
-                              "minmax(0, 1fr) 64px minmax(0, 1fr)",
+                              "minmax(0, 1fr) 70px minmax(0, 1fr)",
                             alignItems:
                               "center",
-                            gap: "7px",
+                            gap: "5px",
                           }}
                         >
                           <div
@@ -513,13 +547,24 @@ function Matchdays() {
                             />
                             <span
                               style={{
+                                flex: 1,
                                 minWidth: 0,
                                 fontSize:
-                                  "12px",
+                                  "11px",
                                 fontWeight:
                                   700,
                                 lineHeight:
-                                  1.2,
+                                  1.25,
+                                overflow:
+                                  "hidden",
+                                overflowWrap:
+                                  "anywhere",
+                                display:
+                                  "-webkit-box",
+                                WebkitLineClamp:
+                                  2,
+                                WebkitBoxOrient:
+                                  "vertical",
                               }}
                             >
                               {
@@ -621,13 +666,24 @@ function Matchdays() {
                           >
                             <span
                               style={{
+                                flex: 1,
                                 minWidth: 0,
                                 fontSize:
-                                  "12px",
+                                  "11px",
                                 fontWeight:
                                   700,
                                 lineHeight:
-                                  1.2,
+                                  1.25,
+                                overflow:
+                                  "hidden",
+                                overflowWrap:
+                                  "anywhere",
+                                display:
+                                  "-webkit-box",
+                                WebkitLineClamp:
+                                  2,
+                                WebkitBoxOrient:
+                                  "vertical",
                               }}
                             >
                               {
@@ -751,6 +807,54 @@ function Matchdays() {
         )
       })}
 
+      {matchdays.length > 0 && (
+        <div
+          className="segmented"
+          style={{
+            position: "fixed",
+            zIndex: 20,
+            left: "50%",
+            bottom: "86px",
+            width:
+              "calc(100% - 112px)",
+            maxWidth: "318px",
+            transform:
+              "translateX(-50%)",
+            background:
+              "rgba(10,15,24,0.92)",
+            backdropFilter:
+              "blur(18px)",
+          }}
+        >
+          {(
+            [
+              "all",
+              "upcoming",
+              "finished",
+            ] as const
+          ).map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() =>
+                setMatchFilter(item)
+              }
+              className={`segment ${
+                matchFilter === item
+                  ? "segment-active"
+                  : ""
+              }`}
+              style={{
+                textTransform:
+                  "capitalize",
+              }}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      )}
+
       {importMatchday && (
         <div
           role="dialog"
@@ -843,6 +947,12 @@ function Matchdays() {
               }}
             />
           </div>
+        </div>
+      )}
+
+      {notice && (
+        <div className="toast">
+          {notice}
         </div>
       )}
     </div>

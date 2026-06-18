@@ -4,10 +4,8 @@ import {
 } from "react"
 import { useNavigate } from "react-router-dom"
 
-import { supabase } from "../lib/supabase"
+import { loginWithPin } from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
-import type { User } from "../types"
-
 function Login() {
   const navigate = useNavigate()
   const {
@@ -40,30 +38,33 @@ function Login() {
     setLoading(true)
     setError("")
 
-    const { data, error: loginError } =
-      await supabase
-        .from("users")
-        .select("*")
-        .eq("name", name.trim())
-        .eq("pin", pin)
-        .eq("active", true)
-        .single()
+    try {
+      const {
+        user,
+        token,
+      } = await loginWithPin(
+        name.trim(),
+        pin
+      )
 
-    if (loginError || !data) {
+      localStorage.setItem(
+        "goalpredict_user",
+        JSON.stringify(user)
+      )
+      localStorage.setItem(
+        "goalpredict_session",
+        token
+      )
+      setCurrentUser(user)
+      navigate("/")
+    } catch (loginError) {
       setLoading(false)
       setError(
-        "Name or PIN is incorrect."
+        loginError instanceof Error
+          ? loginError.message
+          : "Name or PIN is incorrect."
       )
-      return
     }
-
-    const user = data as User
-    localStorage.setItem(
-      "goalpredict_user",
-      JSON.stringify(user)
-    )
-    setCurrentUser(user)
-    navigate("/")
   }
 
   return (

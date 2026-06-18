@@ -8,7 +8,11 @@ import {
   UserRound,
 } from "lucide-react"
 
-import { supabase } from "../lib/supabase"
+import {
+  createUser,
+  listAdminUsers,
+  setUserActive,
+} from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
 import PageHeader from "../components/PageHeader"
 import type { User } from "../types"
@@ -29,13 +33,8 @@ function AdminPanel() {
     useState("")
 
   async function loadUsers() {
-    const { data } =
-      await supabase
-        .from("users")
-        .select("*")
-        .order("name")
     setUsers(
-      (data || []) as User[]
+      await listAdminUsers()
     )
   }
 
@@ -49,17 +48,13 @@ function AdminPanel() {
 
     let active = true
 
-    supabase
-      .from("users")
-      .select("*")
-      .order("name")
-      .then(({ data }) => {
+    listAdminUsers().then(
+      (data) => {
         if (active) {
-          setUsers(
-            (data || []) as User[]
-          )
+          setUsers(data)
         }
-      })
+      }
+    )
 
     return () => {
       active = false
@@ -77,19 +72,13 @@ function AdminPanel() {
       return
     }
 
-    const { error: addError } =
-      await supabase
-        .from("users")
-        .insert([
-          {
-            name: name.trim(),
-            pin,
-            role,
-            active: true,
-          },
-        ])
-
-    if (addError) {
+    try {
+      await createUser(
+        name.trim(),
+        pin,
+        role
+      )
+    } catch {
       setError(
         "Could not create user."
       )
@@ -116,12 +105,10 @@ function AdminPanel() {
       return
     }
 
-    await supabase
-      .from("users")
-      .update({
-        active: !user.active,
-      })
-      .eq("id", user.id)
+    await setUserActive(
+      user.id,
+      !user.active
+    )
     await loadUsers()
   }
 

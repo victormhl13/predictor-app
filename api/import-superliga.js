@@ -43,7 +43,7 @@ export default {
     const url = new URL(request.url)
     const season =
       url.searchParams.get("season") ||
-      "2025"
+      String(new Date().getFullYear())
     const round =
       url.searchParams.get("round") ||
       "Regular Season - 1"

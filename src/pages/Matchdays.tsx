@@ -6,11 +6,19 @@ import {
   ChevronDown,
   ChevronUp,
   Download,
+  RefreshCw,
   Settings2,
   X,
 } from "lucide-react"
 
 import { supabase } from "../lib/supabase"
+import {
+  addManualMatch,
+  deleteMatch,
+  setFinalScore,
+  setMatchdayOpen,
+  updateMatch,
+} from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
 import AddMatchdayFlow from "../components/AddMatchdayFlow"
 import PageHeader from "../components/PageHeader"
@@ -18,6 +26,8 @@ import AddMatchForm from "../components/AddMatchForm"
 import FinalScoreForm from "../components/FinalScoreForm"
 import ImportMatchesForm from "../components/ImportMatchesForm"
 import TeamBadge from "../components/TeamBadge"
+import SkeletonList from "../components/SkeletonList"
+import EditMatchForm from "../components/EditMatchForm"
 import type {
   Match,
   Matchday,
@@ -67,10 +77,22 @@ function Matchdays() {
   >("all")
   const [notice, setNotice] =
     useState("")
+  const [syncing, setSyncing] =
+    useState(false)
+  const [loading, setLoading] =
+    useState(true)
+  const [
+    matchDetailsEditor,
+    setMatchDetailsEditor,
+  ] = useState<string | null>(null)
 
   useEffect(() => {
-    loadMatchdays()
-    loadMatches()
+    Promise.all([
+      loadMatchdays(),
+      loadMatches(),
+    ]).finally(() =>
+      setLoading(false)
+    )
   }, [])
 
   async function loadMatchdays() {
@@ -113,18 +135,14 @@ function Matchdays() {
     awayTeam: string,
     kickoff: string
   ) {
-    const { error } = await supabase
-      .from("matches")
-      .insert([
-        {
-          matchday_id: matchdayId,
-          home_team: homeTeam,
-          away_team: awayTeam,
-          kickoff,
-        },
-      ])
-
-    if (error) {
+    try {
+      await addManualMatch(
+        matchdayId,
+        homeTeam,
+        awayTeam,
+        kickoff
+      )
+    } catch (error) {
       console.error(error)
       return
     }
@@ -137,15 +155,13 @@ function Matchdays() {
     homeScore: number,
     awayScore: number
   ) {
-    const { error } = await supabase
-      .from("matches")
-      .update({
-        home_score: homeScore,
-        away_score: awayScore,
-      })
-      .eq("id", matchId)
-
-    if (error) {
+    try {
+      await setFinalScore(
+        matchId,
+        homeScore,
+        awayScore
+      )
+    } catch (error) {
       console.error(error)
       return
     }
@@ -169,14 +185,12 @@ function Matchdays() {
 
     if (!confirmed) return
 
-    const { error } = await supabase
-      .from("matchdays")
-      .update({
-        is_open: false,
-      })
-      .eq("id", matchdayId)
-
-    if (error) {
+    try {
+      await setMatchdayOpen(
+        matchdayId,
+        false
+      )
+    } catch (error) {
       console.error(error)
       return
     }
@@ -184,6 +198,227 @@ function Matchdays() {
     setManagedMatchday(null)
     await loadMatchdays()
   }
+
+  async function reopenMatchday(
+    matchdayId: string
+  ) {
+    try {
+      await setMatchdayOpen(
+        matchdayId,
+        true
+      )
+      await loadMatchdays()
+      setNotice(
+        "Matchday reopened."
+      )
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async function removeMatch(
+    matchId: string
+  ) {
+    if (
+      !window.confirm(
+        "Delete this match and its predictions?"
+      )
+    ) {
+      return
+    }
+
+    try {
+      await deleteMatch(matchId)
+      await loadMatches()
+      setNotice("Match deleted.")
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async function saveMatchDetails(
+    matchId: string,
+    homeTeam: string,
+    awayTeam: string,
+    kickoff: string
+  ) {
+    try {
+      await updateMatch(
+        matchId,
+        homeTeam,
+        awayTeam,
+        kickoff
+      )
+      setMatchDetailsEditor(
+        null
+      )
+      await loadMatches()
+      setNotice(
+        "Match updated."
+      )
+    } catch (error) {
+      console.error(error)
+      setNotice(
+        "Could not update match."
+      )
+    }
+  }
+
+  async function syncResults(
+    silent = false
+  ) {
+    const apiMatches =
+      matches.filter(
+        (match) =>
+          match.api_fixture_id !==
+          null
+      )
+
+    if (apiMatches.length === 0) {
+      if (!silent) {
+        setNotice(
+          "No API matches to sync."
+        )
+      }
+      return
+    }
+
+    setSyncing(true)
+    try {
+      const params =
+        new URLSearchParams({
+          ids: apiMatches
+            .map(
+              (match) =>
+                match.api_fixture_id
+            )
+            .join(","),
+        })
+      const response = await fetch(
+        `/api/sync-results?${params.toString()}`
+      )
+      const data =
+        await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+            "Sync failed."
+        )
+      }
+
+      const finishedStatuses =
+        new Set([
+          "FT",
+          "AET",
+          "PEN",
+          "AWD",
+          "WO",
+        ])
+      const finished =
+        (data.fixtures || []).filter(
+          (fixture: {
+            status: string
+            homeScore:
+              | number
+              | null
+            awayScore:
+              | number
+              | null
+          }) =>
+            finishedStatuses.has(
+              fixture.status
+            ) &&
+            fixture.homeScore !==
+              null &&
+            fixture.awayScore !== null
+        )
+
+      await Promise.all(
+        finished.map(
+          (fixture: {
+            id: number
+            homeScore: number
+            awayScore: number
+          }) => {
+            const match =
+              apiMatches.find(
+                (item) =>
+                  item.api_fixture_id ===
+                  fixture.id
+              )
+            if (!match) return
+            return setFinalScore(
+              match.id,
+              fixture.homeScore,
+              fixture.awayScore
+            )
+          }
+        )
+      )
+
+      await loadMatches()
+      if (!silent) {
+        setNotice(
+          finished.length > 0
+            ? `${finished.length} result${
+                finished.length === 1
+                  ? ""
+                  : "s"
+              } synchronized.`
+            : "No new final results."
+        )
+      }
+    } catch (error) {
+      if (!silent) {
+        setNotice(
+          error instanceof Error
+            ? error.message
+            : "Could not sync results."
+        )
+      }
+    } finally {
+      setSyncing(false)
+      if (!silent) {
+        window.setTimeout(
+          () => setNotice(""),
+          2600
+        )
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (
+      currentUser?.role !==
+        "admin" ||
+      loading
+    ) {
+      return
+    }
+
+    const firstSync =
+      window.setTimeout(
+        () => syncResults(true),
+        1200
+      )
+    const interval =
+      window.setInterval(
+        () => syncResults(true),
+        5 * 60 * 1000
+      )
+
+    return () => {
+      window.clearTimeout(
+        firstSync
+      )
+      window.clearInterval(
+        interval
+      )
+    }
+    // Sync uses the latest loaded API fixtures for this page session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.role, loading])
 
   function toggleMatchday(
     id: string
@@ -220,17 +455,47 @@ function Matchdays() {
         action={
           currentUser?.role ===
           "admin" ? (
-            <AddMatchdayFlow
-              onCreated={async () => {
-                await loadMatchdays()
-                await loadMatches()
+            <div
+              style={{
+                display: "flex",
+                gap: "6px",
               }}
-            />
+            >
+              <button
+                type="button"
+                onClick={() =>
+                  syncResults(false)
+                }
+                disabled={syncing}
+                className="glass-button"
+                aria-label="Sync results"
+                style={{
+                  width: "40px",
+                  minHeight: "40px",
+                  padding: 0,
+                }}
+              >
+                <RefreshCw
+                  size={15}
+                />
+              </button>
+              <AddMatchdayFlow
+                onCreated={async () => {
+                  await loadMatchdays()
+                  await loadMatches()
+                }}
+              />
+            </div>
           ) : undefined
         }
       />
 
-      {matchdays.map((matchday) => {
+      {loading && (
+        <SkeletonList rows={4} />
+      )}
+
+      {!loading &&
+      matchdays.map((matchday) => {
         const allMatchdayMatches =
           matches.filter(
             (match) =>
@@ -340,8 +605,7 @@ function Matchdays() {
                 </span>
 
                 {currentUser?.role ===
-                  "admin" &&
-                  matchday.is_open && (
+                  "admin" && (
                     <button
                       type="button"
                       aria-label="Manage matchday"
@@ -419,6 +683,8 @@ function Matchdays() {
                     "1px solid rgba(255,255,255,0.07)",
                 }}
               >
+                {matchday.is_open ? (
+                  <>
                 <div
                   style={{
                     display: "grid",
@@ -483,6 +749,23 @@ function Matchdays() {
                   }
                   onCreate={addMatch}
                 />
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      reopenMatchday(
+                        matchday.id
+                      )
+                    }
+                    className="primary-button"
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    Reopen Matchday
+                  </button>
+                )}
               </div>
             )}
 
@@ -704,9 +987,11 @@ function Matchdays() {
 
                         {currentUser?.role ===
                           "admin" &&
-                          !finished && (
+                          (!finished ||
+                            isManaged) && (
                             <>
-                              {!editing && (
+                              {!editing &&
+                                !finished && (
                                 <button
                                   type="button"
                                   onClick={() =>
@@ -732,6 +1017,124 @@ function Matchdays() {
                                 >
                                   Set score
                                 </button>
+                              )}
+
+                              {!editing &&
+                                isManaged &&
+                                finished && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setScoreEditor(
+                                        match.id
+                                      )
+                                    }
+                                    className="glass-button"
+                                    style={{
+                                      display:
+                                        "block",
+                                      minHeight:
+                                        "28px",
+                                      margin:
+                                        "9px auto 0",
+                                      padding:
+                                        "0 13px",
+                                      color:
+                                        "#B8C0CC",
+                                      fontSize:
+                                        "10px",
+                                    }}
+                                  >
+                                    Edit score
+                                  </button>
+                                )}
+
+                              {!editing &&
+                                isManaged && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setMatchDetailsEditor(
+                                        match.id
+                                      )
+                                    }
+                                    style={{
+                                      display:
+                                        "block",
+                                      margin:
+                                        "7px auto 0",
+                                      padding:
+                                        "3px 8px",
+                                      border:
+                                        "none",
+                                      background:
+                                        "transparent",
+                                      color:
+                                        "#9CA3AF",
+                                      fontSize:
+                                        "9px",
+                                      fontWeight:
+                                        750,
+                                    }}
+                                  >
+                                    Edit match
+                                  </button>
+                                )}
+
+                              {!editing &&
+                                isManaged && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      removeMatch(
+                                        match.id
+                                      )
+                                    }
+                                    style={{
+                                      display:
+                                        "block",
+                                      margin:
+                                        "7px auto 0",
+                                      padding:
+                                        "3px 8px",
+                                      border:
+                                        "none",
+                                      background:
+                                        "transparent",
+                                      color:
+                                        "#FF8585",
+                                      fontSize:
+                                        "9px",
+                                      fontWeight:
+                                        750,
+                                    }}
+                                  >
+                                    Delete match
+                                  </button>
+                                )}
+
+                              {matchDetailsEditor ===
+                                match.id && (
+                                <EditMatchForm
+                                  match={match}
+                                  onCancel={() =>
+                                    setMatchDetailsEditor(
+                                      null
+                                    )
+                                  }
+                                  onSave={(
+                                    homeTeam,
+                                    awayTeam,
+                                    kickoff
+                                  ) =>
+                                    saveMatchDetails(
+                                      match.id,
+                                      homeTeam,
+                                      awayTeam,
+                                      kickoff
+                                    )
+                                  }
+                                />
                               )}
 
                               {editing && (

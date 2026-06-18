@@ -5,10 +5,16 @@ import {
 } from "react"
 
 import { supabase } from "../lib/supabase"
+import {
+  getMyPredictions,
+  saveMyPrediction,
+} from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
 import PageHeader from "../components/PageHeader"
 import ScoreStepper from "../components/ScoreStepper"
 import TeamBadge from "../components/TeamBadge"
+import Countdown from "../components/Countdown"
+import SkeletonList from "../components/SkeletonList"
 import type {
   Match,
   Prediction,
@@ -36,6 +42,8 @@ function MyPredictions() {
     useState(false)
   const [notice, setNotice] =
     useState("")
+  const [loading, setLoading] =
+    useState(true)
 
   useEffect(() => {
     async function load() {
@@ -52,23 +60,15 @@ function MyPredictions() {
 
       if (!currentUser) return
 
-      const {
-        data: predictionData,
-      } = await supabase
-        .from("predictions")
-        .select("*")
-        .eq(
-          "user_id",
-          currentUser.id
-        )
+      const predictionData =
+        await getMyPredictions()
 
       const loaded: Record<
         string,
         Draft
       > = {}
       ;(
-        (predictionData ||
-          []) as Prediction[]
+        predictionData as Prediction[]
       ).forEach((prediction) => {
         loaded[
           prediction.match_id
@@ -81,9 +81,12 @@ function MyPredictions() {
         }
       })
       setDrafts(loaded)
+      setLoading(false)
     }
 
-    load()
+    load().catch(() =>
+      setLoading(false)
+    )
   }, [currentUser])
 
   function isLocked(
@@ -145,46 +148,11 @@ function MyPredictions() {
 
     for (const match of changed) {
       const draft = drafts[match.id]
-      const {
-        data: existing,
-      } = await supabase
-        .from("predictions")
-        .select("id")
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .eq(
-          "match_id",
-          match.id
-        )
-        .maybeSingle()
-
-      if (existing) {
-        await supabase
-          .from("predictions")
-          .update({
-            home_prediction:
-              draft.home,
-            away_prediction:
-              draft.away,
-          })
-          .eq("id", existing.id)
-      } else {
-        await supabase
-          .from("predictions")
-          .insert([
-            {
-              user_id:
-                currentUser.id,
-              match_id: match.id,
-              home_prediction:
-                draft.home,
-              away_prediction:
-                draft.away,
-            },
-          ])
-      }
+      await saveMyPrediction(
+        match.id,
+        Number(draft.home),
+        Number(draft.away)
+      )
     }
 
     setDrafts((current) => {
@@ -277,7 +245,9 @@ function MyPredictions() {
         </button>
       </div>
 
-      {visibleMatches.length ===
+      {loading ? (
+        <SkeletonList rows={4} />
+      ) : visibleMatches.length ===
       0 ? (
         <div className="surface empty-state">
           No matches in this view.
@@ -365,6 +335,18 @@ function MyPredictions() {
                       {formatKickoff(
                         match.kickoff
                       )}
+                      <div
+                        style={{
+                          marginTop:
+                            "3px",
+                        }}
+                      >
+                        <Countdown
+                          kickoff={
+                            match.kickoff
+                          }
+                        />
+                      </div>
                     </div>
                     <div
                       style={{

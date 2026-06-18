@@ -36,8 +36,18 @@ export function AuthProvider({
         localStorage.getItem(
           "goalpredict_user"
         )
+      const sessionToken =
+        localStorage.getItem(
+          "goalpredict_session"
+        )
 
-      if (!savedUser) {
+      if (
+        !savedUser ||
+        !sessionToken
+      ) {
+        localStorage.removeItem(
+          "goalpredict_user"
+        )
         return null
       }
 

@@ -3,8 +3,6 @@ export type User = {
 
   name: string
 
-  pin: string
-
   role: string
 
   active: boolean

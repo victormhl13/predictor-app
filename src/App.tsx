@@ -24,16 +24,12 @@ function App() {
     <BrowserRouter>
       <div
         style={{
-          minHeight: "100vh",
+          height: "100dvh",
 
           color: "#FFFFFF",
 
           padding:
-            "14px 40px",
-
-          paddingTop: "20px",
-
-          paddingBottom: "100px",
+            "calc(14px + env(safe-area-inset-top)) 40px calc(78px + env(safe-area-inset-bottom))",
 
           fontFamily:
             "'Manrope', 'Inter', system-ui, sans-serif",
@@ -41,18 +37,18 @@ function App() {
           maxWidth: "430px",
 
           margin: "0 auto",
+
+          display: "flex",
+
+          flexDirection: "column",
+
+          overflow: "hidden",
         }}
       >
         {/* HEADER */}
 
         <div
           style={{
-            position: "sticky",
-
-            top: 0,
-
-            zIndex: 30,
-
             display: "flex",
 
             flexDirection: "column",
@@ -67,8 +63,7 @@ function App() {
 
             paddingBottom: "8px",
 
-            background:
-              "linear-gradient(180deg, rgba(5,8,15,0.74) 0%, rgba(5,8,15,0.28) 72%, transparent 100%)",
+            flex: "0 0 auto",
           }}
         >
           <h1
@@ -108,6 +103,19 @@ function App() {
 
         {/* AUTH GATE */}
 
+        <main
+          style={{
+            flex: "1 1 auto",
+            minHeight: 0,
+            overflowX: "hidden",
+            overflowY: "auto",
+            overscrollBehavior:
+              "none",
+            WebkitOverflowScrolling:
+              "touch",
+            paddingBottom: "12px",
+          }}
+        >
         {!currentUser ? (
           <Routes>
             <Route
@@ -157,6 +165,7 @@ function App() {
             <BottomNavigation />
           </>
         )}
+        </main>
       </div>
     </BrowserRouter>
   )

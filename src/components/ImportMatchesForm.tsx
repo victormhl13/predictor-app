@@ -1,6 +1,11 @@
-import { useState } from "react"
+import {
+  useEffect,
+  useState,
+} from "react"
 
-import { supabase } from "../lib/supabase"
+import {
+  importMatches as importMatchesSecure,
+} from "../lib/appApi"
 import TeamBadge from "./TeamBadge"
 
 type Props = {
@@ -23,6 +28,11 @@ type FixturesResponse = {
   error?: string
 }
 
+type Season = {
+  year: number
+  current: boolean
+}
+
 const fieldStyle = {
   width: "100%",
   height: "48px",
@@ -41,7 +51,13 @@ function ImportMatchesForm({
   onImported,
 }: Props) {
   const [season, setSeason] =
-    useState("2024")
+    useState(
+      String(
+        new Date().getFullYear()
+      )
+    )
+  const [seasons, setSeasons] =
+    useState<Season[]>([])
   const [matchday, setMatchday] =
     useState("1")
   const [fixtures, setFixtures] =
@@ -56,6 +72,53 @@ function ImportMatchesForm({
     useState("")
   const [error, setError] =
     useState("")
+
+  useEffect(() => {
+    fetch("/api/football-seasons")
+      .then((response) =>
+        response.json()
+      )
+      .then((data) => {
+        const currentYear =
+          new Date().getFullYear()
+        const loaded: Season[] =
+          data.seasons || []
+        const normalized = [
+          {
+            year: currentYear,
+            current: true,
+          },
+          ...loaded,
+        ].filter(
+          (item, index, items) =>
+            items.findIndex(
+              (candidate) =>
+                candidate.year ===
+                item.year
+            ) === index
+        )
+        setSeasons(normalized)
+        setSeason(
+          String(
+            normalized[0]?.year ||
+              currentYear
+          )
+        )
+      })
+      .catch(() => {
+        const currentYear =
+          new Date().getFullYear()
+        setSeasons([
+          {
+            year: currentYear,
+            current: true,
+          },
+        ])
+        setSeason(
+          String(currentYear)
+        )
+      })
+  }, [])
 
   async function loadMatches() {
     setLoading(true)
@@ -137,57 +200,9 @@ function ImportMatchesForm({
     setMessage("")
 
     try {
-      const fixtureIds =
+      const matchesToImport =
         selectedFixtures.map(
-          (fixture) => fixture.id
-        )
-
-      const {
-        data: existingMatches,
-        error: existingError,
-      } = await supabase
-        .from("matches")
-        .select(
-          "id, api_fixture_id"
-        )
-        .in(
-          "api_fixture_id",
-          fixtureIds
-        )
-
-      if (existingError) {
-        throw existingError
-      }
-
-      const existingIds = new Set(
-        (
-          existingMatches as {
-            id: string
-            api_fixture_id:
-              | number
-              | null
-          }[]
-        )
-          .map(
-            (match) =>
-              match.api_fixture_id
-          )
-          .filter(
-            (id): id is number =>
-              id !== null
-          )
-      )
-
-      const matchesToInsert =
-        selectedFixtures
-          .filter(
-            (fixture) =>
-              !existingIds.has(
-                fixture.id
-              )
-          )
-          .map((fixture) => ({
-            matchday_id: matchdayId,
+          (fixture) => ({
             home_team:
               fixture.homeTeam,
             away_team:
@@ -200,80 +215,20 @@ function ImportMatchesForm({
               fixture.homeLogo || null,
             away_team_logo:
               fixture.awayLogo || null,
-          }))
-
-      const fixturesToUpdate =
-        selectedFixtures.filter(
-          (fixture) =>
-            existingIds.has(fixture.id)
+          })
         )
 
-      if (
-        fixturesToUpdate.length > 0
-      ) {
-        const updateResults =
-          await Promise.all(
-            fixturesToUpdate.map(
-              (fixture) =>
-                supabase
-                  .from("matches")
-                  .update({
-                    home_team_logo:
-                      fixture.homeLogo ||
-                      null,
-                    away_team_logo:
-                      fixture.awayLogo ||
-                      null,
-                  })
-                  .eq(
-                    "api_fixture_id",
-                    fixture.id
-                  )
-            )
-          )
-
-        const updateError =
-          updateResults.find(
-            (result) =>
-              result.error
-          )?.error
-
-        if (updateError) {
-          throw updateError
-        }
-      }
-
-      if (matchesToInsert.length === 0) {
-        setMessage(
-          "Existing matches and team logos were updated."
-        )
-        await onImported?.()
-        return
-      }
-
-      const { error: insertError } =
-        await supabase
-          .from("matches")
-          .insert(matchesToInsert)
-
-      if (insertError) {
-        throw insertError
-      }
-
-      const skippedCount =
-        selectedFixtures.length -
-        matchesToInsert.length
+      await importMatchesSecure(
+        matchdayId,
+        matchesToImport
+      )
 
       setMessage(
-        `${matchesToInsert.length} match${
-          matchesToInsert.length === 1
+        `${selectedFixtures.length} match${
+          selectedFixtures.length === 1
             ? ""
             : "es"
-        } imported${
-          skippedCount > 0
-            ? `, ${skippedCount} already existed`
-            : ""
-        }.`
+        } imported or updated.`
       )
 
       setFixtures([])
@@ -361,9 +316,27 @@ function ImportMatchesForm({
               background: "#1C1C1C",
             }}
           >
-            <option value="2024">
-              2024
-            </option>
+            {(seasons.length > 0
+              ? seasons
+              : [
+                  {
+                    year: Number(
+                      season
+                    ),
+                    current: true,
+                  },
+                ]
+            ).map((item) => (
+              <option
+                key={item.year}
+                value={item.year}
+              >
+                {item.year}
+                {item.current
+                  ? " · Current"
+                  : ""}
+              </option>
+            ))}
           </select>
         </label>
 

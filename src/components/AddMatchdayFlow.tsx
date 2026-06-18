@@ -1,7 +1,10 @@
-import { useState } from "react"
+import {
+  useEffect,
+  useState,
+} from "react"
 import { Plus, X } from "lucide-react"
 
-import { supabase } from "../lib/supabase"
+import { createMatchdayWithMatches } from "../lib/appApi"
 import TeamBadge from "./TeamBadge"
 
 type Fixture = {
@@ -18,11 +21,24 @@ type Props = {
     void | Promise<void>
 }
 
+type Season = {
+  year: number
+  current: boolean
+}
+
 function AddMatchdayFlow({
   onCreated,
 }: Props) {
   const [open, setOpen] =
     useState(false)
+  const [season, setSeason] =
+    useState(
+      String(
+        new Date().getFullYear()
+      )
+    )
+  const [seasons, setSeasons] =
+    useState<Season[]>([])
   const [matchday, setMatchday] =
     useState("1")
   const [fixtures, setFixtures] =
@@ -35,6 +51,68 @@ function AddMatchdayFlow({
     useState(false)
   const [error, setError] =
     useState("")
+
+  useEffect(() => {
+    if (!open) return
+
+    fetch("/api/football-seasons")
+      .then((response) =>
+        response.json()
+      )
+      .then((data) => {
+        const loaded: Season[] =
+          data.seasons || []
+        const currentYear =
+          new Date().getFullYear()
+        const normalized = [
+          {
+            year: currentYear,
+            current: true,
+          },
+          ...loaded,
+        ].filter(
+          (item, index, items) =>
+            items.findIndex(
+              (candidate) =>
+                candidate.year ===
+                item.year
+            ) === index
+        )
+        setSeasons(normalized)
+        const current =
+          normalized.find(
+            (item: Season) =>
+              item.year ===
+              currentYear
+          )
+        if (current) {
+          setSeason(
+            String(current.year)
+          )
+        } else if (
+          normalized.length > 0
+        ) {
+          setSeason(
+            String(
+              normalized[0].year
+            )
+          )
+        }
+      })
+      .catch(() => {
+        const currentYear =
+          new Date().getFullYear()
+        setSeasons([
+          {
+            year: currentYear,
+            current: true,
+          },
+        ])
+        setSeason(
+          String(currentYear)
+        )
+      })
+  }, [open])
 
   function close() {
     if (saving) return
@@ -53,7 +131,7 @@ function AddMatchdayFlow({
     try {
       const params =
         new URLSearchParams({
-          season: "2024",
+          season,
           round:
             `Regular Season - ${matchday}`,
         })
@@ -110,84 +188,9 @@ function AddMatchdayFlow({
     setError("")
 
     try {
-      const name =
-        `Matchday ${matchday}`
-      const {
-        data: existingMatchday,
-      } = await supabase
-        .from("matchdays")
-        .select("id")
-        .eq("name", name)
-        .maybeSingle()
-
-      let matchdayId =
-        existingMatchday?.id
-
-      if (!matchdayId) {
-        const {
-          data: created,
-          error: createError,
-        } = await supabase
-          .from("matchdays")
-          .insert([
-            {
-              name,
-              is_open: true,
-            },
-          ])
-          .select("id")
-          .single()
-
-        if (
-          createError ||
-          !created
-        ) {
-          throw createError
-        }
-
-        matchdayId = created.id
-      }
-
-      const fixtureIds =
-        chosen.map(
-          (fixture) => fixture.id
-        )
-      const {
-        data: existingMatches,
-        error: existingError,
-      } = await supabase
-        .from("matches")
-        .select("api_fixture_id")
-        .in(
-          "api_fixture_id",
-          fixtureIds
-        )
-
-      if (existingError) {
-        throw existingError
-      }
-
-      const existingIds = new Set(
-        (existingMatches || [])
-          .map(
-            (match) =>
-              match.api_fixture_id
-          )
-          .filter(
-            (id): id is number =>
-              id !== null
-          )
-      )
-
-      const toInsert = chosen
-        .filter(
-          (fixture) =>
-            !existingIds.has(
-              fixture.id
-            )
-        )
-        .map((fixture) => ({
-          matchday_id: matchdayId,
+      await createMatchdayWithMatches(
+        `${season} · Matchday ${matchday}`,
+        chosen.map((fixture) => ({
           home_team:
             fixture.homeTeam,
           away_team:
@@ -201,17 +204,7 @@ function AddMatchdayFlow({
           away_team_logo:
             fixture.awayLogo || null,
         }))
-
-      if (toInsert.length > 0) {
-        const { error: insertError } =
-          await supabase
-            .from("matches")
-            .insert(toInsert)
-
-        if (insertError) {
-          throw insertError
-        }
-      }
+      )
 
       await onCreated()
       close()
@@ -219,6 +212,25 @@ function AddMatchdayFlow({
       console.error(saveError)
       setError(
         "Could not create the matchday."
+      )
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function createEmptyMatchday() {
+    setSaving(true)
+    setError("")
+    try {
+      await createMatchdayWithMatches(
+        `${season} · Matchday ${matchday}`,
+        []
+      )
+      await onCreated()
+      close()
+    } catch {
+      setError(
+        "Could not create an empty matchday."
       )
     } finally {
       setSaving(false)
@@ -316,8 +328,56 @@ function AddMatchdayFlow({
               </button>
             </div>
 
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "1fr 1fr",
+                gap: "9px",
+              }}
+            >
             <label className="section-label">
-              SuperLiga 2024
+              Season
+              <select
+                className="field"
+                value={season}
+                onChange={(event) => {
+                  setSeason(
+                    event.target.value
+                  )
+                  setFixtures([])
+                  setSelected([])
+                }}
+                style={{
+                  marginTop: "7px",
+                }}
+              >
+                {(seasons.length > 0
+                  ? seasons
+                  : [
+                      {
+                        year: Number(
+                          season
+                        ),
+                        current: true,
+                      },
+                    ]
+                ).map((item) => (
+                  <option
+                    key={item.year}
+                    value={item.year}
+                  >
+                    {item.year}
+                    {item.current
+                      ? " · Current"
+                      : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="section-label">
+              Matchday
               <select
                 className="field"
                 value={matchday}
@@ -346,6 +406,7 @@ function AddMatchdayFlow({
                 ))}
               </select>
             </label>
+            </div>
 
             <button
               type="button"
@@ -451,6 +512,23 @@ function AddMatchdayFlow({
               >
                 {error}
               </div>
+            )}
+
+            {error && (
+              <button
+                type="button"
+                onClick={
+                  createEmptyMatchday
+                }
+                disabled={saving}
+                className="glass-button"
+                style={{
+                  width: "100%",
+                  marginTop: "10px",
+                }}
+              >
+                Create empty Matchday
+              </button>
             )}
 
             {fixtures.length > 0 && (

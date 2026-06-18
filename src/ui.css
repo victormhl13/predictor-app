@@ -4,13 +4,11 @@
 }
 
 .page-header {
-  display: grid;
-  justify-items: center;
-  gap: 10px;
-  min-height: 52px;
-  margin-top: -12px;
-  margin-bottom: 6px;
-  text-align: center;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 2px;
 }
 
 .page-header > div {
@@ -18,8 +16,15 @@
 }
 
 .page-header > :last-child:not(:first-child) {
-  position: static;
-  margin: 0 auto;
+  flex: 0 0 auto;
+}
+
+.page-title {
+  margin: 0;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 850;
+  letter-spacing: -0.35px;
 }
 
 .page-subtitle {
@@ -172,4 +177,13 @@ select.field {
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
   font-size: 11px;
   font-weight: 750;
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }

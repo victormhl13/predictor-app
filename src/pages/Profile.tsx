@@ -10,6 +10,10 @@ import {
 import { useNavigate } from "react-router-dom"
 
 import { supabase } from "../lib/supabase"
+import {
+  getMyPredictions,
+  logoutSession,
+} from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
 import PageHeader from "../components/PageHeader"
 import type {
@@ -38,13 +42,9 @@ function Profile() {
         predictionsResult,
         matchesResult,
       ] = await Promise.all([
-        supabase
-          .from("predictions")
-          .select("*")
-          .eq(
-            "user_id",
-            currentUser.id
-          ),
+        getMyPredictions().then(
+          (data) => ({ data })
+        ),
         supabase
           .from("matches")
           .select("*"),
@@ -105,9 +105,13 @@ function Profile() {
     load()
   }, [currentUser])
 
-  function logout() {
+  async function logout() {
+    await logoutSession()
     localStorage.removeItem(
       "goalpredict_user"
+    )
+    localStorage.removeItem(
+      "goalpredict_session"
     )
     setCurrentUser(null)
     navigate("/")

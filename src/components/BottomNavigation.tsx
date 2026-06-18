@@ -38,7 +38,8 @@ function BottomNavigation() {
     <div
       style={{
         position: "fixed",
-        bottom: "14px",
+        bottom:
+          "calc(14px + env(safe-area-inset-bottom))",
         left: "50%",
         transform: "translateX(-50%)",
         width: "calc(100% - 36px)",

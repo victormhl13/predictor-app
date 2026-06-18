@@ -10,6 +10,10 @@ import {
 } from "lucide-react"
 
 import { supabase } from "../lib/supabase"
+import {
+  getFinishedPredictions,
+  listPublicUsers,
+} from "../lib/appApi"
 import { calculateLeaderboard } from "../utils/calculateLeaderboard"
 import PageHeader from "../components/PageHeader"
 import type {
@@ -43,19 +47,18 @@ function Statistics() {
         matchesResult,
         predictionsResult,
       ] = await Promise.all([
-        supabase
-          .from("users")
-          .select("*")
-          .eq("active", true),
+        listPublicUsers().then(
+          (data) => ({ data })
+        ),
         supabase
           .from("matchdays")
           .select("*"),
         supabase
           .from("matches")
           .select("*"),
-        supabase
-          .from("predictions")
-          .select("*"),
+        getFinishedPredictions().then(
+          (data) => ({ data })
+        ),
       ])
 
       const users =

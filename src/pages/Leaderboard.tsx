@@ -5,6 +5,10 @@ import {
 import { Crown } from "lucide-react"
 
 import { supabase } from "../lib/supabase"
+import {
+  getFinishedPredictions,
+  listPublicUsers,
+} from "../lib/appApi"
 import { calculateLeaderboard } from "../utils/calculateLeaderboard"
 import PageHeader from "../components/PageHeader"
 import type {
@@ -28,13 +32,12 @@ function Leaderboard() {
         predictionsResult,
         matchesResult,
       ] = await Promise.all([
-        supabase
-          .from("users")
-          .select("*")
-          .eq("active", true),
-        supabase
-          .from("predictions")
-          .select("*"),
+        listPublicUsers().then(
+          (data) => ({ data })
+        ),
+        getFinishedPredictions().then(
+          (data) => ({ data })
+        ),
         supabase
           .from("matches")
           .select("*"),

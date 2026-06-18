@@ -11,6 +11,11 @@ import {
 } from "lucide-react"
 
 import { supabase } from "../lib/supabase"
+import {
+  getMyPredictions,
+  getFinishedPredictions,
+  listPublicUsers,
+} from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
 import PageHeader from "../components/PageHeader"
 import TeamBadge from "../components/TeamBadge"
@@ -62,22 +67,20 @@ function Dashboard() {
           .limit(1)
           .maybeSingle(),
         currentUser
-          ? supabase
-              .from("predictions")
-              .select("id")
-              .eq(
-                "user_id",
-                currentUser.id
-              )
+          ? getMyPredictions().then(
+              (data) => ({
+                data,
+              })
+            )
           : Promise.resolve({
               data: [],
             }),
-        supabase
-          .from("users")
-          .select("*"),
-        supabase
-          .from("predictions")
-          .select("*"),
+        listPublicUsers().then(
+          (data) => ({ data })
+        ),
+        getFinishedPredictions().then(
+          (data) => ({ data })
+        ),
         supabase
           .from("matches")
           .select("*"),

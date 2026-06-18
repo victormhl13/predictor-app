@@ -29,7 +29,7 @@ function App() {
           color: "#FFFFFF",
 
           padding:
-            "14px 36px",
+            "14px 40px",
 
           paddingTop: "20px",
 

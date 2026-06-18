@@ -39,8 +39,8 @@ function ImportMatchesForm({
 }: Props) {
   const [season, setSeason] =
     useState("2024")
-  const [round, setRound] =
-    useState("Regular Season - 1")
+  const [matchday, setMatchday] =
+    useState("1")
   const [fixtures, setFixtures] =
     useState<ApiFixture[]>([])
   const [selectedIds, setSelectedIds] =
@@ -65,7 +65,8 @@ function ImportMatchesForm({
       const params =
         new URLSearchParams({
           season,
-          round: round.trim(),
+          round:
+            `Regular Season - ${matchday}`,
         })
 
       const response = await fetch(
@@ -85,11 +86,7 @@ function ImportMatchesForm({
         data.fixtures || []
 
       setFixtures(loadedFixtures)
-      setSelectedIds(
-        loadedFixtures.map(
-          (fixture) => fixture.id
-        )
-      )
+      setSelectedIds([])
 
       if (loadedFixtures.length === 0) {
         setMessage(
@@ -287,7 +284,7 @@ function ImportMatchesForm({
         style={{
           display: "grid",
           gridTemplateColumns:
-            "110px minmax(0, 1fr)",
+            "1fr 1fr",
           gap: "10px",
           marginBottom: "18px",
         }}
@@ -315,9 +312,6 @@ function ImportMatchesForm({
             <option value="2024">
               2024
             </option>
-            <option value="2026">
-              2026
-            </option>
           </select>
         </label>
 
@@ -327,19 +321,33 @@ function ImportMatchesForm({
             fontSize: "12px",
           }}
         >
-          Round
-          <input
-            value={round}
+          Matchday
+          <select
+            value={matchday}
             onChange={(event) =>
-              setRound(
+              setMatchday(
                 event.target.value
               )
             }
             style={{
               ...fieldStyle,
               marginTop: "6px",
+              background: "#1C1C1C",
             }}
-          />
+          >
+            {Array.from(
+              { length: 30 },
+              (_, index) =>
+                index + 1
+            ).map((number) => (
+              <option
+                key={number}
+                value={number}
+              >
+                Matchday {number}
+              </option>
+            ))}
+          </select>
         </label>
       </div>
 

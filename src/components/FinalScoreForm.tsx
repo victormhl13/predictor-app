@@ -170,17 +170,14 @@ function FinalScoreForm({
   return (
     <div
       style={{
-        width: "fit-content",
-        minWidth: "210px",
+        width: "100%",
         margin: "12px auto 0",
-        padding: "12px 14px",
+        padding: "10px 12px",
         background:
-          "linear-gradient(145deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025))",
+          "rgba(255,255,255,0.05)",
         border:
-          "1px solid rgba(255,255,255,0.10)",
+          "1px solid rgba(255,255,255,0.08)",
         borderRadius: "16px",
-        boxShadow:
-          "inset 0 1px 0 rgba(255,255,255,0.07), 0 12px 28px rgba(0,0,0,0.16)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter:
           "blur(16px)",
@@ -191,7 +188,7 @@ function FinalScoreForm({
           color: "#9CA3AF",
           fontSize: "11px",
           fontWeight: 700,
-          marginBottom: "10px",
+          marginBottom: "7px",
           textAlign: "center",
           textTransform: "uppercase",
           letterSpacing: "0.5px",
@@ -205,7 +202,7 @@ function FinalScoreForm({
           display: "flex",
           justifyContent: "center",
           alignItems: "start",
-          gap: "12px",
+          gap: "14px",
         }}
       >
         <ScoreControl
@@ -238,8 +235,8 @@ function FinalScoreForm({
         style={{
           display: "block",
           minWidth: "92px",
-          height: "34px",
-          margin: "11px auto 0",
+          height: "32px",
+          margin: "8px auto 0",
           padding: "0 18px",
           border:
             "1px solid rgba(109,255,78,0.34)",

@@ -3,6 +3,8 @@ export type ApiFixture = {
   kickoff: string
   homeTeam: string
   awayTeam: string
+  homeLogo?: string | null
+  awayLogo?: string | null
 }
 
 type FixturesResponse = {

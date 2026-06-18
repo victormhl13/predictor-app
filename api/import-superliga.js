@@ -120,6 +120,8 @@ export default {
           kickoff: item.fixture?.date,
           homeTeam: item.teams?.home?.name,
           awayTeam: item.teams?.away?.name,
+          homeLogo: item.teams?.home?.logo,
+          awayLogo: item.teams?.away?.logo,
         }))
         .filter(
           (fixture) =>

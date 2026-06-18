@@ -34,6 +34,10 @@ export type Match = {
   away_score: number | null
 
   api_fixture_id: number | null
+
+  home_team_logo?: string | null
+
+  away_team_logo?: string | null
 }
 
 export type Prediction = {

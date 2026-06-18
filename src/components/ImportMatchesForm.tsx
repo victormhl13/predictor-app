@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import { supabase } from "../lib/supabase"
+import TeamBadge from "./TeamBadge"
 
 type Props = {
   matchdayId: string
@@ -13,6 +14,8 @@ type ApiFixture = {
   kickoff: string
   homeTeam: string
   awayTeam: string
+  homeLogo?: string | null
+  awayLogo?: string | null
 }
 
 type FixturesResponse = {
@@ -144,7 +147,9 @@ function ImportMatchesForm({
         error: existingError,
       } = await supabase
         .from("matches")
-        .select("api_fixture_id")
+        .select(
+          "id, api_fixture_id"
+        )
         .in(
           "api_fixture_id",
           fixtureIds
@@ -157,6 +162,7 @@ function ImportMatchesForm({
       const existingIds = new Set(
         (
           existingMatches as {
+            id: string
             api_fixture_id:
               | number
               | null
@@ -190,12 +196,58 @@ function ImportMatchesForm({
               fixture.kickoff,
             api_fixture_id:
               fixture.id,
+            home_team_logo:
+              fixture.homeLogo || null,
+            away_team_logo:
+              fixture.awayLogo || null,
           }))
+
+      const fixturesToUpdate =
+        selectedFixtures.filter(
+          (fixture) =>
+            existingIds.has(fixture.id)
+        )
+
+      if (
+        fixturesToUpdate.length > 0
+      ) {
+        const updateResults =
+          await Promise.all(
+            fixturesToUpdate.map(
+              (fixture) =>
+                supabase
+                  .from("matches")
+                  .update({
+                    home_team_logo:
+                      fixture.homeLogo ||
+                      null,
+                    away_team_logo:
+                      fixture.awayLogo ||
+                      null,
+                  })
+                  .eq(
+                    "api_fixture_id",
+                    fixture.id
+                  )
+            )
+          )
+
+        const updateError =
+          updateResults.find(
+            (result) =>
+              result.error
+          )?.error
+
+        if (updateError) {
+          throw updateError
+        }
+      }
 
       if (matchesToInsert.length === 0) {
         setMessage(
-          "The selected matches were already imported."
+          "Existing matches and team logos were updated."
         )
+        await onImported?.()
         return
       }
 
@@ -397,7 +449,7 @@ function ImportMatchesForm({
               style={{
                 display: "grid",
                 gridTemplateColumns:
-                  "22px minmax(0, 1fr)",
+                  "22px 30px minmax(0, 1fr) 30px",
                 gap: "10px",
                 alignItems: "center",
                 padding: "11px 12px",
@@ -427,6 +479,12 @@ function ImportMatchesForm({
                 }}
               />
 
+              <TeamBadge
+                name={fixture.homeTeam}
+                logo={fixture.homeLogo}
+                size={30}
+              />
+
               <span
                 style={{
                   minWidth: 0,
@@ -445,6 +503,12 @@ function ImportMatchesForm({
                 </span>
                 {fixture.awayTeam}
               </span>
+
+              <TeamBadge
+                name={fixture.awayTeam}
+                logo={fixture.awayLogo}
+                size={30}
+              />
             </label>
           ))}
 

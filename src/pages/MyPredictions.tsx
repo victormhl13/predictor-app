@@ -57,6 +57,12 @@ function MyPredictions() {
     useState<Set<string>>(
       () => new Set()
     )
+  const [
+    editingIds,
+    setEditingIds,
+  ] = useState<Set<string>>(
+    () => new Set()
+  )
 
   useEffect(() => {
     if (!currentUser) return
@@ -271,6 +277,15 @@ function MyPredictions() {
       return next
     })
     setDirtyIds((current) => {
+      const next = new Set(
+        current
+      )
+      changed.forEach((match) =>
+        next.delete(match.id)
+      )
+      return next
+    })
+    setEditingIds((current) => {
       const next = new Set(
         current
       )
@@ -525,6 +540,10 @@ function MyPredictions() {
               const missing =
                 !locked &&
                 !draft?.saved
+              const isEditing =
+                editingIds.has(
+                  match.id
+                )
 
               return (
                 <div
@@ -691,6 +710,41 @@ function MyPredictions() {
                           ? `${draft.home} – ${draft.away}`
                           : "No prediction"}
                       </div>
+                    ) : draft?.saved &&
+                      !isEditing ? (
+                      <div className="saved-prediction-summary">
+                        <div>
+                          <span>
+                            Your prediction
+                          </span>
+                          <strong>
+                            {draft.home} –{" "}
+                            {draft.away}
+                          </strong>
+                        </div>
+                        <button
+                          type="button"
+                          className="glass-button"
+                          onClick={() =>
+                            setEditingIds(
+                              (
+                                current
+                              ) => {
+                                const next =
+                                  new Set(
+                                    current
+                                  )
+                                next.add(
+                                  match.id
+                                )
+                                return next
+                              }
+                            )
+                          }
+                        >
+                          Edit
+                        </button>
+                      </div>
                     ) : (
                       <>
                       <ScorePairControl
@@ -757,7 +811,8 @@ function MyPredictions() {
                   </div>
 
                   {!locked &&
-                    draft?.saved && (
+                    draft?.saved &&
+                    !isEditing && (
                       <div
                         style={{
                           marginTop:

@@ -67,64 +67,31 @@ function AddMatchForm({
   return (
     <div
       style={{
-        marginTop: "16px",
-
-        marginBottom:
-          "20px",
+        marginTop: "12px",
+        marginBottom: "14px",
       }}
     >
       {!isOpen ? (
         <button
+          type="button"
           onClick={() =>
             setIsOpen(true)
           }
-
-          style={{
-            width: "100%",
-
-            height: "48px",
-
-            border: "none",
-
-            borderRadius:
-              "16px",
-
-            background:
-              "rgba(255,255,255,0.06)",
-
-            color:
-              "#FFFFFF",
-
-            fontSize:
-              "15px",
-
-            fontWeight:
-              600,
-          }}
+          className="glass-button"
+          style={{ width: "100%" }}
         >
           + Add Match
         </button>
       ) : (
         <div
+          className="surface-soft"
           style={{
-            background:
-              "rgba(255,255,255,0.05)",
-
-            border:
-              "1px solid rgba(255,255,255,0.08)",
-
-            borderRadius:
-              "20px",
-
-            padding:
-              "18px",
+            padding: "13px",
           }}
         >
           <input
             placeholder="Home team"
-
             value={homeTeam}
-
             onChange={(
               e
             ) =>
@@ -132,42 +99,13 @@ function AddMatchForm({
                 e.target.value
               )
             }
-
-            style={{
-              width:
-                "100%",
-
-              height:
-                "48px",
-
-              padding:
-                "0 16px",
-
-              border:
-                "1px solid rgba(255,255,255,0.10)",
-
-              borderRadius:
-                "14px",
-
-              background:
-                "rgba(255,255,255,0.05)",
-
-              color:
-                "#FFFFFF",
-
-              marginBottom:
-                "12px",
-
-              outline:
-                "none",
-            }}
+            className="field"
+            style={{ marginBottom: "9px" }}
           />
 
           <input
             placeholder="Away team"
-
             value={awayTeam}
-
             onChange={(
               e
             ) =>
@@ -175,42 +113,13 @@ function AddMatchForm({
                 e.target.value
               )
             }
-
-            style={{
-              width:
-                "100%",
-
-              height:
-                "48px",
-
-              padding:
-                "0 16px",
-
-              border:
-                "1px solid rgba(255,255,255,0.10)",
-
-              borderRadius:
-                "14px",
-
-              background:
-                "rgba(255,255,255,0.05)",
-
-              color:
-                "#FFFFFF",
-
-              marginBottom:
-                "12px",
-
-              outline:
-                "none",
-            }}
+            className="field"
+            style={{ marginBottom: "9px" }}
           />
 
           <input
             type="datetime-local"
-
             value={kickoff}
-
             onChange={(
               e
             ) =>
@@ -218,35 +127,8 @@ function AddMatchForm({
                 e.target.value
               )
             }
-
-            style={{
-              width:
-                "100%",
-
-              height:
-                "48px",
-
-              padding:
-                "0 16px",
-
-              border:
-                "1px solid rgba(255,255,255,0.10)",
-
-              borderRadius:
-                "14px",
-
-              background:
-                "rgba(255,255,255,0.05)",
-
-              color:
-                "#FFFFFF",
-
-              marginBottom:
-                "16px",
-
-              outline:
-                "none",
-            }}
+            className="field"
+            style={{ marginBottom: "11px" }}
           />
 
           <div
@@ -254,64 +136,29 @@ function AddMatchForm({
               display:
                 "flex",
 
-              gap: "12px",
+              gap: "8px",
             }}
           >
             <button
+              type="button"
               onClick={
                 handleSubmit
               }
-
-              style={{
-                flex: 1,
-
-                height:
-                  "48px",
-
-                border:
-                  "none",
-
-                borderRadius:
-                  "14px",
-
-                background:
-                  "#6DFF4E",
-
-                color:
-                  "#05080F",
-
-                fontWeight:
-                  700,
-              }}
+              className="primary-button"
+              style={{ flex: 1 }}
             >
               Add Match
             </button>
 
             <button
+              type="button"
               onClick={() =>
                 setIsOpen(
                   false
                 )
               }
-
-              style={{
-                flex: 1,
-
-                height:
-                  "48px",
-
-                border:
-                  "1px solid rgba(255,255,255,0.10)",
-
-                borderRadius:
-                  "14px",
-
-                background:
-                  "transparent",
-
-                color:
-                  "#FFFFFF",
-              }}
+              className="glass-button"
+              style={{ flex: 1 }}
             >
               Cancel
             </button>

@@ -954,11 +954,11 @@ function Matchdays() {
           <section
             key={matchday.id}
             style={{
-              marginBottom: "14px",
-              padding: "16px",
+              marginBottom: "10px",
+              padding: "12px 13px",
               border:
                 "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "22px",
+              borderRadius: "18px",
               background:
                 "rgba(9,15,24,0.55)",
               boxShadow:
@@ -981,8 +981,9 @@ function Matchdays() {
               <div>
                 <div
                   style={{
-                    fontSize: "19px",
+                    fontSize: "14px",
                     fontWeight: 800,
+                    lineHeight: 1.2,
                   }}
                 >
                   {matchday.name}
@@ -990,9 +991,9 @@ function Matchdays() {
 
                 <div
                   style={{
-                    marginTop: "3px",
+                    marginTop: "2px",
                     color: "#9CA3AF",
-                    fontSize: "11px",
+                    fontSize: "9px",
                   }}
                 >
                   {allMatchdayMatches.length}{" "}
@@ -1038,8 +1039,8 @@ function Matchdays() {
                       }
                       style={{
                         ...glassButton,
-                        width: "36px",
-                        height: "36px",
+                        width: "32px",
+                        height: "32px",
                         padding: 0,
                         display: "grid",
                         placeItems:
@@ -1069,8 +1070,8 @@ function Matchdays() {
                   }
                   style={{
                     ...glassButton,
-                    width: "36px",
-                    height: "36px",
+                    width: "32px",
+                    height: "32px",
                     padding: 0,
                     display: "grid",
                     placeItems:

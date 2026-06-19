@@ -95,6 +95,67 @@ function Matchdays() {
     )
   }, [])
 
+  useEffect(() => {
+    if (
+      matchdays.length === 0 ||
+      Object.keys(
+        expandedMatchdays
+      ).length > 0
+    ) {
+      return
+    }
+
+    const now = Date.now()
+    const nextMatch = matches
+      .filter(
+        (match) =>
+          new Date(
+            match.kickoff
+          ).getTime() >= now
+      )
+      .sort(
+        (a, b) =>
+          new Date(
+            a.kickoff
+          ).getTime() -
+          new Date(
+            b.kickoff
+          ).getTime()
+      )[0]
+    const target =
+      nextMatch?.matchday_id ||
+      matchdays.find(
+        (matchday) =>
+          matchday.is_open
+      )?.id ||
+      matchdays[0]?.id
+
+    if (target) {
+      const timeout =
+        window.setTimeout(() => {
+          setExpandedMatchdays(
+            (current) =>
+              Object.keys(
+                current
+              ).length > 0
+                ? current
+                : {
+                    [target]:
+                      true,
+                  }
+          )
+        }, 0)
+      return () =>
+        window.clearTimeout(
+          timeout
+        )
+    }
+  }, [
+    expandedMatchdays,
+    matchdays,
+    matches,
+  ])
+
   async function loadMatchdays() {
     const { data, error } =
       await supabase
@@ -487,6 +548,37 @@ function Matchdays() {
         </div>
       )}
 
+      {matchdays.length > 0 && (
+        <div className="segmented">
+          {(
+            [
+              "all",
+              "upcoming",
+              "finished",
+            ] as const
+          ).map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() =>
+                setMatchFilter(item)
+              }
+              className={`segment ${
+                matchFilter === item
+                  ? "segment-active"
+                  : ""
+              }`}
+              style={{
+                textTransform:
+                  "capitalize",
+              }}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      )}
+
       {loading && (
         <SkeletonList rows={4} />
       )}
@@ -523,12 +615,12 @@ function Matchdays() {
               return true
             }
           )
-        const expanded =
+        const expanded = Boolean(
           expandedMatchdays[
             matchday.id
           ]
-        const showMatches =
-          matchday.is_open || expanded
+        )
+        const showMatches = expanded
         const isManaged =
           managedMatchday ===
           matchday.id
@@ -632,44 +724,40 @@ function Matchdays() {
                       )}
                     </button>
                   )}
+                <button
+                  type="button"
+                  aria-label={
+                    expanded
+                      ? "Collapse matchday"
+                      : "Expand matchday"
+                  }
+                  onClick={() =>
+                    toggleMatchday(
+                      matchday.id
+                    )
+                  }
+                  style={{
+                    ...glassButton,
+                    width: "36px",
+                    height: "36px",
+                    padding: 0,
+                    display: "grid",
+                    placeItems:
+                      "center",
+                  }}
+                >
+                  {expanded ? (
+                    <ChevronUp
+                      size={16}
+                    />
+                  ) : (
+                    <ChevronDown
+                      size={16}
+                    />
+                  )}
+                </button>
               </div>
             </div>
-
-            {!matchday.is_open && (
-              <button
-                type="button"
-                onClick={() =>
-                  toggleMatchday(
-                    matchday.id
-                  )
-                }
-                style={{
-                  marginTop: "10px",
-                  padding: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  border: "none",
-                  background:
-                    "transparent",
-                  color: "#9CA3AF",
-                  fontSize: "12px",
-                }}
-              >
-                {expanded ? (
-                  <ChevronUp
-                    size={15}
-                  />
-                ) : (
-                  <ChevronDown
-                    size={15}
-                  />
-                )}
-                {expanded
-                  ? "Hide results"
-                  : "View results"}
-              </button>
-            )}
 
             {isManaged && (
               <div
@@ -1206,54 +1294,6 @@ function Matchdays() {
           </section>
         )
       })}
-
-      {matchdays.length > 0 && (
-        <div
-          className="segmented"
-          style={{
-            position: "fixed",
-            zIndex: 20,
-            left: "50%",
-            bottom: "86px",
-            width:
-              "calc(100% - 112px)",
-            maxWidth: "318px",
-            transform:
-              "translateX(-50%)",
-            background:
-              "rgba(10,15,24,0.92)",
-            backdropFilter:
-              "blur(18px)",
-          }}
-        >
-          {(
-            [
-              "all",
-              "upcoming",
-              "finished",
-            ] as const
-          ).map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() =>
-                setMatchFilter(item)
-              }
-              className={`segment ${
-                matchFilter === item
-                  ? "segment-active"
-                  : ""
-              }`}
-              style={{
-                textTransform:
-                  "capitalize",
-              }}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-      )}
 
       {importMatchday && (
         <div

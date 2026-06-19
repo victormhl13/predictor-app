@@ -1,7 +1,16 @@
-const SUPERLIGA_ID = 283
+import {
+  fetchLpfPage,
+  parseSeason,
+} from "./_lpf.js"
 
 function json(data, status = 200) {
-  return Response.json(data, { status })
+  return Response.json(data, {
+    status,
+    headers: {
+      "cache-control":
+        "public, s-maxage=3600, stale-while-revalidate=86400",
+    },
+  })
 }
 
 export default {
@@ -13,74 +22,27 @@ export default {
       )
     }
 
-    const apiUrl =
-      process.env.API_FOOTBALL_URL
-    const apiKey =
-      process.env.API_FOOTBALL_KEY
-
-    if (!apiUrl || !apiKey) {
-      return json(
-        {
-          error:
-            "API-Football is not configured.",
-        },
-        500
-      )
-    }
-
-    const endpoint = new URL(
-      `${apiUrl.replace(/\/$/, "")}/leagues`
-    )
-    endpoint.searchParams.set(
-      "id",
-      String(SUPERLIGA_ID)
-    )
-
     try {
-      const response = await fetch(endpoint, {
-        headers: {
-          "x-apisports-key": apiKey,
-        },
-      })
-      const data = await response.json()
-
-      if (!response.ok) {
-        return json(
-          {
-            error:
-              "Could not load seasons.",
-          },
-          502
+      const html = await fetchLpfPage(
+        "/liga-1"
+      )
+      const season = parseSeason(html)
+      if (!season) {
+        throw new Error(
+          "Season not found"
         )
       }
 
-      const seasons = (
-        data.response?.[0]
-          ?.seasons || []
-      )
-        .map((item) => ({
-          year: item.year,
-          current:
-            Boolean(item.current),
-          start: item.start,
-          end: item.end,
-        }))
-        .filter(
-          (item) =>
-            Number.isInteger(item.year)
-        )
-        .sort(
-          (a, b) =>
-            b.year - a.year
-        )
-
-      return json({ seasons })
+      return json({
+        seasons: [season],
+        source: "LPF",
+      })
     } catch (error) {
       console.error(error)
       return json(
         {
           error:
-            "Could not connect to API-Football.",
+            "Could not load the current LPF season.",
         },
         502
       )

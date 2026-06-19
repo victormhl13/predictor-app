@@ -4,6 +4,27 @@ import type {
   User,
 } from "../types"
 
+function rpcMessage(
+  error: {
+    code?: string
+    message?: string
+  } | null,
+  fallback: string
+) {
+  if (!error) return fallback
+  if (error.code === "23505") {
+    return "This item already exists."
+  }
+  if (
+    error.message?.includes(
+      "Invalid session"
+    )
+  ) {
+    return "Your session has expired. Please sign in again."
+  }
+  return error.message || fallback
+}
+
 function sessionToken() {
   const token =
     localStorage.getItem(
@@ -32,11 +53,17 @@ export async function loginWithPin(
       }
     )
 
-  if (
-    error ||
-    !data ||
-    data.length === 0
-  ) {
+  if (error) {
+    console.error(
+      "Login RPC failed",
+      error
+    )
+    throw new Error(
+      "Sign-in is temporarily unavailable."
+    )
+  }
+
+  if (!data || data.length === 0) {
     throw new Error(
       "Name or PIN is incorrect."
     )
@@ -111,7 +138,16 @@ export async function createUser(
         p_role: role,
       }
     )
-  if (error) throw error
+  if (error) {
+    throw new Error(
+      error.code === "23505"
+        ? "A user with this name already exists."
+        : rpcMessage(
+            error,
+            "Could not create user."
+          )
+    )
+  }
 }
 
 export async function setUserActive(

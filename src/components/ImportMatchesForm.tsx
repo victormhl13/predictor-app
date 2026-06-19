@@ -30,6 +30,8 @@ type FixturesResponse = {
 
 type Season = {
   year: number
+  endYear?: number
+  label?: string
   current: boolean
 }
 
@@ -83,13 +85,7 @@ function ImportMatchesForm({
           new Date().getFullYear()
         const loaded: Season[] =
           data.seasons || []
-        const normalized = [
-          {
-            year: currentYear,
-            current: true,
-          },
-          ...loaded,
-        ].filter(
+        const normalized = loaded.filter(
           (item, index, items) =>
             items.findIndex(
               (candidate) =>
@@ -331,7 +327,8 @@ function ImportMatchesForm({
                 key={item.year}
                 value={item.year}
               >
-                {item.year}
+                {item.label ||
+                  item.year}
                 {item.current
                   ? " · Current"
                   : ""}

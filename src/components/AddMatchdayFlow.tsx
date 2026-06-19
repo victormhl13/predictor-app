@@ -23,6 +23,8 @@ type Props = {
 
 type Season = {
   year: number
+  endYear?: number
+  label?: string
   current: boolean
 }
 
@@ -62,15 +64,7 @@ function AddMatchdayFlow({
       .then((data) => {
         const loaded: Season[] =
           data.seasons || []
-        const currentYear =
-          new Date().getFullYear()
-        const normalized = [
-          {
-            year: currentYear,
-            current: true,
-          },
-          ...loaded,
-        ].filter(
+        const normalized = loaded.filter(
           (item, index, items) =>
             items.findIndex(
               (candidate) =>
@@ -82,8 +76,7 @@ function AddMatchdayFlow({
         const current =
           normalized.find(
             (item: Season) =>
-              item.year ===
-              currentYear
+              item.current
           )
         if (current) {
           setSeason(
@@ -189,7 +182,13 @@ function AddMatchdayFlow({
 
     try {
       await createMatchdayWithMatches(
-        `${season} · Matchday ${matchday}`,
+        `${
+          seasons.find(
+            (item) =>
+              item.year ===
+              Number(season)
+          )?.label || season
+        } · Matchday ${matchday}`,
         chosen.map((fixture) => ({
           home_team:
             fixture.homeTeam,
@@ -223,7 +222,13 @@ function AddMatchdayFlow({
     setError("")
     try {
       await createMatchdayWithMatches(
-        `${season} · Matchday ${matchday}`,
+        `${
+          seasons.find(
+            (item) =>
+              item.year ===
+              Number(season)
+          )?.label || season
+        } · Matchday ${matchday}`,
         []
       )
       await onCreated()
@@ -367,7 +372,8 @@ function AddMatchdayFlow({
                     key={item.year}
                     value={item.year}
                   >
-                    {item.year}
+                    {item.label ||
+                      item.year}
                     {item.current
                       ? " · Current"
                       : ""}
@@ -406,6 +412,18 @@ function AddMatchdayFlow({
                 ))}
               </select>
             </label>
+            </div>
+
+            <div
+              style={{
+                marginTop: "10px",
+                color: "#8F9AA8",
+                fontSize: "10px",
+                textAlign: "center",
+              }}
+            >
+              Official fixtures and
+              results from LPF.ro
             </div>
 
             <button

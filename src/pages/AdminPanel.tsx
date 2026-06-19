@@ -78,9 +78,11 @@ function AdminPanel() {
         pin,
         role
       )
-    } catch {
+    } catch (createError) {
       setError(
-        "Could not create user."
+        createError instanceof Error
+          ? createError.message
+          : "Could not create user."
       )
       return
     }

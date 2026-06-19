@@ -19,6 +19,7 @@ import {
 import { useAuth } from "../context/AuthContext"
 import PageHeader from "../components/PageHeader"
 import TeamBadge from "../components/TeamBadge"
+import Countdown from "../components/Countdown"
 import type {
   Match,
   Prediction,
@@ -39,6 +40,10 @@ function Dashboard() {
     myPredictions,
     setMyPredictions,
   ] = useState(0)
+  const [
+    nextMatchPredicted,
+    setNextMatchPredicted,
+  ] = useState(false)
   const [leader, setLeader] =
     useState("No leader yet")
 
@@ -91,13 +96,25 @@ function Dashboard() {
           matchdayResult.data.name
         )
       }
-      setUpcomingMatch(
+      const nextMatch =
         (upcomingResult.data ||
           null) as Match | null
-      )
+      const ownPredictions =
+        (predictionResult.data ||
+          []) as Prediction[]
+      setUpcomingMatch(nextMatch)
       setMyPredictions(
-        predictionResult.data?.length ||
-          0
+        ownPredictions.length
+      )
+      setNextMatchPredicted(
+        Boolean(
+          nextMatch &&
+            ownPredictions.some(
+              (prediction) =>
+                prediction.match_id ===
+                nextMatch.id
+            )
+        )
       )
 
       const users =
@@ -188,7 +205,12 @@ function Dashboard() {
       />
 
       <Link
-        to="/matchdays"
+        to={
+          upcomingMatch &&
+          !nextMatchPredicted
+            ? "/predictions"
+            : "/matchdays"
+        }
         className="surface"
         style={{
           padding: "16px",
@@ -293,6 +315,54 @@ function Dashboard() {
         ) : (
           <div className="empty-state">
             No upcoming match.
+          </div>
+        )}
+
+        {upcomingMatch && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent:
+                "space-between",
+              gap: "10px",
+              marginTop: "14px",
+              paddingTop: "11px",
+              borderTop:
+                "1px solid rgba(255,255,255,0.07)",
+            }}
+          >
+            <span
+              style={{
+                color: "#9CA3AF",
+                fontSize: "10px",
+              }}
+            >
+              Starts in{" "}
+              <Countdown
+                kickoff={
+                  upcomingMatch.kickoff
+                }
+              />
+            </span>
+            <span
+              style={{
+                color:
+                  nextMatchPredicted
+                    ? "#9CF989"
+                    : "#F8D477",
+                fontSize: "9px",
+                fontWeight: 850,
+                letterSpacing:
+                  "0.45px",
+                textTransform:
+                  "uppercase",
+              }}
+            >
+              {nextMatchPredicted
+                ? "Prediction saved"
+                : "Add prediction →"}
+            </span>
           </div>
         )}
       </Link>

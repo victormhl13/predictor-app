@@ -83,22 +83,40 @@ body::before {
     url("/football-bg.jpg")
     center top / cover
     no-repeat;
+
+  opacity: 0.58;
+
+  filter:
+    saturate(0.72)
+    contrast(0.92)
+    blur(0.7px);
+
+  transform: scale(1.012);
 }
 
 body::after {
   z-index: -1;
 
   background:
+    radial-gradient(
+      ellipse at 50% 4%,
+      rgba(55, 116, 74, 0.10) 0%,
+      rgba(5, 8, 15, 0.12) 34%,
+      transparent 58%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(5, 8, 15, 0.50) 0%,
+      rgba(5, 8, 15, 0.18) 17%,
+      rgba(5, 8, 15, 0.18) 83%,
+      rgba(5, 8, 15, 0.50) 100%
+    ),
     linear-gradient(
       180deg,
-
-      rgba(5,8,15,0.34) 0%,
-
-      rgba(5,8,15,0.50) 38%,
-
-      rgba(5,8,15,0.68) 72%,
-
-      rgba(5,8,15,0.78) 100%
+      rgba(5, 8, 15, 0.38) 0%,
+      rgba(5, 8, 15, 0.53) 34%,
+      rgba(5, 8, 15, 0.70) 72%,
+      rgba(5, 8, 15, 0.82) 100%
     );
 }
 
@@ -115,8 +133,7 @@ body::after {
 
   overflow: hidden;
 
-  padding:
-    0 16px;
+  padding: 0;
 }
 
 @media (max-width: 600px) {

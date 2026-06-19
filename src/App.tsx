@@ -53,7 +53,7 @@ function App() {
           color: "#FFFFFF",
 
           padding:
-            "calc(14px + env(safe-area-inset-top)) 40px calc(78px + env(safe-area-inset-bottom))",
+            "calc(14px + env(safe-area-inset-top)) 18px calc(78px + env(safe-area-inset-bottom))",
 
           fontFamily:
             "'Manrope', 'Inter', system-ui, sans-serif",

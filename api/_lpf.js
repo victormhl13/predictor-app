@@ -154,6 +154,21 @@ export function parseSeason(html) {
   }
 }
 
+export function parsePlayoffEdition(
+  html
+) {
+  const playoff =
+    html.match(
+      /id=["']playoff["'][\s\S]*?(?:class=["'][^"']*ajax_etapa_playoff[^"']*["'][^>]*|class=["'][^"']*ajax_etapa_playoff[^"']*["'][^>]*)editie=["'](\d+)["']/i
+    ) ||
+    html.match(
+      /class=["'][^"']*ajax_etapa_playoff[^"']*["'][^>]*editie=["'](\d+)["']/i
+    )
+  return playoff
+    ? Number(playoff[1])
+    : null
+}
+
 function teamFromRow(
   row,
   className

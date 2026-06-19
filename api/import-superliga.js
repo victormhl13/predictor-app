@@ -1,5 +1,6 @@
 import {
   fetchLpfPage,
+  parsePlayoffEdition,
   parseRound,
   parseSeason,
 } from "./_lpf.js"
@@ -34,11 +35,17 @@ export default {
     const round = Number(
       roundMatch?.[1] || roundValue
     )
+    const phase =
+      url.searchParams.get("phase") ||
+      "regular"
 
     if (
       !Number.isInteger(round) ||
       round < 1 ||
-      round > 30
+      round >
+        (phase === "playoff"
+          ? 10
+          : 30)
     ) {
       return json(
         { error: "Invalid matchday." },
@@ -46,11 +53,23 @@ export default {
       )
     }
 
-    try {
-      const html = await fetchLpfPage(
-        `/etape-liga-1/${round}`
+    if (
+      phase !== "regular" &&
+      phase !== "playoff"
+    ) {
+      return json(
+        { error: "Invalid phase." },
+        400
       )
-      const season = parseSeason(html)
+    }
+
+    try {
+      const leagueHtml =
+        await fetchLpfPage(
+          "/liga-1"
+        )
+      const season =
+        parseSeason(leagueHtml)
 
       if (
         requestedSeason &&
@@ -67,9 +86,38 @@ export default {
         )
       }
 
+      let fixturesHtml
+      if (phase === "playoff") {
+        const edition =
+          parsePlayoffEdition(
+            leagueHtml
+          )
+        if (!edition) {
+          return json(
+            {
+              error:
+                "LPF has not published the play-off fixtures yet.",
+              season,
+            },
+            404
+          )
+        }
+        fixturesHtml =
+          await fetchLpfPage(
+            `/ajax/rezultate-etapa.php?editie=${edition}&etapa=${round}`
+          )
+      } else {
+        fixturesHtml =
+          await fetchLpfPage(
+            `/etape-liga-1/${round}`
+          )
+      }
+
       return json({
-        fixtures: parseRound(html),
+        fixtures:
+          parseRound(fixturesHtml),
         season,
+        phase,
         source: "LPF",
       })
     } catch (error) {

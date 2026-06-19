@@ -62,6 +62,10 @@ function ImportMatchesForm({
     useState<Season[]>([])
   const [matchday, setMatchday] =
     useState("1")
+  const [phase, setPhase] =
+    useState<
+      "regular" | "playoff"
+    >("regular")
   const [fixtures, setFixtures] =
     useState<ApiFixture[]>([])
   const [selectedIds, setSelectedIds] =
@@ -127,6 +131,7 @@ function ImportMatchesForm({
       const params =
         new URLSearchParams({
           season,
+          phase,
           round:
             `Regular Season - ${matchday}`,
         })
@@ -285,6 +290,47 @@ function ImportMatchesForm({
 
       <div
         style={{
+          marginBottom: "14px",
+        }}
+      >
+        <label
+          style={{
+            color: "#9CA3AF",
+            fontSize: "12px",
+          }}
+        >
+          Competition phase
+          <select
+            value={phase}
+            onChange={(event) => {
+              setPhase(
+                event.target.value as
+                  | "regular"
+                  | "playoff"
+              )
+              setMatchday("1")
+              setFixtures([])
+              setSelectedIds([])
+            }}
+            style={{
+              ...fieldStyle,
+              marginTop: "6px",
+              background: "#1C1C1C",
+            }}
+          >
+            <option value="regular">
+              Regular season · 30
+              matchdays
+            </option>
+            <option value="playoff">
+              Play-off · 10 matchdays
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <div
+        style={{
           display: "grid",
           gridTemplateColumns:
             "1fr 1fr",
@@ -358,7 +404,12 @@ function ImportMatchesForm({
             }}
           >
             {Array.from(
-              { length: 30 },
+              {
+                length:
+                  phase === "playoff"
+                    ? 10
+                    : 30,
+              },
               (_, index) =>
                 index + 1
             ).map((number) => (
@@ -366,7 +417,13 @@ function ImportMatchesForm({
                 key={number}
                 value={number}
               >
-                Matchday {number}
+                {phase === "playoff"
+                  ? `Play-off ${number} · ${
+                      number <= 5
+                        ? "Tur"
+                        : "Retur"
+                    }`
+                  : `Matchday ${number}`}
               </option>
             ))}
           </select>

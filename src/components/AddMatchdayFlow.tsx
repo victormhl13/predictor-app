@@ -43,6 +43,10 @@ function AddMatchdayFlow({
     useState<Season[]>([])
   const [matchday, setMatchday] =
     useState("1")
+  const [phase, setPhase] =
+    useState<
+      "regular" | "playoff"
+    >("regular")
   const [fixtures, setFixtures] =
     useState<Fixture[]>([])
   const [selected, setSelected] =
@@ -125,6 +129,7 @@ function AddMatchdayFlow({
       const params =
         new URLSearchParams({
           season,
+          phase,
           round:
             `Regular Season - ${matchday}`,
         })
@@ -188,7 +193,11 @@ function AddMatchdayFlow({
               item.year ===
               Number(season)
           )?.label || season
-        } · Matchday ${matchday}`,
+        } · ${
+          phase === "playoff"
+            ? `Play-off ${matchday}`
+            : `Matchday ${matchday}`
+        }`,
         chosen.map((fixture) => ({
           home_team:
             fixture.homeTeam,
@@ -228,7 +237,11 @@ function AddMatchdayFlow({
               item.year ===
               Number(season)
           )?.label || season
-        } · Matchday ${matchday}`,
+        } · ${
+          phase === "playoff"
+            ? `Play-off ${matchday}`
+            : `Matchday ${matchday}`
+        }`,
         []
       )
       await onCreated()
@@ -333,12 +346,49 @@ function AddMatchdayFlow({
               </button>
             </div>
 
+            <label
+              className="section-label"
+              style={{
+                display: "block",
+              }}
+            >
+              Competition phase
+              <select
+                className="field"
+                value={phase}
+                onChange={(event) => {
+                  setPhase(
+                    event.target
+                      .value as
+                      | "regular"
+                      | "playoff"
+                  )
+                  setMatchday("1")
+                  setFixtures([])
+                  setSelected([])
+                }}
+                style={{
+                  marginTop: "7px",
+                }}
+              >
+                <option value="regular">
+                  Regular season · 30
+                  matchdays
+                </option>
+                <option value="playoff">
+                  Play-off · 10
+                  matchdays
+                </option>
+              </select>
+            </label>
+
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns:
                   "1fr 1fr",
                 gap: "9px",
+                marginTop: "10px",
               }}
             >
             <label className="section-label">
@@ -399,7 +449,13 @@ function AddMatchdayFlow({
                 }}
               >
                 {Array.from(
-                  { length: 30 },
+                  {
+                    length:
+                      phase ===
+                      "playoff"
+                        ? 10
+                        : 30,
+                  },
                   (_, index) =>
                     index + 1
                 ).map((number) => (
@@ -407,7 +463,14 @@ function AddMatchdayFlow({
                     key={number}
                     value={number}
                   >
-                    Matchday {number}
+                    {phase ===
+                    "playoff"
+                      ? `Play-off ${number} · ${
+                          number <= 5
+                            ? "Tur"
+                            : "Retur"
+                        }`
+                      : `Matchday ${number}`}
                   </option>
                 ))}
               </select>

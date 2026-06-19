@@ -11,7 +11,7 @@ import {
 } from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
 import PageHeader from "../components/PageHeader"
-import ScoreStepper from "../components/ScoreStepper"
+import ScorePairControl from "../components/ScorePairControl"
 import TeamBadge from "../components/TeamBadge"
 import Countdown from "../components/Countdown"
 import SkeletonList from "../components/SkeletonList"
@@ -67,6 +67,15 @@ function MyPredictions() {
         string,
         Draft
       > = {}
+      ;(
+        (matchData || []) as Match[]
+      ).forEach((match) => {
+        loaded[match.id] = {
+          home: 0,
+          away: 0,
+          saved: false,
+        }
+      })
       ;(
         predictionData as Prediction[]
       ).forEach((prediction) => {
@@ -492,81 +501,51 @@ function MyPredictions() {
 
                   <div
                     style={{
-                      display: "flex",
-                      alignItems:
-                        "center",
-                      justifyContent:
-                        "center",
-                      gap: "14px",
-                      marginTop: "11px",
+                      marginTop: "13px",
                     }}
                   >
                     {locked ? (
                       <div
                         style={{
                           color:
-                            draft
+                            draft?.saved
                               ? "#FFFFFF"
                               : "#9CA3AF",
                           fontSize:
-                            draft
+                            draft?.saved
                               ? "19px"
                               : "11px",
                           fontWeight:
-                            draft
+                            draft?.saved
                               ? 850
                               : 650,
                         }}
                       >
-                        {draft
+                        {draft?.saved
                           ? `${draft.home} – ${draft.away}`
                           : "No prediction"}
                       </div>
                     ) : (
-                      <>
-                        <ScoreStepper
-                          compact
-                          value={
-                            draft?.home ??
-                            ""
-                          }
-                          onChange={(
+                      <ScorePairControl
+                        home={Number(
+                          draft?.home ??
+                            0
+                        )}
+                        away={Number(
+                          draft?.away ??
+                            0
+                        )}
+                        onChange={(
+                          side,
+                          value
+                        ) =>
+                          update(
+                            match.id,
+                            side,
                             value
-                          ) =>
-                            update(
-                              match.id,
-                              "home",
-                              value
-                            )
-                          }
-                        />
-                        <span
-                          style={{
-                            color:
-                              "#6B7280",
-                            fontWeight:
-                              800,
-                          }}
-                        >
-                          –
-                        </span>
-                        <ScoreStepper
-                          compact
-                          value={
-                            draft?.away ??
-                            ""
-                          }
-                          onChange={(
-                            value
-                          ) =>
-                            update(
-                              match.id,
-                              "away",
-                              value
-                            )
-                          }
-                        />
-                      </>
+                          )
+                        }
+                      />
                     )}
                   </div>
 

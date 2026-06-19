@@ -318,6 +318,77 @@ select.field {
   transition: width 0.25s ease;
 }
 
+.score-pair {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.score-pair-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.score-pair-label {
+  color: #8f9aa8;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.score-pair-controls {
+  display: grid;
+  grid-template-columns: 54px minmax(64px, 1fr) 54px;
+  min-height: 52px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.score-pair-button {
+  min-width: 0;
+  min-height: 52px;
+  padding: 0;
+  border: 0;
+  color: #fff;
+  font: inherit;
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.score-pair-minus {
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.score-pair-minus:disabled {
+  color: #59616d;
+}
+
+.score-pair-plus {
+  border-left: 1px solid rgba(109, 255, 78, 0.15);
+  background: rgba(109, 255, 78, 0.11);
+  color: #b7ffa7;
+}
+
+.score-pair-value {
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  font-weight: 900;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0.015)
+    );
+}
+
 .toast {
   position: fixed;
   z-index: 130;

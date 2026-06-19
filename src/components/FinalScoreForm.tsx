@@ -1,4 +1,5 @@
 import { useState } from "react"
+import ScorePairControl from "./ScorePairControl"
 
 type Props = {
   matchId: string
@@ -9,117 +10,6 @@ type Props = {
     homeScore: number,
     awayScore: number
   ) => void
-}
-
-type ScoreControlProps = {
-  side: "home" | "away"
-  score: number
-  onChange: (
-    side: "home" | "away",
-    difference: number
-  ) => void
-}
-
-function ScoreControl({
-  side,
-  score,
-  onChange,
-}: ScoreControlProps) {
-  return (
-    <div
-      style={{
-        display: "grid",
-        justifyItems: "center",
-        gap: "10px",
-      }}
-    >
-      <div
-        style={{
-          width: "60px",
-          height: "50px",
-          display: "grid",
-          placeItems: "center",
-          border:
-            "1px solid rgba(255,255,255,0.12)",
-          borderRadius: "15px",
-          background:
-            "linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.025))",
-          boxShadow:
-            "inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 20px rgba(0,0,0,0.16)",
-          color: "#FFFFFF",
-          fontSize: "22px",
-          fontWeight: 800,
-        }}
-      >
-        {score}
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          gap: "10px",
-        }}
-      >
-        <button
-          type="button"
-          aria-label={`Decrease ${side} score`}
-          onClick={() =>
-            onChange(side, -1)
-          }
-          disabled={score === 0}
-          style={{
-            width: "42px",
-            height: "40px",
-            padding: 0,
-            border:
-              "1px solid rgba(255,255,255,0.12)",
-            borderRadius: "12px",
-            background:
-              "linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03))",
-            color: "#FFFFFF",
-            fontSize: "22px",
-            lineHeight: 1,
-            cursor:
-              score === 0
-                ? "default"
-                : "pointer",
-            opacity:
-              score === 0
-                ? 0.35
-                : 1,
-          }}
-        >
-          −
-        </button>
-
-        <button
-          type="button"
-          aria-label={`Increase ${side} score`}
-          onClick={() =>
-            onChange(side, 1)
-          }
-          style={{
-            width: "42px",
-            height: "40px",
-            padding: 0,
-            border:
-              "1px solid rgba(109,255,78,0.28)",
-            borderRadius: "12px",
-            background:
-              "linear-gradient(145deg, rgba(109,255,78,0.20), rgba(109,255,78,0.06))",
-            boxShadow:
-              "inset 0 1px 0 rgba(255,255,255,0.10)",
-            color: "#FFFFFF",
-            fontSize: "22px",
-            lineHeight: 1,
-            cursor: "pointer",
-          }}
-        >
-          +
-        </button>
-      </div>
-    </div>
-  )
 }
 
 function FinalScoreForm({
@@ -139,24 +29,14 @@ function FinalScoreForm({
 
   function updateScore(
     side: "home" | "away",
-    difference: number
+    value: number
   ) {
     if (side === "home") {
-      setHomeScore((score) =>
-        Math.max(
-          0,
-          score + difference
-        )
-      )
+      setHomeScore(value)
       return
     }
 
-    setAwayScore((score) =>
-      Math.max(
-        0,
-        score + difference
-      )
-    )
+    setAwayScore(value)
   }
 
   function handleSubmit() {
@@ -194,46 +74,20 @@ function FinalScoreForm({
         Final score
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "start",
-          gap: "18px",
-        }}
-      >
-        <ScoreControl
-          side="home"
-          score={homeScore}
-          onChange={updateScore}
-        />
-
-        <div
-          style={{
-            paddingTop: "11px",
-            color: "#9CA3AF",
-            fontSize: "20px",
-            fontWeight: 700,
-          }}
-        >
-          -
-        </div>
-
-        <ScoreControl
-          side="away"
-          score={awayScore}
-          onChange={updateScore}
-        />
-      </div>
+      <ScorePairControl
+        home={homeScore}
+        away={awayScore}
+        onChange={updateScore}
+      />
 
       <button
         type="button"
         onClick={handleSubmit}
         style={{
           display: "block",
-          minWidth: "92px",
-          height: "38px",
-          margin: "13px auto 0",
+          width: "100%",
+          height: "44px",
+          margin: "12px auto 0",
           padding: "0 22px",
           border:
             "1px solid rgba(109,255,78,0.34)",

@@ -452,43 +452,40 @@ function Matchdays() {
       <PageHeader
         title="Matchdays"
         subtitle="Fixtures, results and matchday management"
-        action={
-          currentUser?.role ===
-          "admin" ? (
-            <div
-              style={{
-                display: "flex",
-                gap: "6px",
-              }}
-            >
-              <button
-                type="button"
-                onClick={() =>
-                  syncResults(false)
-                }
-                disabled={syncing}
-                className="glass-button"
-                aria-label="Sync results"
-                style={{
-                  width: "40px",
-                  minHeight: "40px",
-                  padding: 0,
-                }}
-              >
-                <RefreshCw
-                  size={15}
-                />
-              </button>
+      />
+
+      {currentUser?.role ===
+        "admin" && (
+        <div className="matchday-actions">
+          <button
+            type="button"
+            onClick={() =>
+              syncResults(false)
+            }
+            disabled={syncing}
+            className="glass-button matchday-refresh"
+            aria-label="Refresh results"
+            title="Refresh results"
+          >
+            <RefreshCw
+              size={16}
+              className={
+                syncing
+                  ? "spin"
+                  : undefined
+              }
+            />
+          </button>
+          <div className="matchday-add-action">
               <AddMatchdayFlow
                 onCreated={async () => {
                   await loadMatchdays()
                   await loadMatches()
                 }}
               />
-            </div>
-          ) : undefined
-        }
-      />
+          </div>
+        </div>
+      )}
 
       {loading && (
         <SkeletonList rows={4} />

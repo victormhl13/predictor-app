@@ -22,6 +22,40 @@
   min-width: 0;
 }
 
+.matchday-actions {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin-top: -2px;
+}
+
+.matchday-refresh {
+  width: 44px;
+  min-height: 42px;
+  padding: 0;
+}
+
+.matchday-add-action,
+.matchday-add-action > button {
+  width: 100%;
+}
+
+.matchday-add-action > button {
+  min-height: 42px;
+  justify-content: center;
+}
+
+.spin {
+  animation: control-spin 0.85s linear infinite;
+}
+
+@keyframes control-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .page-title {
   margin: 0;
   color: #fff;

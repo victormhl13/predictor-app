@@ -94,6 +94,20 @@ async function syncLegacyApiFootball(
         item.goals?.home,
       awayScore:
         item.goals?.away,
+      kickoff:
+        item.fixture?.date || null,
+      homeTeam:
+        item.teams?.home?.name ||
+        null,
+      awayTeam:
+        item.teams?.away?.name ||
+        null,
+      homeLogo:
+        item.teams?.home?.logo ||
+        null,
+      awayLogo:
+        item.teams?.away?.logo ||
+        null,
     }))
     .filter((item) =>
       Number.isInteger(item.id)

@@ -267,6 +267,48 @@ export async function updateMatch(
   if (error) throw error
 }
 
+export async function syncMatch(
+  matchId: string,
+  details: {
+    homeTeam: string
+    awayTeam: string
+    kickoff: string
+    homeLogo?: string | null
+    awayLogo?: string | null
+    homeScore?: number | null
+    awayScore?: number | null
+  }
+) {
+  const { error } =
+    await supabase.rpc(
+      "admin_sync_match",
+      {
+        p_token:
+          sessionToken(),
+        p_match_id: matchId,
+        p_home_team:
+          details.homeTeam,
+        p_away_team:
+          details.awayTeam,
+        p_kickoff:
+          details.kickoff,
+        p_home_team_logo:
+          details.homeLogo ||
+          null,
+        p_away_team_logo:
+          details.awayLogo ||
+          null,
+        p_home_score:
+          details.homeScore ??
+          null,
+        p_away_score:
+          details.awayScore ??
+          null,
+      }
+    )
+  if (error) throw error
+}
+
 export async function setMatchdayOpen(
   matchdayId: string,
   open: boolean

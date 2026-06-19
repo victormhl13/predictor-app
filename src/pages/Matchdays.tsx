@@ -17,6 +17,7 @@ import {
   deleteMatch,
   setFinalScore,
   setMatchdayOpen,
+  syncMatch,
   updateMatch,
 } from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
@@ -376,58 +377,128 @@ function Matchdays() {
           "AWD",
           "WO",
         ])
-      const finished =
-        (data.fixtures || []).filter(
-          (fixture: {
-            status: string
-            homeScore:
-              | number
-              | null
-            awayScore:
-              | number
-              | null
-          }) =>
-            finishedStatuses.has(
-              fixture.status
-            ) &&
-            fixture.homeScore !==
-              null &&
-            fixture.awayScore !== null
-        )
+      type SyncedFixture = {
+        id: number
+        status: string
+        homeScore: number | null
+        awayScore: number | null
+        kickoff: string | null
+        homeTeam: string | null
+        awayTeam: string | null
+        homeLogo: string | null
+        awayLogo: string | null
+      }
+      const synchronized =
+        (data.fixtures ||
+          []) as SyncedFixture[]
+      let scheduleChanges = 0
+      let resultChanges = 0
 
       await Promise.all(
-        finished.map(
-          (fixture: {
-            id: number
-            homeScore: number
-            awayScore: number
-          }) => {
+        synchronized.map(
+          async (fixture) => {
             const match =
               apiMatches.find(
                 (item) =>
                   item.api_fixture_id ===
                   fixture.id
               )
-            if (!match) return
-            return setFinalScore(
+            if (
+              !match ||
+              !fixture.kickoff ||
+              !fixture.homeTeam ||
+              !fixture.awayTeam
+            ) {
+              return
+            }
+
+            const isFinal =
+              finishedStatuses.has(
+                fixture.status
+              ) &&
+              fixture.homeScore !==
+                null &&
+              fixture.awayScore !== null
+            const scheduleChanged =
+              new Date(
+                match.kickoff
+              ).getTime() !==
+                new Date(
+                  fixture.kickoff
+                ).getTime() ||
+              match.home_team !==
+                fixture.homeTeam ||
+              match.away_team !==
+                fixture.awayTeam ||
+              (fixture.homeLogo &&
+                match.home_team_logo !==
+                  fixture.homeLogo) ||
+              (fixture.awayLogo &&
+                match.away_team_logo !==
+                  fixture.awayLogo)
+            const resultChanged =
+              isFinal &&
+              (match.home_score !==
+                fixture.homeScore ||
+                match.away_score !==
+                  fixture.awayScore)
+
+            await syncMatch(
               match.id,
-              fixture.homeScore,
-              fixture.awayScore
+              {
+                homeTeam:
+                  fixture.homeTeam,
+                awayTeam:
+                  fixture.awayTeam,
+                kickoff:
+                  fixture.kickoff,
+                homeLogo:
+                  fixture.homeLogo,
+                awayLogo:
+                  fixture.awayLogo,
+                homeScore: isFinal
+                  ? fixture.homeScore
+                  : null,
+                awayScore: isFinal
+                  ? fixture.awayScore
+                  : null,
+              }
             )
+
+            if (scheduleChanged) {
+              scheduleChanges += 1
+            }
+            if (resultChanged) {
+              resultChanges += 1
+            }
           }
         )
       )
 
       await loadMatches()
       if (!silent) {
-        setNotice(
-          finished.length > 0
-            ? `${finished.length} result${
-                finished.length === 1
+        const changes = [
+          scheduleChanges > 0
+            ? `${scheduleChanges} schedule update${
+                scheduleChanges === 1
                   ? ""
                   : "s"
-              } synchronized.`
-            : "No new final results."
+              }`
+            : "",
+          resultChanges > 0
+            ? `${resultChanges} result${
+                resultChanges === 1
+                  ? ""
+                  : "s"
+              }`
+            : "",
+        ].filter(Boolean)
+        setNotice(
+          changes.length > 0
+            ? `${changes.join(
+                " and "
+              )} synchronized.`
+            : "Everything is up to date."
         )
       }
     } catch (error) {
@@ -525,8 +596,8 @@ function Matchdays() {
             }
             disabled={syncing}
             className="glass-button matchday-refresh"
-            aria-label="Refresh results"
-            title="Refresh results"
+            aria-label="Sync fixtures and results"
+            title="Sync fixtures and results"
           >
             <RefreshCw
               size={16}

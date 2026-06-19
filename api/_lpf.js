@@ -353,6 +353,44 @@ export async function fetchLpfResult(
   const kickoff = date
     ? parseRomanianDate(date[1])
     : null
+  const pageTitle = text(
+    html.match(
+      /<title[^>]*>([\s\S]*?)<\/title>/i
+    )?.[1] || ""
+  )
+  const titleTeams =
+    pageTitle.match(
+      /^(.*?)\s+-\s+(.*?)\s+-\s+Etapa\b/i
+    )
+  const scoreRow =
+    html.match(
+      /<tr[^>]*>[\s\S]*?class=["'][^"']*scor_mc[^"']*["'][\s\S]*?<\/tr>/i
+    )?.[0] || ""
+  const logoPaths = Array.from(
+    scoreRow.matchAll(
+      /<img[^>]+src=["']([^"']+)["']/gi
+    )
+  )
+    .slice(0, 2)
+    .map((match) =>
+      new URL(
+        match[1],
+        `${LPF_BASE_URL}/`
+      ).toString()
+    )
+  const homeTeam =
+    titleTeams?.[1]?.trim() || null
+  const awayTeam =
+    titleTeams?.[2]?.trim() || null
+  const details = {
+    kickoff,
+    homeTeam,
+    awayTeam,
+    homeLogo:
+      logoPaths[0] || null,
+    awayLogo:
+      logoPaths[1] || null,
+  }
 
   if (!score || !kickoff) {
     return {
@@ -360,6 +398,7 @@ export async function fetchLpfResult(
       status: "NS",
       homeScore: null,
       awayScore: null,
+      ...details,
     }
   }
 
@@ -375,5 +414,6 @@ export async function fetchLpfResult(
       : "LIVE",
     homeScore: Number(score[1]),
     awayScore: Number(score[2]),
+    ...details,
   }
 }

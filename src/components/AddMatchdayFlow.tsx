@@ -262,7 +262,7 @@ function AddMatchdayFlow({
         onClick={() =>
           setOpen(true)
         }
-        className="primary-button"
+        className="primary-button matchday-create-button"
         style={{
           display: "flex",
           alignItems: "center",
@@ -285,7 +285,7 @@ function AddMatchdayFlow({
             alignItems: "flex-end",
             justifyContent: "center",
             padding:
-              "18px 18px calc(24px + env(safe-area-inset-bottom))",
+              "18px 18px calc(98px + env(safe-area-inset-bottom))",
             background:
               "rgba(3,6,12,0.84)",
             backdropFilter:
@@ -301,16 +301,18 @@ function AddMatchdayFlow({
               width: "100%",
               maxWidth: "390px",
               maxHeight:
-                "calc(100dvh - 56px - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
+                "calc(100dvh - 142px - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
               overflowY: "auto",
               overscrollBehavior:
                 "contain",
+              scrollPaddingBottom:
+                "24px",
               padding:
-                "16px 16px calc(24px + env(safe-area-inset-bottom))",
+                "16px 16px 30px",
               borderRadius:
                 "24px 24px 18px 18px",
               background:
-                "rgba(8,13,21,0.985)",
+                "rgba(8,13,21,0.96)",
               boxShadow:
                 "0 -18px 60px rgba(0,0,0,0.52)",
             }}

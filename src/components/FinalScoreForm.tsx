@@ -54,7 +54,7 @@ function FinalScoreForm({
         margin: "12px auto 0",
         padding: "14px 12px 13px",
         background:
-          "rgba(9,15,24,0.62)",
+          "rgba(9,15,24,0.5)",
         border:
           "1px solid rgba(255,255,255,0.08)",
         borderRadius: "16px",

@@ -37,6 +37,13 @@
   display: grid;
   place-items: center;
   line-height: 0;
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(9, 15, 24, 0.54);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    0 8px 20px rgba(0, 0, 0, 0.14);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
 }
 
 .matchday-add-action,
@@ -85,7 +92,7 @@
   padding: 12px 6px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  background: rgba(9, 15, 24, 0.68);
+  background: rgba(9, 15, 24, 0.55);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.055),
     0 10px 24px rgba(0, 0, 0, 0.16);
@@ -132,7 +139,7 @@
   padding: 11px;
   border: 1px solid rgba(255, 255, 255, 0.065);
   border-radius: 13px;
-  background: rgba(9, 15, 24, 0.62);
+  background: rgba(9, 15, 24, 0.5);
 }
 
 .stat-tile span {
@@ -150,6 +157,21 @@
 .matchday-add-action > button {
   min-height: 42px;
   justify-content: center;
+}
+
+.matchday-create-button {
+  border-color: rgba(109, 255, 78, 0.22);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20, 40, 28, 0.7),
+      rgba(9, 20, 14, 0.58)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.065),
+    0 8px 20px rgba(0, 0, 0, 0.14);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
 }
 
 .spin {
@@ -180,7 +202,7 @@
 .surface {
   border: 1px solid rgba(255, 255, 255, 0.105);
   border-radius: 18px;
-  background: rgba(9, 15, 24, 0.7);
+  background: rgba(9, 15, 24, 0.57);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.045),
     0 12px 28px rgba(0, 0, 0, 0.14);
@@ -191,7 +213,7 @@
 .surface-soft {
   border: 1px solid rgba(255, 255, 255, 0.085);
   border-radius: 15px;
-  background: rgba(9, 15, 24, 0.58);
+  background: rgba(9, 15, 24, 0.47);
   backdrop-filter: blur(9px);
   -webkit-backdrop-filter: blur(9px);
 }
@@ -266,7 +288,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 13px;
   outline: none;
-  background: rgba(8, 13, 21, 0.76);
+  background: rgba(8, 13, 21, 0.62);
   color: #fff;
   font: inherit;
   font-size: 13px;
@@ -292,7 +314,7 @@ select.field {
   padding: 4px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 999px;
-  background: rgba(8, 13, 21, 0.68);
+  background: rgba(8, 13, 21, 0.55);
   backdrop-filter: blur(9px);
   -webkit-backdrop-filter: blur(9px);
 }

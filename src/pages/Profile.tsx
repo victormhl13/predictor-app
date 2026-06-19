@@ -3,6 +3,8 @@ import {
   useState,
 } from "react"
 import {
+  BookOpen,
+  Download,
   LogOut,
   ShieldCheck,
   Users,
@@ -12,6 +14,9 @@ import { useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 import {
   getMyPredictions,
+  getAllPredictionsForAdmin,
+  getFinishedPredictions,
+  listPublicUsers,
   logoutSession,
 } from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
@@ -20,6 +25,13 @@ import type {
   Match,
   Prediction,
 } from "../types"
+import {
+  personalStats,
+  rankedPlayers,
+} from "../utils/scoring"
+import {
+  downloadCsv,
+} from "../utils/csv"
 
 function Profile() {
   const navigate = useNavigate()
@@ -33,6 +45,13 @@ function Profile() {
     predictionCount,
     setPredictionCount,
   ] = useState(0)
+  const [performance, setPerformance] =
+    useState({
+      exact: 0,
+      outcomes: 0,
+      accuracy: 0,
+      bestMatchday: 0,
+    })
 
   useEffect(() => {
     async function load() {
@@ -100,6 +119,12 @@ function Profile() {
         }
       )
       setPoints(total)
+      setPerformance(
+        personalStats(
+          predictions,
+          matches
+        )
+      )
     }
 
     load()
@@ -115,6 +140,104 @@ function Profile() {
     )
     setCurrentUser(null)
     navigate("/")
+  }
+
+  async function exportData() {
+    const [
+      users,
+      predictions,
+      finishedPredictions,
+      matchesResult,
+    ] = await Promise.all([
+      listPublicUsers(),
+      currentUser?.role ===
+      "admin"
+        ? getAllPredictionsForAdmin()
+        : getMyPredictions(),
+      getFinishedPredictions(),
+      supabase
+        .from("matches")
+        .select("*"),
+    ])
+    const matches =
+      (matchesResult.data ||
+        []) as Match[]
+    const ranking =
+      rankedPlayers(
+        users,
+        finishedPredictions,
+        matches
+      )
+    downloadCsv(
+      "goalpredict-export.csv",
+      [
+        [
+          "Type",
+          "Player/Match",
+          "Details",
+          "Kickoff",
+          "Prediction",
+          "Result/Points",
+        ],
+        ...ranking.map(
+          (player, index) => [
+            "Ranking",
+            `${index + 1}. ${player.name}`,
+            "",
+            "",
+            "",
+            player.points,
+          ]
+        ),
+        ...matches
+          .filter(
+            (match) =>
+              match.home_score !==
+                null &&
+              match.away_score !==
+                null
+          )
+          .map((match) => [
+            "Result",
+            `${match.home_team} - ${match.away_team}`,
+            "",
+            match.kickoff,
+            "",
+            `${match.home_score}-${match.away_score}`,
+          ]),
+        ...predictions.map(
+          (prediction) => {
+            const user =
+              users.find(
+                (item) =>
+                  item.id ===
+                  prediction.user_id
+              )
+            const match =
+              matches.find(
+                (item) =>
+                  item.id ===
+                  prediction.match_id
+              )
+            return [
+              "Prediction",
+              user?.name ||
+                currentUser?.name ||
+                "",
+              `${match?.home_team || ""} - ${match?.away_team || ""}`,
+              match?.kickoff,
+              `${prediction.home_prediction}-${prediction.away_prediction}`,
+              match?.home_score !==
+                null &&
+              match?.away_score !==
+                null
+                ? `${match?.home_score}-${match?.away_score}`
+                : "",
+            ]
+          }
+        ),
+      ]
+    )
   }
 
   return (
@@ -244,11 +367,114 @@ function Profile() {
       </div>
 
       <div
+        className="surface"
+        style={{
+          padding: "14px",
+        }}
+      >
+        <div className="section-label">
+          Personal statistics
+        </div>
+        <div className="stats-grid">
+          {[
+            [
+              "Exact scores",
+              performance.exact,
+            ],
+            [
+              "Correct outcomes",
+              performance.outcomes,
+            ],
+            [
+              "Accuracy",
+              `${performance.accuracy}%`,
+            ],
+            [
+              "Best matchday",
+              `${performance.bestMatchday} pts`,
+            ],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="stat-tile"
+            >
+              <span>{label}</span>
+              <strong>{value}</strong>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div
         className="surface-soft"
         style={{
           overflow: "hidden",
         }}
       >
+        <button
+          type="button"
+          onClick={() =>
+            navigate("/rules")
+          }
+          className="compact-row"
+          style={{
+            width: "100%",
+            borderTop: "none",
+            borderLeft: "none",
+            borderRight: "none",
+            background:
+              "transparent",
+            color: "#FFFFFF",
+            textAlign: "left",
+          }}
+        >
+          <BookOpen
+            size={17}
+            color="#60A5FA"
+          />
+          <span
+            style={{
+              flex: 1,
+              fontSize: "12px",
+              fontWeight: 750,
+            }}
+          >
+            Rules and scoring
+          </span>
+          <span>›</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={exportData}
+          className="compact-row"
+          style={{
+            width: "100%",
+            borderTop: "none",
+            borderLeft: "none",
+            borderRight: "none",
+            background:
+              "transparent",
+            color: "#FFFFFF",
+            textAlign: "left",
+          }}
+        >
+          <Download
+            size={17}
+            color="#9CF989"
+          />
+          <span
+            style={{
+              flex: 1,
+              fontSize: "12px",
+              fontWeight: 750,
+            }}
+          >
+            Export CSV
+          </span>
+          <span>›</span>
+        </button>
+
         {currentUser?.role ===
           "admin" && (
           <button

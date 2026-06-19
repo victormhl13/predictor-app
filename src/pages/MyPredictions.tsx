@@ -7,7 +7,7 @@ import {
 import { supabase } from "../lib/supabase"
 import {
   getMyPredictions,
-  saveMyPrediction,
+  saveMyPredictions,
 } from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
 import PageHeader from "../components/PageHeader"
@@ -146,13 +146,30 @@ function MyPredictions() {
 
     setSaving(true)
 
-    for (const match of changed) {
-      const draft = drafts[match.id]
-      await saveMyPrediction(
-        match.id,
-        Number(draft.home),
-        Number(draft.away)
+    try {
+      await saveMyPredictions(
+        changed.map((match) => {
+          const draft =
+            drafts[match.id]
+          return {
+            match_id: match.id,
+            home: Number(
+              draft.home
+            ),
+            away: Number(
+              draft.away
+            ),
+          }
+        })
       )
+    } catch (error) {
+      setSaving(false)
+      setNotice(
+        error instanceof Error
+          ? error.message
+          : "Could not save predictions."
+      )
+      return
     }
 
     setDrafts((current) => {
@@ -192,6 +209,19 @@ function MyPredictions() {
       ),
     [matches, filter]
   )
+  const openMatches = matches.filter(
+    (match) =>
+      !isLocked(match.kickoff)
+  )
+  const completed = openMatches.filter(
+    (match) => {
+      const draft = drafts[match.id]
+      return (
+        draft?.home !== "" &&
+        draft?.away !== ""
+      )
+    }
+  ).length
 
   function formatKickoff(
     kickoff: string
@@ -245,6 +275,51 @@ function MyPredictions() {
         </button>
       </div>
 
+      {filter === "open" && (
+        <div
+          className="surface-soft"
+          style={{
+            padding: "10px 12px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent:
+                "space-between",
+              color: "#9CA3AF",
+              fontSize: "10px",
+            }}
+          >
+            <span>
+              Predictions completed
+            </span>
+            <strong
+              style={{
+                color: "#FFFFFF",
+              }}
+            >
+              {completed}/
+              {openMatches.length}
+            </strong>
+          </div>
+          <div className="progress-track">
+            <div
+              className="progress-fill"
+              style={{
+                width: `${
+                  openMatches.length
+                    ? (completed /
+                        openMatches.length) *
+                      100
+                    : 0
+                }%`,
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <SkeletonList rows={4} />
       ) : visibleMatches.length ===
@@ -267,6 +342,14 @@ function MyPredictions() {
                 )
               const draft =
                 drafts[match.id]
+              const missing =
+                !locked &&
+                (draft?.home ===
+                  undefined ||
+                  draft?.home === "" ||
+                  draft?.away ===
+                    undefined ||
+                  draft?.away === "")
 
               return (
                 <div
@@ -276,6 +359,9 @@ function MyPredictions() {
                       "13px 12px",
                     borderBottom:
                       "1px solid rgba(255,255,255,0.055)",
+                    background: missing
+                      ? "linear-gradient(90deg, rgba(248,212,119,0.08), transparent)"
+                      : "transparent",
                   }}
                 >
                   <div
@@ -347,6 +433,22 @@ function MyPredictions() {
                           }
                         />
                       </div>
+                      {match.rescheduled_at && (
+                        <div
+                          style={{
+                            marginTop:
+                              "3px",
+                            color:
+                              "#F8D477",
+                            fontSize:
+                              "7px",
+                            fontWeight:
+                              850,
+                          }}
+                        >
+                          RESCHEDULED
+                        </div>
+                      )}
                     </div>
                     <div
                       style={{
@@ -487,6 +589,24 @@ function MyPredictions() {
                         SAVED
                       </div>
                     )}
+                  {missing && (
+                    <div
+                      style={{
+                        marginTop:
+                          "7px",
+                        color:
+                          "#F8D477",
+                        fontSize:
+                          "9px",
+                        fontWeight:
+                          800,
+                        textAlign:
+                          "center",
+                      }}
+                    >
+                      PREDICTION NEEDED
+                    </div>
+                  )}
                 </div>
               )
             }
@@ -507,7 +627,7 @@ function MyPredictions() {
           >
             {saving
               ? "Saving..."
-              : "Save predictions"}
+              : `Save all · ${completed}/${openMatches.length}`}
           </button>
         )}
 

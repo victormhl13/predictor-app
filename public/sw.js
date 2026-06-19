@@ -1,4 +1,4 @@
-const CACHE_NAME = "goalpredict-v1"
+const CACHE_NAME = "goalpredict-v2"
 const APP_SHELL = [
   "/",
   "/favicon.svg",

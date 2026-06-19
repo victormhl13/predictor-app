@@ -41,6 +41,104 @@
   width: 100%;
 }
 
+.sync-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #8f9aa8;
+  font-size: 9px;
+  text-align: center;
+}
+
+.sync-status strong {
+  color: #cbd2da;
+  font-size: 8px;
+}
+
+.sync-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #6dff4e;
+  box-shadow: 0 0 8px rgba(109, 255, 78, 0.55);
+}
+
+.sync-dot-error {
+  background: #ff8585;
+  box-shadow: 0 0 8px rgba(255, 133, 133, 0.5);
+}
+
+.podium-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.08fr 1fr;
+  gap: 7px;
+  align-items: end;
+}
+
+.podium-card {
+  min-width: 0;
+  padding: 12px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.025);
+  text-align: center;
+}
+
+.podium-card span,
+.podium-card strong,
+.podium-card small {
+  display: block;
+}
+
+.podium-card strong {
+  margin-top: 5px;
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.podium-card small {
+  margin-top: 3px;
+  color: #9ca3af;
+  font-size: 9px;
+}
+
+.podium-1 {
+  min-height: 78px;
+  padding-top: 16px;
+  border-color: rgba(248, 212, 119, 0.22);
+  background: rgba(248, 212, 119, 0.075);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.stat-tile {
+  padding: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.stat-tile span {
+  display: block;
+  color: #8f9aa8;
+  font-size: 9px;
+}
+
+.stat-tile strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 15px;
+}
+
 .matchday-add-action > button {
   min-height: 42px;
   justify-content: center;
@@ -196,6 +294,25 @@ select.field {
 .segment-active {
   background: rgba(109, 255, 78, 0.12);
   color: #b7ffa7;
+}
+
+.progress-track {
+  height: 5px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #62e748,
+    #a5ff8f
+  );
+  transition: width 0.25s ease;
 }
 
 .toast {

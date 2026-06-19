@@ -12,108 +12,6 @@ function json(data, status = 200) {
   })
 }
 
-function chunks(items, size) {
-  const result = []
-  for (
-    let index = 0;
-    index < items.length;
-    index += size
-  ) {
-    result.push(
-      items.slice(
-        index,
-        index + size
-      )
-    )
-  }
-  return result
-}
-
-async function syncLegacyApiFootball(
-  ids
-) {
-  const apiUrl =
-    process.env.API_FOOTBALL_URL
-  const apiKey =
-    process.env.API_FOOTBALL_KEY
-
-  if (
-    ids.length === 0 ||
-    !apiUrl ||
-    !apiKey
-  ) {
-    return []
-  }
-
-  const responses = await Promise.all(
-    chunks(ids, 20).map(
-      async (group) => {
-        const endpoint = new URL(
-          `${apiUrl.replace(
-            /\/$/,
-            ""
-          )}/fixtures`
-        )
-        endpoint.searchParams.set(
-          "ids",
-          group.join("-")
-        )
-        const response = await fetch(
-          endpoint,
-          {
-            headers: {
-              "x-apisports-key":
-                apiKey,
-            },
-          }
-        )
-        const data =
-          await response.json()
-        if (
-          !response.ok ||
-          Object.keys(
-            data.errors || {}
-          ).length > 0
-        ) {
-          throw new Error(
-            "Legacy API-Football sync failed"
-          )
-        }
-        return data.response || []
-      }
-    )
-  )
-
-  return responses
-    .flat()
-    .map((item) => ({
-      id: item.fixture?.id,
-      status:
-        item.fixture?.status?.short,
-      homeScore:
-        item.goals?.home,
-      awayScore:
-        item.goals?.away,
-      kickoff:
-        item.fixture?.date || null,
-      homeTeam:
-        item.teams?.home?.name ||
-        null,
-      awayTeam:
-        item.teams?.away?.name ||
-        null,
-      homeLogo:
-        item.teams?.home?.logo ||
-        null,
-      awayLogo:
-        item.teams?.away?.logo ||
-        null,
-    }))
-    .filter((item) =>
-      Number.isInteger(item.id)
-    )
-}
-
 export default {
   async fetch(request) {
     if (request.method !== "GET") {
@@ -140,24 +38,14 @@ export default {
     const lpfIds = ids.filter(
       (id) => id < 0
     )
-    const legacyIds = ids.filter(
-      (id) => id > 0
-    )
 
     try {
-      const [
-        lpfSettled,
-        legacyFixtures,
-      ] = await Promise.all([
-        Promise.allSettled(
+      const lpfSettled =
+        await Promise.allSettled(
           lpfIds.map((id) =>
             fetchLpfResult(id)
           )
-        ),
-        syncLegacyApiFootball(
-          legacyIds
-        ),
-      ])
+        )
 
       const lpfFixtures =
         lpfSettled
@@ -174,7 +62,6 @@ export default {
       return json({
         fixtures: [
           ...lpfFixtures,
-          ...legacyFixtures,
         ],
         source: "LPF",
       })

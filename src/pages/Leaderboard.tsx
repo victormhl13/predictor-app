@@ -10,6 +10,9 @@ import {
   listPublicUsers,
 } from "../lib/appApi"
 import { calculateLeaderboard } from "../utils/calculateLeaderboard"
+import {
+  rankedPlayers,
+} from "../utils/scoring"
 import PageHeader from "../components/PageHeader"
 import type {
   Match,
@@ -19,6 +22,8 @@ import type {
 
 type Player = User & {
   points: number
+  roundPoints: number
+  movement: number
 }
 
 function Leaderboard() {
@@ -52,11 +57,103 @@ function Leaderboard() {
       }
 
       setPlayers(
-        calculateLeaderboard(
-          usersResult.data as User[],
-          predictionsResult.data as Prediction[],
-          matchesResult.data as Match[]
-        )
+        (() => {
+          const users =
+            usersResult.data as User[]
+          const predictions =
+            predictionsResult.data as Prediction[]
+          const matches =
+            matchesResult.data as Match[]
+          const finished =
+            matches.filter(
+              (match) =>
+                match.home_score !==
+                  null &&
+                match.away_score !==
+                  null
+            )
+          const latestMatchday =
+            [...finished].sort(
+              (a, b) =>
+                new Date(
+                  b.kickoff
+                ).getTime() -
+                new Date(
+                  a.kickoff
+                ).getTime()
+            )[0]?.matchday_id
+          const latestIds =
+            new Set(
+              finished
+                .filter(
+                  (match) =>
+                    match.matchday_id ===
+                    latestMatchday
+                )
+                .map(
+                  (match) =>
+                    match.id
+                )
+            )
+          const previousIds =
+            new Set(
+              finished
+                .filter(
+                  (match) =>
+                    !latestIds.has(
+                      match.id
+                    )
+                )
+                .map(
+                  (match) =>
+                    match.id
+                )
+            )
+          const total =
+            calculateLeaderboard(
+              users,
+              predictions,
+              matches
+            )
+          const round =
+            rankedPlayers(
+              users,
+              predictions,
+              matches,
+              latestIds
+            )
+          const previous =
+            rankedPlayers(
+              users,
+              predictions,
+              matches,
+              previousIds
+            )
+          return total.map(
+            (player, index) => {
+              const previousIndex =
+                previous.findIndex(
+                  (item) =>
+                    item.id ===
+                    player.id
+                )
+              return {
+                ...player,
+                roundPoints:
+                  round.find(
+                    (item) =>
+                      item.id ===
+                      player.id
+                  )?.points || 0,
+                movement:
+                  previousIndex < 0
+                    ? 0
+                    : previousIndex -
+                      index,
+              }
+            }
+          )
+        })()
       )
     }
 
@@ -75,6 +172,31 @@ function Leaderboard() {
           No ranking yet.
         </div>
       ) : (
+        <>
+        <div className="podium-grid">
+          {players
+            .slice(0, 3)
+            .map((player, index) => (
+              <div
+                key={player.id}
+                className={`podium-card podium-${index + 1}`}
+              >
+                <span>
+                  {index === 0
+                    ? "👑"
+                    : index === 1
+                      ? "🥈"
+                      : "🥉"}
+                </span>
+                <strong>
+                  {player.name}
+                </strong>
+                <small>
+                  {player.points} pts
+                </small>
+              </div>
+            ))}
+        </div>
         <div
           className="surface"
           style={{
@@ -157,7 +279,7 @@ function Leaderboard() {
                           "capitalize",
                       }}
                     >
-                      {player.role}
+                      +{player.roundPoints} this matchday
                     </div>
                   </div>
 
@@ -187,12 +309,41 @@ function Leaderboard() {
                     >
                       pts
                     </span>
+                    <div
+                      style={{
+                        marginTop:
+                          "2px",
+                        color:
+                          player.movement >
+                          0
+                            ? "#9CF989"
+                            : player.movement <
+                                0
+                              ? "#FF8585"
+                              : "#6B7280",
+                        fontSize:
+                          "9px",
+                        fontWeight:
+                          800,
+                      }}
+                    >
+                      {player.movement >
+                      0
+                        ? `↑ ${player.movement}`
+                        : player.movement <
+                            0
+                          ? `↓ ${Math.abs(
+                              player.movement
+                            )}`
+                          : "—"}
+                    </div>
                   </div>
                 </div>
               )
             }
           )}
         </div>
+        </>
       )}
     </div>
   )

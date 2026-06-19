@@ -309,6 +309,29 @@ export async function syncMatch(
   if (error) throw error
 }
 
+export async function recordSync(
+  scheduleUpdates: number,
+  resultUpdates: number,
+  status: "success" | "error",
+  message: string
+) {
+  const { error } =
+    await supabase.rpc(
+      "admin_record_sync",
+      {
+        p_token:
+          sessionToken(),
+        p_schedule_updates:
+          scheduleUpdates,
+        p_result_updates:
+          resultUpdates,
+        p_status: status,
+        p_message: message,
+      }
+    )
+  if (error) throw error
+}
+
 export async function setMatchdayOpen(
   matchdayId: string,
   open: boolean
@@ -366,21 +389,37 @@ export async function getFinishedPredictions() {
     []) as Prediction[]
 }
 
-export async function saveMyPrediction(
-  matchId: string,
-  home: number,
-  away: number
-) {
-  const { error } =
+export async function getAllPredictionsForAdmin() {
+  const { data, error } =
     await supabase.rpc(
-      "save_prediction",
+      "admin_all_predictions",
       {
         p_token:
           sessionToken(),
-        p_match_id: matchId,
-        p_home: home,
-        p_away: away,
       }
     )
   if (error) throw error
+  return (data ||
+    []) as Prediction[]
+}
+
+export async function saveMyPredictions(
+  predictions: {
+    match_id: string
+    home: number
+    away: number
+  }[]
+) {
+  const { data, error } =
+    await supabase.rpc(
+      "save_predictions",
+      {
+        p_token:
+          sessionToken(),
+        p_predictions:
+          predictions,
+      }
+    )
+  if (error) throw error
+  return Number(data || 0)
 }

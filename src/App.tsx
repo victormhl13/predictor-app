@@ -1,4 +1,8 @@
 import {
+  lazy,
+  Suspense,
+} from "react"
+import {
   BrowserRouter,
   Routes,
   Route,
@@ -6,14 +10,34 @@ import {
 
 import BottomNavigation from "./components/BottomNavigation"
 
-import Dashboard from "./pages/Dashboard"
-import Login from "./pages/Login"
-import Matchdays from "./pages/Matchdays"
-import MyPredictions from "./pages/MyPredictions"
-import Leaderboard from "./pages/Leaderboard"
-import AdminPanel from "./pages/AdminPanel"
-import Statistics from "./pages/Statistics"
-import Profile from "./pages/Profile"
+const Dashboard = lazy(
+  () => import("./pages/Dashboard")
+)
+const Login = lazy(
+  () => import("./pages/Login")
+)
+const Matchdays = lazy(
+  () => import("./pages/Matchdays")
+)
+const MyPredictions = lazy(
+  () =>
+    import("./pages/MyPredictions")
+)
+const Leaderboard = lazy(
+  () => import("./pages/Leaderboard")
+)
+const AdminPanel = lazy(
+  () => import("./pages/AdminPanel")
+)
+const Statistics = lazy(
+  () => import("./pages/Statistics")
+)
+const Profile = lazy(
+  () => import("./pages/Profile")
+)
+const Rules = lazy(
+  () => import("./pages/Rules")
+)
 
 import { useAuth } from "./context/AuthContext"
 
@@ -116,6 +140,13 @@ function App() {
             paddingBottom: "12px",
           }}
         >
+        <Suspense
+          fallback={
+            <div className="surface empty-state">
+              Loading GoalPredict…
+            </div>
+          }
+        >
         {!currentUser ? (
           <Routes>
             <Route
@@ -157,6 +188,11 @@ function App() {
               />
 
               <Route
+                path="/rules"
+                element={<Rules />}
+              />
+
+              <Route
                 path="/admin"
                 element={<AdminPanel />}
               />
@@ -165,6 +201,7 @@ function App() {
             <BottomNavigation />
           </>
         )}
+        </Suspense>
         </main>
       </div>
     </BrowserRouter>

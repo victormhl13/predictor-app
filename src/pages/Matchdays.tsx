@@ -15,6 +15,7 @@ import { supabase } from "../lib/supabase"
 import {
   addManualMatch,
   deleteMatch,
+  recordSync,
   setFinalScore,
   setMatchdayOpen,
   syncMatch,
@@ -86,11 +87,20 @@ function Matchdays() {
     matchDetailsEditor,
     setMatchDetailsEditor,
   ] = useState<string | null>(null)
+  const [syncStatus, setSyncStatus] =
+    useState<{
+      synced_at: string | null
+      schedule_updates: number
+      result_updates: number
+      status: string
+      message: string | null
+    } | null>(null)
 
   useEffect(() => {
     Promise.all([
       loadMatchdays(),
       loadMatches(),
+      loadSyncStatus(),
     ]).finally(() =>
       setLoading(false)
     )
@@ -189,6 +199,15 @@ function Matchdays() {
     setMatches(
       (data || []) as Match[]
     )
+  }
+
+  async function loadSyncStatus() {
+    const { data } = await supabase
+      .from("sync_status")
+      .select("*")
+      .eq("id", true)
+      .maybeSingle()
+    if (data) setSyncStatus(data)
   }
 
   async function addMatch(
@@ -475,7 +494,79 @@ function Matchdays() {
         )
       )
 
-      await loadMatches()
+      const finalFixtureIds =
+        new Set(
+          synchronized
+            .filter(
+              (fixture) =>
+                finishedStatuses.has(
+                  fixture.status
+                ) &&
+                fixture.homeScore !==
+                  null &&
+                fixture.awayScore !==
+                  null
+            )
+            .map(
+              (fixture) =>
+                fixture.id
+            )
+        )
+      const completedMatchdays =
+        matchdays.filter(
+          (matchday) => {
+            if (!matchday.is_open) {
+              return false
+            }
+            const items =
+              matches.filter(
+                (match) =>
+                  match.matchday_id ===
+                  matchday.id
+              )
+            return (
+              items.length > 0 &&
+              items.every(
+                (match) =>
+                  (match.home_score !==
+                    null &&
+                    match.away_score !==
+                      null) ||
+                  (match.api_fixture_id !==
+                    null &&
+                    finalFixtureIds.has(
+                      match.api_fixture_id
+                    ))
+              )
+            )
+          }
+        )
+      await Promise.all(
+        completedMatchdays.map(
+          (matchday) =>
+            setMatchdayOpen(
+              matchday.id,
+              false
+            )
+        )
+      )
+
+      const syncMessage =
+        completedMatchdays.length > 0
+          ? `${completedMatchdays.length} matchday closed automatically.`
+          : "Synchronization completed."
+      await recordSync(
+        scheduleChanges,
+        resultChanges,
+        "success",
+        syncMessage
+      )
+
+      await Promise.all([
+        loadMatches(),
+        loadMatchdays(),
+        loadSyncStatus(),
+      ])
       if (!silent) {
         const changes = [
           scheduleChanges > 0
@@ -502,12 +593,23 @@ function Matchdays() {
         )
       }
     } catch (error) {
-      if (!silent) {
-        setNotice(
-          error instanceof Error
-            ? error.message
-            : "Could not sync results."
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Could not sync results."
+      try {
+        await recordSync(
+          0,
+          0,
+          "error",
+          message
         )
+        await loadSyncStatus()
+      } catch {
+        // The visible sync error remains the primary feedback.
+      }
+      if (!silent) {
+        setNotice(message)
       }
     } finally {
       setSyncing(false)
@@ -616,6 +718,49 @@ function Matchdays() {
                 }}
               />
           </div>
+        </div>
+      )}
+
+      {syncStatus && (
+        <div className="sync-status">
+          <span
+            className={
+              syncStatus.status ===
+              "error"
+                ? "sync-dot sync-dot-error"
+                : "sync-dot"
+            }
+          />
+          <span>
+            {syncStatus.synced_at
+              ? `Last sync ${new Date(
+                  syncStatus.synced_at
+                ).toLocaleString(
+                  "ro-RO",
+                  {
+                    day: "2-digit",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }
+                )}`
+              : "Not synchronized yet"}
+          </span>
+          {(syncStatus.schedule_updates >
+            0 ||
+            syncStatus.result_updates >
+              0) && (
+            <strong>
+              {
+                syncStatus.schedule_updates
+              }{" "}
+              schedule ·{" "}
+              {
+                syncStatus.result_updates
+              }{" "}
+              results
+            </strong>
+          )}
         </div>
       )}
 
@@ -1069,6 +1214,22 @@ function Matchdays() {
                                     match.kickoff
                                   )}
                                 </div>
+                                {match.rescheduled_at && (
+                                  <div
+                                    style={{
+                                      marginTop:
+                                        "2px",
+                                      color:
+                                        "#F8D477",
+                                      fontSize:
+                                        "7px",
+                                      fontWeight:
+                                        850,
+                                    }}
+                                  >
+                                    RESCHEDULED
+                                  </div>
+                                )}
                                 <div
                                   style={{
                                     marginTop:

@@ -36,6 +36,10 @@ export type Match = {
   home_team_logo?: string | null
 
   away_team_logo?: string | null
+
+  original_kickoff?: string | null
+
+  rescheduled_at?: string | null
 }
 
 export type Prediction = {

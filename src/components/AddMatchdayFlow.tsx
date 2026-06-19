@@ -279,16 +279,19 @@ function AddMatchdayFlow({
           aria-modal="true"
           style={{
             position: "fixed",
-            zIndex: 120,
+            zIndex: 320,
             inset: 0,
             display: "flex",
             alignItems: "flex-end",
             justifyContent: "center",
-            padding: "18px",
+            padding:
+              "18px 18px calc(24px + env(safe-area-inset-bottom))",
             background:
-              "rgba(3,6,12,0.74)",
+              "rgba(3,6,12,0.84)",
             backdropFilter:
-              "blur(8px)",
+              "blur(10px)",
+            WebkitBackdropFilter:
+              "blur(10px)",
           }}
           onClick={close}
         >
@@ -297,13 +300,19 @@ function AddMatchdayFlow({
             style={{
               width: "100%",
               maxWidth: "390px",
-              maxHeight: "88vh",
+              maxHeight:
+                "calc(100dvh - 56px - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
               overflowY: "auto",
-              padding: "16px",
+              overscrollBehavior:
+                "contain",
+              padding:
+                "16px 16px calc(24px + env(safe-area-inset-bottom))",
               borderRadius:
                 "24px 24px 18px 18px",
               background:
-                "rgba(10,15,24,0.97)",
+                "rgba(8,13,21,0.985)",
+              boxShadow:
+                "0 -18px 60px rgba(0,0,0,0.52)",
             }}
             onClick={(event) =>
               event.stopPropagation()

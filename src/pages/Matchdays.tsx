@@ -919,7 +919,13 @@ function Matchdays() {
                 "1px solid rgba(255,255,255,0.08)",
               borderRadius: "22px",
               background:
-                "rgba(255,255,255,0.025)",
+                "rgba(9,15,24,0.68)",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.045), 0 12px 28px rgba(0,0,0,0.14)",
+              backdropFilter:
+                "blur(11px)",
+              WebkitBackdropFilter:
+                "blur(11px)",
             }}
           >
             <div

@@ -4,19 +4,22 @@
 }
 
 .page-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px;
+  display: grid;
+  gap: 9px;
+  justify-items: stretch;
+  margin-top: -6px;
   margin-bottom: 2px;
+  text-align: center;
 }
 
-.page-header > div {
+.page-header-copy {
   min-width: 0;
 }
 
-.page-header > :last-child:not(:first-child) {
-  flex: 0 0 auto;
+.page-header-action {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
 }
 
 .page-title {

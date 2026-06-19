@@ -11,7 +11,7 @@ function PageHeader({
 }: Props) {
   return (
     <header className="page-header">
-      <div>
+      <div className="page-header-copy">
         <h2 className="page-title">
           {title}
         </h2>
@@ -21,7 +21,11 @@ function PageHeader({
           </p>
         )}
       </div>
-      {action}
+      {action && (
+        <div className="page-header-action">
+          {action}
+        </div>
+      )}
     </header>
   )
 }

@@ -32,7 +32,8 @@
 
 .matchday-refresh {
   width: 44px;
-  min-height: 42px;
+  height: 44px;
+  min-height: 44px;
   padding: 0;
   display: grid;
   place-items: center;
@@ -44,6 +45,12 @@
     0 8px 20px rgba(0, 0, 0, 0.14);
   backdrop-filter: blur(9px);
   -webkit-backdrop-filter: blur(9px);
+}
+
+.matchday-refresh svg {
+  display: block;
+  margin: auto;
+  transform: translateX(-1px);
 }
 
 .matchday-add-action,
@@ -179,8 +186,11 @@
 }
 
 @keyframes control-spin {
+  from {
+    transform: translateX(-1px) rotate(0deg);
+  }
   to {
-    transform: rotate(360deg);
+    transform: translateX(-1px) rotate(360deg);
   }
 }
 
@@ -448,6 +458,41 @@ select.field {
   border-color: rgba(109, 255, 78, 0.25);
   background: rgba(109, 255, 78, 0.11);
   color: #b7ffa7;
+}
+
+.saved-prediction-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 7px 8px 7px 12px;
+  border: 1px solid rgba(109, 255, 78, 0.13);
+  border-radius: 14px;
+  background: rgba(8, 16, 22, 0.38);
+}
+
+.saved-prediction-summary span,
+.saved-prediction-summary strong {
+  display: block;
+}
+
+.saved-prediction-summary span {
+  color: #8f9aa8;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.saved-prediction-summary strong {
+  margin-top: 2px;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.saved-prediction-summary .glass-button {
+  min-height: 34px;
+  padding: 0 13px;
+  font-size: 10px;
 }
 
 .community-predictions {

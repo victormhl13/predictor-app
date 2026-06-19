@@ -492,7 +492,9 @@ function AddMatchdayFlow({
             <button
               type="button"
               onClick={loadFixtures}
-              disabled={loading}
+              disabled={
+                loading || saving
+              }
               className="glass-button"
               style={{
                 width: "100%",
@@ -503,6 +505,66 @@ function AddMatchdayFlow({
                 ? "Loading..."
                 : "Load matches"}
             </button>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "9px",
+                marginTop: "11px",
+                color: "#687382",
+                fontSize: "9px",
+              }}
+            >
+              <span
+                style={{
+                  flex: 1,
+                  height: "1px",
+                  background:
+                    "rgba(255,255,255,0.07)",
+                }}
+              />
+              OR
+              <span
+                style={{
+                  flex: 1,
+                  height: "1px",
+                  background:
+                    "rgba(255,255,255,0.07)",
+                }}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={
+                createEmptyMatchday
+              }
+              disabled={
+                saving || loading
+              }
+              className="glass-button"
+              style={{
+                width: "100%",
+                marginTop: "11px",
+              }}
+            >
+              {saving
+                ? "Creating..."
+                : "Create empty Matchday"}
+            </button>
+            <div
+              style={{
+                marginTop: "6px",
+                color: "#8F9AA8",
+                fontSize: "9px",
+                lineHeight: 1.4,
+                textAlign: "center",
+              }}
+            >
+              Add future test matches
+              manually after creating it.
+            </div>
 
             {fixtures.length > 0 && (
               <div
@@ -593,23 +655,6 @@ function AddMatchdayFlow({
               >
                 {error}
               </div>
-            )}
-
-            {error && (
-              <button
-                type="button"
-                onClick={
-                  createEmptyMatchday
-                }
-                disabled={saving}
-                className="glass-button"
-                style={{
-                  width: "100%",
-                  marginTop: "10px",
-                }}
-              >
-                Create empty Matchday
-              </button>
             )}
 
             {fixtures.length > 0 && (

@@ -138,10 +138,7 @@ function MyPredictions() {
           !isLocked(
             match.kickoff
           ) &&
-          draft &&
-          !draft.saved &&
-          draft.home !== "" &&
-          draft.away !== ""
+          !draft?.saved
         )
       }
     )
@@ -163,10 +160,10 @@ function MyPredictions() {
           return {
             match_id: match.id,
             home: Number(
-              draft.home
+              draft?.home ?? 0
             ),
             away: Number(
-              draft.away
+              draft?.away ?? 0
             ),
           }
         })
@@ -185,7 +182,12 @@ function MyPredictions() {
       const next = { ...current }
       changed.forEach((match) => {
         next[match.id] = {
-          ...next[match.id],
+          home:
+            next[match.id]
+              ?.home ?? 0,
+          away:
+            next[match.id]
+              ?.away ?? 0,
           saved: true,
         }
       })
@@ -355,10 +357,7 @@ function MyPredictions() {
                 drafts[match.id]
               const missing =
                 !locked &&
-                (typeof draft?.home !==
-                  "number" ||
-                  typeof draft?.away !==
-                    "number")
+                !draft?.saved
 
               return (
                 <div
@@ -583,7 +582,7 @@ function MyPredictions() {
                           "center",
                       }}
                     >
-                      PREDICTION NEEDED
+                      UNSAVED PREDICTION
                     </div>
                   )}
                 </div>

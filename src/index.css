@@ -80,16 +80,16 @@ body::before {
   z-index: -2;
 
   background:
-    url("/football-bg.jpg")
+    url("/football-bg-v2.jpg")
     center top / cover
     no-repeat;
 
-  opacity: 0.58;
+  opacity: 0.84;
 
   filter:
-    saturate(0.72)
-    contrast(0.92)
-    blur(0.7px);
+    saturate(0.92)
+    contrast(0.94)
+    blur(0.55px);
 
   transform: scale(1.012);
 }
@@ -100,23 +100,23 @@ body::after {
   background:
     radial-gradient(
       ellipse at 50% 4%,
-      rgba(55, 116, 74, 0.10) 0%,
-      rgba(5, 8, 15, 0.12) 34%,
+      rgba(74, 150, 91, 0.13) 0%,
+      rgba(5, 8, 15, 0.06) 34%,
       transparent 58%
     ),
     linear-gradient(
       90deg,
-      rgba(5, 8, 15, 0.50) 0%,
-      rgba(5, 8, 15, 0.18) 17%,
-      rgba(5, 8, 15, 0.18) 83%,
-      rgba(5, 8, 15, 0.50) 100%
+      rgba(5, 8, 15, 0.43) 0%,
+      rgba(5, 8, 15, 0.11) 17%,
+      rgba(5, 8, 15, 0.11) 83%,
+      rgba(5, 8, 15, 0.43) 100%
     ),
     linear-gradient(
       180deg,
-      rgba(5, 8, 15, 0.38) 0%,
-      rgba(5, 8, 15, 0.53) 34%,
-      rgba(5, 8, 15, 0.70) 72%,
-      rgba(5, 8, 15, 0.82) 100%
+      rgba(5, 8, 15, 0.24) 0%,
+      rgba(5, 8, 15, 0.38) 34%,
+      rgba(5, 8, 15, 0.56) 72%,
+      rgba(5, 8, 15, 0.70) 100%
     );
 }
 

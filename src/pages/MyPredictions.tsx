@@ -7,6 +7,8 @@ import {
 import { supabase } from "../lib/supabase"
 import {
   getMyPredictions,
+  getLockedPredictions,
+  listPublicUsers,
   saveMyPredictions,
 } from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
@@ -18,6 +20,7 @@ import SkeletonList from "../components/SkeletonList"
 import type {
   Match,
   Prediction,
+  User,
 } from "../types"
 
 type Draft = {
@@ -44,6 +47,41 @@ function MyPredictions() {
     useState("")
   const [loading, setLoading] =
     useState(true)
+  const [
+    lockedPredictions,
+    setLockedPredictions,
+  ] = useState<Prediction[]>([])
+  const [players, setPlayers] =
+    useState<User[]>([])
+  const [dirtyIds, setDirtyIds] =
+    useState<Set<string>>(
+      () => new Set()
+    )
+
+  useEffect(() => {
+    if (!currentUser) return
+    const refreshLocked =
+      async () => {
+        const data =
+          await getLockedPredictions()
+        setLockedPredictions(
+          data
+        )
+      }
+    const interval =
+      window.setInterval(
+        () => {
+          refreshLocked().catch(
+            () => undefined
+          )
+        },
+        60_000
+      )
+    return () =>
+      window.clearInterval(
+        interval
+      )
+  }, [currentUser])
 
   useEffect(() => {
     async function load() {
@@ -51,7 +89,6 @@ function MyPredictions() {
         await supabase
           .from("matches")
           .select("*")
-          .is("home_score", null)
           .order("kickoff")
 
       setMatches(
@@ -60,8 +97,19 @@ function MyPredictions() {
 
       if (!currentUser) return
 
-      const predictionData =
-        await getMyPredictions()
+      const [
+        predictionData,
+        publicPredictions,
+        publicUsers,
+      ] = await Promise.all([
+        getMyPredictions(),
+        getLockedPredictions(),
+        listPublicUsers(),
+      ])
+      setLockedPredictions(
+        publicPredictions
+      )
+      setPlayers(publicUsers)
 
       const loaded: Record<
         string,
@@ -125,6 +173,35 @@ function MyPredictions() {
         [side]: value,
       },
     }))
+    setDirtyIds((current) => {
+      const next = new Set(
+        current
+      )
+      next.add(matchId)
+      return next
+    })
+  }
+
+  function applyQuickScore(
+    matchId: string,
+    home: number,
+    away: number
+  ) {
+    setDrafts((current) => ({
+      ...current,
+      [matchId]: {
+        home,
+        away,
+        saved: false,
+      },
+    }))
+    setDirtyIds((current) => {
+      const next = new Set(
+        current
+      )
+      next.add(matchId)
+      return next
+    })
   }
 
   async function savePredictions() {
@@ -193,6 +270,15 @@ function MyPredictions() {
       })
       return next
     })
+    setDirtyIds((current) => {
+      const next = new Set(
+        current
+      )
+      changed.forEach((match) =>
+        next.delete(match.id)
+      )
+      return next
+    })
     setSaving(false)
     setNotice(
       `${changed.length} prediction${
@@ -235,6 +321,87 @@ function MyPredictions() {
       )
     }
   ).length
+  const hasUnsavedChanges =
+    dirtyIds.size > 0
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) {
+      return
+    }
+
+    const beforeUnload = (
+      event: BeforeUnloadEvent
+    ) => {
+      event.preventDefault()
+      event.returnValue = ""
+    }
+    const confirmNavigation = (
+      event: MouseEvent
+    ) => {
+      const target =
+        event.target as
+          | HTMLElement
+          | null
+      const link =
+        target?.closest("a[href]")
+      if (!link) return
+      const href =
+        link.getAttribute("href")
+      if (
+        !href ||
+        href ===
+          window.location.pathname
+      ) {
+        return
+      }
+      if (
+        !window.confirm(
+          "You have unsaved predictions. Leave this page anyway?"
+        )
+      ) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    }
+    const confirmBack = () => {
+      if (
+        !window.confirm(
+          "You have unsaved predictions. Leave this page anyway?"
+        )
+      ) {
+        window.history.forward()
+      }
+    }
+
+    window.addEventListener(
+      "beforeunload",
+      beforeUnload
+    )
+    document.addEventListener(
+      "click",
+      confirmNavigation,
+      true
+    )
+    window.addEventListener(
+      "popstate",
+      confirmBack
+    )
+    return () => {
+      window.removeEventListener(
+        "beforeunload",
+        beforeUnload
+      )
+      document.removeEventListener(
+        "click",
+        confirmNavigation,
+        true
+      )
+      window.removeEventListener(
+        "popstate",
+        confirmBack
+      )
+    }
+  }, [hasUnsavedChanges])
 
   function formatKickoff(
     kickoff: string
@@ -525,6 +692,7 @@ function MyPredictions() {
                           : "No prediction"}
                       </div>
                     ) : (
+                      <>
                       <ScorePairControl
                         home={Number(
                           draft?.home ??
@@ -545,6 +713,46 @@ function MyPredictions() {
                           )
                         }
                       />
+                      <div className="quick-scores">
+                        {[
+                          [1, 0],
+                          [1, 1],
+                          [2, 1],
+                          [2, 0],
+                        ].map(
+                          ([
+                            home,
+                            away,
+                          ]) => (
+                            <button
+                              key={`${home}-${away}`}
+                              type="button"
+                              onClick={() =>
+                                applyQuickScore(
+                                  match.id,
+                                  home,
+                                  away
+                                )
+                              }
+                              className={
+                                Number(
+                                  draft?.home ??
+                                    0
+                                ) === home &&
+                                Number(
+                                  draft?.away ??
+                                    0
+                                ) === away
+                                  ? "quick-score-active"
+                                  : ""
+                              }
+                            >
+                              {home}–{away}
+                            </button>
+                          )
+                        )}
+                      </div>
+                      </>
                     )}
                   </div>
 
@@ -583,6 +791,65 @@ function MyPredictions() {
                       }}
                     >
                       UNSAVED PREDICTION
+                    </div>
+                  )}
+                  {locked && (
+                    <div className="community-predictions">
+                      <div className="section-label">
+                        Everyone's predictions
+                      </div>
+                      {lockedPredictions
+                        .filter(
+                          (prediction) =>
+                            prediction.match_id ===
+                            match.id
+                        )
+                        .map(
+                          (prediction) => (
+                            <div
+                              key={
+                                prediction.id
+                              }
+                              className="community-prediction-row"
+                            >
+                              <span>
+                                {players.find(
+                                  (player) =>
+                                    player.id ===
+                                    prediction.user_id
+                                )?.name ||
+                                  "Player"}
+                              </span>
+                              <strong>
+                                {
+                                  prediction.home_prediction
+                                }
+                                –
+                                {
+                                  prediction.away_prediction
+                                }
+                              </strong>
+                            </div>
+                          )
+                        )}
+                      {lockedPredictions.filter(
+                        (prediction) =>
+                          prediction.match_id ===
+                          match.id
+                      ).length === 0 && (
+                        <div
+                          style={{
+                            marginTop:
+                              "7px",
+                            color:
+                              "#6B7280",
+                            fontSize:
+                              "9px",
+                          }}
+                        >
+                          No predictions submitted.
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

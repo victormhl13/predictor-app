@@ -8,6 +8,7 @@ import {
   Download,
   RefreshCw,
   Settings2,
+  Trash2,
   X,
 } from "lucide-react"
 
@@ -15,6 +16,7 @@ import { supabase } from "../lib/supabase"
 import {
   addManualMatch,
   deleteMatch,
+  deleteMatchday,
   recordSync,
   setFinalScore,
   setMatchdayOpen,
@@ -314,6 +316,45 @@ function Matchdays() {
       setNotice("Match deleted.")
     } catch (error) {
       console.error(error)
+    }
+  }
+
+  async function removeMatchday(
+    matchday: Matchday
+  ) {
+    const confirmed =
+      window.confirm(
+        `Delete "${matchday.name}" and all of its matches and predictions? This cannot be undone.`
+      )
+    if (!confirmed) return
+
+    try {
+      await deleteMatchday(
+        matchday.id
+      )
+      setManagedMatchday(null)
+      setExpandedMatchdays(
+        (current) => {
+          const next = {
+            ...current,
+          }
+          delete next[matchday.id]
+          return next
+        }
+      )
+      await Promise.all([
+        loadMatchdays(),
+        loadMatches(),
+      ])
+      setNotice(
+        "Matchday deleted."
+      )
+    } catch (error) {
+      setNotice(
+        error instanceof Error
+          ? error.message
+          : "Could not delete matchday."
+      )
     }
   }
 
@@ -1141,6 +1182,29 @@ function Matchdays() {
                     Reopen Matchday
                   </button>
                 )}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    removeMatchday(
+                      matchday
+                    )
+                  }
+                  className="danger-button"
+                  style={{
+                    width: "100%",
+                    marginTop: "9px",
+                    display: "flex",
+                    alignItems:
+                      "center",
+                    justifyContent:
+                      "center",
+                    gap: "7px",
+                  }}
+                >
+                  <Trash2 size={14} />
+                  Delete Matchday
+                </button>
               </div>
             )}
 

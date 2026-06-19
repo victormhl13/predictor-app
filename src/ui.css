@@ -425,6 +425,53 @@ select.field {
     );
 }
 
+.quick-scores {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.quick-scores button {
+  min-height: 34px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.035);
+  color: #cbd2da;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.quick-scores .quick-score-active {
+  border-color: rgba(109, 255, 78, 0.25);
+  background: rgba(109, 255, 78, 0.11);
+  color: #b7ffa7;
+}
+
+.community-predictions {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 13px;
+  background: rgba(5, 10, 17, 0.28);
+}
+
+.community-prediction-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 7px;
+  color: #aab3bf;
+  font-size: 10px;
+}
+
+.community-prediction-row strong {
+  color: #fff;
+  font-size: 12px;
+}
+
 .toast {
   position: fixed;
   z-index: 130;

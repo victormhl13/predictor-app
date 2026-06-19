@@ -167,6 +167,30 @@ export async function setUserActive(
   if (error) throw error
 }
 
+export async function resetUserPin(
+  userId: string,
+  newPin: string
+) {
+  const { error } =
+    await supabase.rpc(
+      "admin_reset_user_pin",
+      {
+        p_token:
+          sessionToken(),
+        p_user_id: userId,
+        p_new_pin: newPin,
+      }
+    )
+  if (error) {
+    throw new Error(
+      rpcMessage(
+        error,
+        "Could not reset PIN."
+      )
+    )
+  }
+}
+
 export async function createMatchdayWithMatches(
   name: string,
   matches: unknown[]
@@ -365,6 +389,22 @@ export async function deleteMatch(
   if (error) throw error
 }
 
+export async function deleteMatchday(
+  matchdayId: string
+) {
+  const { error } =
+    await supabase.rpc(
+      "admin_delete_matchday",
+      {
+        p_token:
+          sessionToken(),
+        p_matchday_id:
+          matchdayId,
+      }
+    )
+  if (error) throw error
+}
+
 export async function getMyPredictions() {
   const { data, error } =
     await supabase.rpc(
@@ -383,6 +423,16 @@ export async function getFinishedPredictions() {
   const { data, error } =
     await supabase.rpc(
       "finished_predictions"
+    )
+  if (error) throw error
+  return (data ||
+    []) as Prediction[]
+}
+
+export async function getLockedPredictions() {
+  const { data, error } =
+    await supabase.rpc(
+      "locked_predictions"
     )
   if (error) throw error
   return (data ||

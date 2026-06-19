@@ -4,6 +4,7 @@ import {
 } from "react"
 import { Navigate } from "react-router-dom"
 import {
+  KeyRound,
   Plus,
   UserRound,
 } from "lucide-react"
@@ -11,6 +12,7 @@ import {
 import {
   createUser,
   listAdminUsers,
+  resetUserPin,
   setUserActive,
 } from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
@@ -30,6 +32,14 @@ function AdminPanel() {
   const [role, setRole] =
     useState("user")
   const [error, setError] =
+    useState("")
+  const [
+    pinEditor,
+    setPinEditor,
+  ] = useState<string | null>(null)
+  const [newPin, setNewPin] =
+    useState("")
+  const [notice, setNotice] =
     useState("")
 
   async function loadUsers() {
@@ -112,6 +122,39 @@ function AdminPanel() {
       !user.active
     )
     await loadUsers()
+  }
+
+  async function saveNewPin(
+    user: User
+  ) {
+    if (!/^\d{4}$/.test(newPin)) {
+      setError(
+        "PIN must contain exactly 4 digits."
+      )
+      return
+    }
+    try {
+      await resetUserPin(
+        user.id,
+        newPin
+      )
+      setPinEditor(null)
+      setNewPin("")
+      setError("")
+      setNotice(
+        `PIN reset for ${user.name}. They must sign in again.`
+      )
+      window.setTimeout(
+        () => setNotice(""),
+        2800
+      )
+    } catch (resetError) {
+      setError(
+        resetError instanceof Error
+          ? resetError.message
+          : "Could not reset PIN."
+      )
+    }
   }
 
   if (
@@ -246,8 +289,12 @@ function AdminPanel() {
         {users.map((user) => (
           <div
             key={user.id}
-            className="compact-row"
+            style={{
+              borderBottom:
+                "1px solid rgba(255,255,255,0.055)",
+            }}
           >
+          <div className="compact-row">
             <div
               style={{
                 width: "34px",
@@ -294,32 +341,108 @@ function AdminPanel() {
                 {user.role}
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() =>
-                toggleUser(user)
-              }
-              className={
-                user.active
-                  ? "glass-button"
-                  : "primary-button"
-              }
+            <div
               style={{
-                minHeight: "30px",
-                padding: "0 10px",
-                color: user.active
-                  ? "#9CA3AF"
-                  : "#B7FFA7",
-                fontSize: "9px",
+                display: "flex",
+                gap: "6px",
               }}
             >
-              {user.active
-                ? "Disable"
-                : "Enable"}
-            </button>
+              <button
+                type="button"
+                aria-label={`Reset PIN for ${user.name}`}
+                onClick={() => {
+                  setPinEditor(
+                    pinEditor ===
+                      user.id
+                      ? null
+                      : user.id
+                  )
+                  setNewPin("")
+                  setError("")
+                }}
+                className="glass-button"
+                style={{
+                  width: "32px",
+                  minHeight: "30px",
+                  padding: 0,
+                }}
+              >
+                <KeyRound
+                  size={13}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  toggleUser(user)
+                }
+                className={
+                  user.active
+                    ? "glass-button"
+                    : "primary-button"
+                }
+                style={{
+                  minHeight: "30px",
+                  padding:
+                    "0 10px",
+                  color: user.active
+                    ? "#9CA3AF"
+                    : "#B7FFA7",
+                  fontSize: "9px",
+                }}
+              >
+                {user.active
+                  ? "Disable"
+                  : "Enable"}
+              </button>
+            </div>
+          </div>
+          {pinEditor === user.id && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "1fr auto",
+                gap: "8px",
+                padding:
+                  "0 12px 12px 58px",
+              }}
+            >
+              <input
+                className="field"
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="New 4-digit PIN"
+                value={newPin}
+                onChange={(event) =>
+                  setNewPin(
+                    event.target.value.replace(
+                      /\D/g,
+                      ""
+                    )
+                  )
+                }
+              />
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() =>
+                  saveNewPin(user)
+                }
+              >
+                Reset
+              </button>
+            </div>
+          )}
           </div>
         ))}
       </div>
+
+      {notice && (
+        <div className="toast">
+          {notice}
+        </div>
+      )}
     </div>
   )
 }

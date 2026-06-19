@@ -66,6 +66,8 @@ function App() {
 
           flexDirection: "column",
 
+          position: "relative",
+
           overflow: "hidden",
         }}
       >
@@ -155,7 +157,6 @@ function App() {
             />
           </Routes>
         ) : (
-          <>
             <Routes>
               <Route
                 path="/"
@@ -197,12 +198,13 @@ function App() {
                 element={<AdminPanel />}
               />
             </Routes>
-
-            <BottomNavigation />
-          </>
         )}
         </Suspense>
         </main>
+
+        {currentUser && (
+          <BottomNavigation />
+        )}
       </div>
     </BrowserRouter>
   )

@@ -681,6 +681,73 @@ function Matchdays() {
     )
   }
 
+  const visibleMatchdays = [
+    ...matchdays,
+  ]
+    .filter((matchday) => {
+      if (
+        matchFilter ===
+        "upcoming"
+      ) {
+        return matchday.is_open
+      }
+      if (
+        matchFilter ===
+        "finished"
+      ) {
+        return !matchday.is_open
+      }
+      return true
+    })
+    .sort((a, b) => {
+      if (
+        a.is_open !== b.is_open
+      ) {
+        return a.is_open ? -1 : 1
+      }
+
+      const matchdayTime = (
+        id: string,
+        mode: "first" | "last"
+      ) => {
+        const times = matches
+          .filter(
+            (match) =>
+              match.matchday_id ===
+              id
+          )
+          .map((match) =>
+            new Date(
+              match.kickoff
+            ).getTime()
+          )
+        if (times.length === 0) {
+          return 0
+        }
+        return mode === "first"
+          ? Math.min(...times)
+          : Math.max(...times)
+      }
+
+      return a.is_open
+        ? matchdayTime(
+            a.id,
+            "first"
+          ) -
+            matchdayTime(
+              b.id,
+              "first"
+            )
+        : matchdayTime(
+            a.id,
+            "last"
+          ) -
+            matchdayTime(
+              b.id,
+              "last"
+            )
+    })
+
   return (
     <div>
       <PageHeader
@@ -800,7 +867,8 @@ function Matchdays() {
       )}
 
       {!loading &&
-      matchdays.map((matchday) => {
+      visibleMatchdays.map(
+        (matchday) => {
         const allMatchdayMatches =
           matches.filter(
             (match) =>
@@ -1525,7 +1593,8 @@ function Matchdays() {
             )}
           </section>
         )
-      })}
+        }
+      )}
 
       {importMatchday && (
         <div

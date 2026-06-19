@@ -9,8 +9,8 @@ function ScoreStepper({
   onChange,
   compact = false,
 }: Props) {
-  const score =
-    value === "" ? 0 : value
+  const empty = value === ""
+  const score = empty ? 0 : value
   const buttonSize =
     compact ? 32 : 40
 
@@ -41,7 +41,7 @@ function ScoreStepper({
           fontWeight: 850,
         }}
       >
-        {score}
+        {empty ? "–" : score}
       </div>
 
       <div
@@ -53,10 +53,14 @@ function ScoreStepper({
         <button
           type="button"
           aria-label="Decrease score"
-          disabled={score === 0}
           onClick={() =>
             onChange(
-              Math.max(0, score - 1)
+              empty
+                ? 0
+                : Math.max(
+                    0,
+                    score - 1
+                  )
             )
           }
           className="glass-button"
@@ -65,7 +69,10 @@ function ScoreStepper({
             minHeight: `${buttonSize}px`,
             padding: 0,
             opacity:
-              score === 0 ? 0.35 : 1,
+              !empty &&
+              score === 0
+                ? 0.35
+                : 1,
             fontSize: "19px",
           }}
         >
@@ -75,7 +82,9 @@ function ScoreStepper({
           type="button"
           aria-label="Increase score"
           onClick={() =>
-            onChange(score + 1)
+            onChange(
+              empty ? 1 : score + 1
+            )
           }
           className="primary-button"
           style={{

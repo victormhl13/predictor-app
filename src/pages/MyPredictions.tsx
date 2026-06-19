@@ -217,8 +217,10 @@ function MyPredictions() {
     (match) => {
       const draft = drafts[match.id]
       return (
-        draft?.home !== "" &&
-        draft?.away !== ""
+        typeof draft?.home ===
+          "number" &&
+        typeof draft?.away ===
+          "number"
       )
     }
   ).length
@@ -344,12 +346,10 @@ function MyPredictions() {
                 drafts[match.id]
               const missing =
                 !locked &&
-                (draft?.home ===
-                  undefined ||
-                  draft?.home === "" ||
-                  draft?.away ===
-                    undefined ||
-                  draft?.away === "")
+                (typeof draft?.home !==
+                  "number" ||
+                  typeof draft?.away !==
+                    "number")
 
               return (
                 <div

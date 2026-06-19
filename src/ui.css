@@ -34,6 +34,9 @@
   width: 44px;
   min-height: 42px;
   padding: 0;
+  display: grid;
+  place-items: center;
+  line-height: 0;
 }
 
 .matchday-add-action,

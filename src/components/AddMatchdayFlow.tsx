@@ -640,6 +640,10 @@ function AddMatchdayFlow({
                       className="compact-row"
                       style={{
                         cursor: "pointer",
+                        display: "grid",
+                        gridTemplateColumns:
+                          "22px 30px minmax(0, 1fr) 30px",
+                        gap: "10px",
                       }}
                     >
                       <input
@@ -668,26 +672,50 @@ function AddMatchdayFlow({
                       />
                       <span
                         style={{
-                          flex: 1,
                           minWidth: 0,
+                          display: "grid",
+                          gridTemplateColumns:
+                            "minmax(0, 1fr) auto minmax(0, 1fr)",
+                          alignItems:
+                            "center",
+                          gap: "7px",
                           fontSize: "11px",
                           fontWeight: 700,
-                          textAlign:
-                            "center",
+                          lineHeight: 1.25,
                         }}
                       >
-                        {fixture.homeTeam}
                         <span
                           style={{
-                            margin:
-                              "0 5px",
+                            minWidth: 0,
+                            textAlign:
+                              "right",
+                            overflowWrap:
+                              "anywhere",
+                          }}
+                        >
+                          {fixture.homeTeam}
+                        </span>
+                        <span
+                          style={{
                             color:
                               "#6B7280",
+                            fontSize: "9px",
+                            fontWeight: 800,
                           }}
                         >
                           vs
                         </span>
-                        {fixture.awayTeam}
+                        <span
+                          style={{
+                            minWidth: 0,
+                            textAlign:
+                              "left",
+                            overflowWrap:
+                              "anywhere",
+                          }}
+                        >
+                          {fixture.awayTeam}
+                        </span>
                       </span>
                       <TeamBadge
                         name={

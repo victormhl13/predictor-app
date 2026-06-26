@@ -592,21 +592,49 @@ function ImportMatchesForm({
               <span
                 style={{
                   minWidth: 0,
-                  fontSize: "13px",
+                  fontSize: "12px",
                   fontWeight: 650,
                 }}
               >
-                <span>
-                  {fixture.homeTeam}
+                <span
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "minmax(0, 1fr) auto minmax(0, 1fr)",
+                    alignItems: "center",
+                    gap: "7px",
+                    lineHeight: 1.25,
+                  }}
+                >
+                  <span
+                    style={{
+                      minWidth: 0,
+                      textAlign: "right",
+                      overflowWrap:
+                        "anywhere",
+                    }}
+                  >
+                    {fixture.homeTeam}
+                  </span>
                   <span
                     style={{
                       color: "#9CA3AF",
-                      margin: "0 7px",
+                      fontSize: "9px",
+                      fontWeight: 800,
                     }}
                   >
                     vs
                   </span>
-                  {fixture.awayTeam}
+                  <span
+                    style={{
+                      minWidth: 0,
+                      textAlign: "left",
+                      overflowWrap:
+                        "anywhere",
+                    }}
+                  >
+                    {fixture.awayTeam}
+                  </span>
                 </span>
                 <span
                   style={{

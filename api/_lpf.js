@@ -156,6 +156,69 @@ function hasKnownKickoffTime(
   )
 }
 
+const TEAM_NAMES = {
+  "FC ARGES":
+    "FC ARGEȘ",
+  "FC ARGEȘ":
+    "FC ARGEȘ",
+  "FCSB":
+    "FCSB",
+  "FK CSIKSZEREDA MIERCUREA CIUC":
+    "FK CSIKSZEREDA",
+  "CSIKSZEREDA MIERCUREA CIUC":
+    "FK CSIKSZEREDA",
+  "FC UNIVERSITATEA CLUJ":
+    "UNIVERSITATEA CLUJ",
+  "U CLUJ":
+    "UNIVERSITATEA CLUJ",
+  "FC FARUL CONSTANTA":
+    "FARUL CONSTANȚA",
+  "FC FARUL CONSTANȚA":
+    "FARUL CONSTANȚA",
+  "SC OTELUL GALATI":
+    "OȚELUL GALAȚI",
+  "SC OȚELUL GALAȚI":
+    "OȚELUL GALAȚI",
+  "FC CFR 1907 CLUJ":
+    "CFR 1907 CLUJ",
+  "CFR 1907 CLUJ":
+    "CFR 1907 CLUJ",
+  "FC BOTOSANI":
+    "FC BOTOȘANI",
+  "FC BOTOȘANI":
+    "FC BOTOȘANI",
+  "SEPSI OSK":
+    "SEPSI OSK",
+  "UTA ARAD":
+    "UTA ARAD",
+  "DINAMO BUCURESTI":
+    "DINAMO BUCUREȘTI",
+  "DINAMO BUCUREȘTI":
+    "DINAMO BUCUREȘTI",
+}
+
+function normalizeTeamName(name) {
+  if (!name) return null
+  const normalized = text(name)
+    .replace(/,$/, "")
+    .replace(/\s+/g, " ")
+    .trim()
+  const key = normalized
+    .toLocaleUpperCase("ro-RO")
+    .normalize("NFD")
+    .replace(
+      /[\u0300-\u036f]/g,
+      ""
+    )
+
+  return (
+    TEAM_NAMES[key] ||
+    normalized.toLocaleUpperCase(
+      "ro-RO"
+    )
+  )
+}
+
 export function parseSeason(html) {
   const match = text(html).match(
     /SEZONUL\s+(\d{4})\s*[–—-]\s*(\d{4})/i
@@ -243,9 +306,9 @@ function teamFromRow(
   )
   if (!block) return null
   const html = block[0]
-  return (
+  return normalizeTeamName(
     attribute(html, "title") ||
-    text(block[1] || block[2])
+      text(block[1] || block[2])
   )
 }
 
@@ -526,9 +589,13 @@ export async function fetchLpfResult(
       ).toString()
     )
   const homeTeam =
-    titleTeams?.[1]?.trim() || null
+    normalizeTeamName(
+      titleTeams?.[1]
+    ) || null
   const awayTeam =
-    titleTeams?.[2]?.trim() || null
+    normalizeTeamName(
+      titleTeams?.[2]
+    ) || null
   const details = {
     kickoff,
     homeTeam,

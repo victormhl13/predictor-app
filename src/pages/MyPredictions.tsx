@@ -482,8 +482,10 @@ function MyPredictions() {
         {
           day: "2-digit",
           month: "short",
+          timeZone:
+            "Europe/Amsterdam",
         }
-      )}, ora TBA`
+      )}, time TBA`
     }
 
     return new Date(
@@ -495,6 +497,8 @@ function MyPredictions() {
         month: "short",
         hour: "2-digit",
         minute: "2-digit",
+        timeZone:
+          "Europe/Amsterdam",
       }
     )
   }

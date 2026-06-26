@@ -81,13 +81,13 @@ function phaseLabel(
   }
 
   if (phase === "retur") {
-    return `Retur ${matchday} · Etapa ${apiRoundFor(
+    return `Matchday ${apiRoundFor(
       phase,
       matchday
     )}`
   }
 
-  return `Tur ${matchday}`
+  return `Matchday ${matchday}`
 }
 
 function formatFixtureKickoff(
@@ -101,11 +101,13 @@ function formatFixtureKickoff(
       {
         day: "2-digit",
         month: "short",
+        timeZone:
+          "Europe/Amsterdam",
       }
     )
 
   if (kickoffTimeTba) {
-    return `${day}, ora TBA`
+    return `${day}, time TBA`
   }
 
   return date.toLocaleString(
@@ -115,6 +117,8 @@ function formatFixtureKickoff(
       month: "short",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone:
+        "Europe/Amsterdam",
     }
   )
 }
@@ -394,10 +398,12 @@ function ImportMatchesForm({
             }}
           >
             <option value="tur">
-              Tur · Etapele 1-15
+              Regular season ·
+              Matchdays 1-15
             </option>
             <option value="retur">
-              Retur · Etapele 16-30
+              Regular season ·
+              Matchdays 16-30
             </option>
             <option value="playoff">
               Play-off · 10 matchdays

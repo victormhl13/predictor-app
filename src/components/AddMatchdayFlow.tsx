@@ -61,13 +61,13 @@ function phaseLabel(
   }
 
   if (phase === "retur") {
-    return `Retur ${matchday} · Etapa ${apiRoundFor(
+    return `Matchday ${apiRoundFor(
       phase,
       matchday
     )}`
   }
 
-  return `Tur ${matchday}`
+  return `Matchday ${matchday}`
 }
 
 function AddMatchdayFlow({
@@ -434,10 +434,12 @@ function AddMatchdayFlow({
                 }}
               >
                 <option value="tur">
-                  Tur · Etapele 1-15
+                  Regular season ·
+                  Matchdays 1-15
                 </option>
                 <option value="retur">
-                  Retur · Etapele 16-30
+                  Regular season ·
+                  Matchdays 16-30
                 </option>
                 <option value="playoff">
                   Play-off · 10

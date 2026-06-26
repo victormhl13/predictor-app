@@ -31,6 +31,7 @@
 }
 
 .matchday-refresh {
+  position: relative;
   width: 44px;
   height: 44px;
   min-height: 44px;
@@ -49,8 +50,9 @@
 
 .matchday-refresh svg {
   display: block;
-  margin: auto;
-  transform: translateX(-1px);
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
 }
 
 .matchday-add-action,
@@ -187,10 +189,10 @@
 
 @keyframes control-spin {
   from {
-    transform: translateX(-1px) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
   }
   to {
-    transform: translateX(-1px) rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 

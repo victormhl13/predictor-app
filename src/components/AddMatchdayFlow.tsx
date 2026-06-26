@@ -490,9 +490,6 @@ function AddMatchdayFlow({
                   >
                     {item.label ||
                       item.year}
-                    {item.current
-                      ? " · Current"
-                      : ""}
                   </option>
                 ))}
               </select>

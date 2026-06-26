@@ -17,6 +17,7 @@ type Props = {
 type ApiFixture = {
   id: number
   kickoff: string
+  kickoffTimeTba?: boolean
   homeTeam: string
   awayTeam: string
   homeLogo?: string | null
@@ -35,6 +36,11 @@ type Season = {
   current: boolean
 }
 
+type CompetitionPhase =
+  | "tur"
+  | "retur"
+  | "playoff"
+
 const fieldStyle = {
   width: "100%",
   height: "48px",
@@ -47,6 +53,71 @@ const fieldStyle = {
     "rgba(255,255,255,0.05)",
   color: "#FFFFFF",
 } as const
+
+function apiPhaseFor(
+  phase: CompetitionPhase
+) {
+  return phase === "playoff"
+    ? "playoff"
+    : "regular"
+}
+
+function apiRoundFor(
+  phase: CompetitionPhase,
+  matchday: string
+) {
+  const round = Number(matchday)
+  return phase === "retur"
+    ? round + 15
+    : round
+}
+
+function phaseLabel(
+  phase: CompetitionPhase,
+  matchday: string
+) {
+  if (phase === "playoff") {
+    return `Play-off ${matchday}`
+  }
+
+  if (phase === "retur") {
+    return `Retur ${matchday} · Etapa ${apiRoundFor(
+      phase,
+      matchday
+    )}`
+  }
+
+  return `Tur ${matchday}`
+}
+
+function formatFixtureKickoff(
+  kickoff: string,
+  kickoffTimeTba?: boolean
+) {
+  const date = new Date(kickoff)
+  const day =
+    date.toLocaleDateString(
+      "ro-RO",
+      {
+        day: "2-digit",
+        month: "short",
+      }
+    )
+
+  if (kickoffTimeTba) {
+    return `${day}, ora TBA`
+  }
+
+  return date.toLocaleString(
+    "ro-RO",
+    {
+      day: "2-digit",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  )
+}
 
 function ImportMatchesForm({
   matchdayId,
@@ -63,9 +134,9 @@ function ImportMatchesForm({
   const [matchday, setMatchday] =
     useState("1")
   const [phase, setPhase] =
-    useState<
-      "regular" | "playoff"
-    >("regular")
+    useState<CompetitionPhase>(
+      "tur"
+    )
   const [fixtures, setFixtures] =
     useState<ApiFixture[]>([])
   const [selectedIds, setSelectedIds] =
@@ -128,12 +199,17 @@ function ImportMatchesForm({
     setSelectedIds([])
 
     try {
+      const apiRound = apiRoundFor(
+        phase,
+        matchday
+      )
       const params =
         new URLSearchParams({
           season,
-          phase,
+          phase:
+            apiPhaseFor(phase),
           round:
-            `Regular Season - ${matchday}`,
+            `Regular Season - ${apiRound}`,
         })
 
       const response = await fetch(
@@ -304,9 +380,8 @@ function ImportMatchesForm({
             value={phase}
             onChange={(event) => {
               setPhase(
-                event.target.value as
-                  | "regular"
-                  | "playoff"
+                event.target
+                  .value as CompetitionPhase
               )
               setMatchday("1")
               setFixtures([])
@@ -318,9 +393,11 @@ function ImportMatchesForm({
               background: "#1C1C1C",
             }}
           >
-            <option value="regular">
-              Regular season · 30
-              matchdays
+            <option value="tur">
+              Tur · Etapele 1-15
+            </option>
+            <option value="retur">
+              Retur · Etapele 16-30
             </option>
             <option value="playoff">
               Play-off · 10 matchdays
@@ -408,7 +485,7 @@ function ImportMatchesForm({
                 length:
                   phase === "playoff"
                     ? 10
-                    : 30,
+                    : 15,
               },
               (_, index) =>
                 index + 1
@@ -417,13 +494,10 @@ function ImportMatchesForm({
                 key={number}
                 value={number}
               >
-                {phase === "playoff"
-                  ? `Play-off ${number} · ${
-                      number <= 5
-                        ? "Tur"
-                        : "Retur"
-                    }`
-                  : `Matchday ${number}`}
+                {phaseLabel(
+                  phase,
+                  String(number)
+                )}
               </option>
             ))}
           </select>
@@ -519,16 +593,35 @@ function ImportMatchesForm({
                   fontWeight: 650,
                 }}
               >
-                {fixture.homeTeam}
+                <span>
+                  {fixture.homeTeam}
+                  <span
+                    style={{
+                      color: "#9CA3AF",
+                      margin: "0 7px",
+                    }}
+                  >
+                    vs
+                  </span>
+                  {fixture.awayTeam}
+                </span>
                 <span
                   style={{
-                    color: "#9CA3AF",
-                    margin: "0 7px",
+                    display: "block",
+                    marginTop: "3px",
+                    color:
+                      fixture.kickoffTimeTba
+                        ? "#FBBF24"
+                        : "#9CA3AF",
+                    fontSize: "10px",
+                    fontWeight: 700,
                   }}
                 >
-                  vs
+                  {formatFixtureKickoff(
+                    fixture.kickoff,
+                    fixture.kickoffTimeTba
+                  )}
                 </span>
-                {fixture.awayTeam}
               </span>
 
               <TeamBadge

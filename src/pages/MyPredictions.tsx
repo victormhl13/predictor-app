@@ -155,9 +155,58 @@ function MyPredictions() {
   function isLocked(
     kickoff: string
   ) {
+    const lockDate = new Date(
+      kickoff
+    )
+
+    if (
+      isLikelyTbaKickoff(
+        kickoff
+      )
+    ) {
+      lockDate.setHours(
+        23,
+        59,
+        59,
+        999
+      )
+    }
+
     return (
-      new Date(kickoff) <=
-      new Date()
+      lockDate <= new Date()
+    )
+  }
+
+  function isLikelyTbaKickoff(
+    kickoff: string
+  ) {
+    const parts =
+      new Intl.DateTimeFormat(
+        "en-GB",
+        {
+          timeZone:
+            "Europe/Bucharest",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }
+      ).formatToParts(
+        new Date(kickoff)
+      )
+    const hour =
+      parts.find(
+        (part) =>
+          part.type === "hour"
+      )?.value
+    const minute =
+      parts.find(
+        (part) =>
+          part.type === "minute"
+      )?.value
+
+    return (
+      hour === "12" &&
+      minute === "00"
     )
   }
 
@@ -421,6 +470,22 @@ function MyPredictions() {
   function formatKickoff(
     kickoff: string
   ) {
+    if (
+      isLikelyTbaKickoff(
+        kickoff
+      )
+    ) {
+      return `${new Date(
+        kickoff
+      ).toLocaleDateString(
+        "ro-RO",
+        {
+          day: "2-digit",
+          month: "short",
+        }
+      )}, ora TBA`
+    }
+
     return new Date(
       kickoff
     ).toLocaleString(

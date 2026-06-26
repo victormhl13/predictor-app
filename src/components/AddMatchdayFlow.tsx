@@ -10,6 +10,7 @@ import TeamBadge from "./TeamBadge"
 type Fixture = {
   id: number
   kickoff: string
+  kickoffTimeTba?: boolean
   homeTeam: string
   awayTeam: string
   homeLogo?: string | null
@@ -28,6 +29,47 @@ type Season = {
   current: boolean
 }
 
+type CompetitionPhase =
+  | "tur"
+  | "retur"
+  | "playoff"
+
+function apiPhaseFor(
+  phase: CompetitionPhase
+) {
+  return phase === "playoff"
+    ? "playoff"
+    : "regular"
+}
+
+function apiRoundFor(
+  phase: CompetitionPhase,
+  matchday: string
+) {
+  const round = Number(matchday)
+  return phase === "retur"
+    ? round + 15
+    : round
+}
+
+function phaseLabel(
+  phase: CompetitionPhase,
+  matchday: string
+) {
+  if (phase === "playoff") {
+    return `Play-off ${matchday}`
+  }
+
+  if (phase === "retur") {
+    return `Retur ${matchday} · Etapa ${apiRoundFor(
+      phase,
+      matchday
+    )}`
+  }
+
+  return `Tur ${matchday}`
+}
+
 function AddMatchdayFlow({
   onCreated,
 }: Props) {
@@ -44,9 +86,9 @@ function AddMatchdayFlow({
   const [matchday, setMatchday] =
     useState("1")
   const [phase, setPhase] =
-    useState<
-      "regular" | "playoff"
-    >("regular")
+    useState<CompetitionPhase>(
+      "tur"
+    )
   const [fixtures, setFixtures] =
     useState<Fixture[]>([])
   const [selected, setSelected] =
@@ -126,12 +168,17 @@ function AddMatchdayFlow({
     setSelected([])
 
     try {
+      const apiRound = apiRoundFor(
+        phase,
+        matchday
+      )
       const params =
         new URLSearchParams({
           season,
-          phase,
+          phase:
+            apiPhaseFor(phase),
           round:
-            `Regular Season - ${matchday}`,
+            `Regular Season - ${apiRound}`,
         })
       const response = await fetch(
         `/api/import-superliga?${params.toString()}`
@@ -196,7 +243,10 @@ function AddMatchdayFlow({
         } · ${
           phase === "playoff"
             ? `Play-off ${matchday}`
-            : `Matchday ${matchday}`
+            : phaseLabel(
+                phase,
+                matchday
+              )
         }`,
         chosen.map((fixture) => ({
           home_team:
@@ -240,7 +290,10 @@ function AddMatchdayFlow({
         } · ${
           phase === "playoff"
             ? `Play-off ${matchday}`
-            : `Matchday ${matchday}`
+            : phaseLabel(
+                phase,
+                matchday
+              )
         }`,
         []
       )
@@ -370,9 +423,7 @@ function AddMatchdayFlow({
                 onChange={(event) => {
                   setPhase(
                     event.target
-                      .value as
-                      | "regular"
-                      | "playoff"
+                      .value as CompetitionPhase
                   )
                   setMatchday("1")
                   setFixtures([])
@@ -382,9 +433,11 @@ function AddMatchdayFlow({
                   marginTop: "7px",
                 }}
               >
-                <option value="regular">
-                  Regular season · 30
-                  matchdays
+                <option value="tur">
+                  Tur · Etapele 1-15
+                </option>
+                <option value="retur">
+                  Retur · Etapele 16-30
                 </option>
                 <option value="playoff">
                   Play-off · 10
@@ -465,7 +518,7 @@ function AddMatchdayFlow({
                       phase ===
                       "playoff"
                         ? 10
-                        : 30,
+                        : 15,
                   },
                   (_, index) =>
                     index + 1
@@ -474,14 +527,10 @@ function AddMatchdayFlow({
                     key={number}
                     value={number}
                   >
-                    {phase ===
-                    "playoff"
-                      ? `Play-off ${number} · ${
-                          number <= 5
-                            ? "Tur"
-                            : "Retur"
-                        }`
-                      : `Matchday ${number}`}
+                    {phaseLabel(
+                      phase,
+                      String(number)
+                    )}
                   </option>
                 ))}
               </select>

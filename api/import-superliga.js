@@ -115,7 +115,11 @@ export default {
 
       return json({
         fixtures:
-          parseRound(fixturesHtml),
+          parseRound(
+            fixturesHtml,
+            round,
+            phase
+          ),
         season,
         phase,
         source: "LPF",

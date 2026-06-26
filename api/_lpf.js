@@ -124,7 +124,7 @@ export function parseRomanianDate(
     .toLocaleLowerCase("ro-RO")
     .replace(/\./g, "")
   const match = normalized.match(
-    /(\d{1,2})\s+([a-zăâîșşțţ]+)\s+(\d{4}),?\s+(\d{1,2}):(\d{2})/i
+    /(\d{1,2})\s+([a-zăâîșşțţ]+)\s+(\d{4})(?:,?\s+(\d{1,2}):(\d{2}))?/i
   )
   if (!match) return null
 
@@ -132,12 +132,27 @@ export function parseRomanianDate(
     MONTHS[match[2]]
   if (!month) return null
 
+  const hour = match[4]
+    ? Number(match[4])
+    : 12
+  const minute = match[5]
+    ? Number(match[5])
+    : 0
+
   return localDateToIso(
     Number(match[3]),
     month,
     Number(match[1]),
-    Number(match[4]),
-    Number(match[5])
+    hour,
+    minute
+  )
+}
+
+function hasKnownKickoffTime(
+  value
+) {
+  return /\b\d{1,2}:\d{2}\b/.test(
+    text(value)
   )
 }
 
@@ -167,6 +182,53 @@ export function parsePlayoffEdition(
   return playoff
     ? Number(playoff[1])
     : null
+}
+
+function generatedFixtureId(
+  phase,
+  round,
+  index
+) {
+  if (!round) return null
+  const phaseCode =
+    phase === "playoff" ? 2 : 1
+  return -(
+    9_000_000 +
+    phaseCode * 100_000 +
+    round * 100 +
+    index +
+    1
+  )
+}
+
+function decodeGeneratedFixtureId(
+  fixtureId
+) {
+  const value = Math.abs(fixtureId)
+  if (value < 9_000_000) {
+    return null
+  }
+
+  const encoded =
+    value - 9_000_000
+  const phaseCode = Math.floor(
+    encoded / 100_000
+  )
+  const rest =
+    encoded - phaseCode * 100_000
+  const round = Math.floor(
+    rest / 100
+  )
+  const index = rest % 100
+
+  return {
+    phase:
+      phaseCode === 2
+        ? "playoff"
+        : "regular",
+    round,
+    index,
+  }
 }
 
 function teamFromRow(
@@ -233,7 +295,11 @@ function scoresFromRow(row) {
   }
 }
 
-export function parseRound(html) {
+export function parseRound(
+  html,
+  fallbackRound = null,
+  phase = "regular"
+) {
   return Array.from(
     html.matchAll(
       /<tr\b[^>]*>([\s\S]*?)<\/tr>/gi
@@ -249,7 +315,7 @@ export function parseRound(html) {
           "echipa-etapa-2"
         )
     )
-    .map((row) => {
+    .map((row, index) => {
       const dateCell =
         row.match(
           /<td[^>]*class=["'][^"']*etapa-meci-data[^"']*hiddenMobile[^"']*["'][^>]*>([\s\S]*?)<\/td>/i
@@ -284,7 +350,11 @@ export function parseRound(html) {
         id:
           Number.isInteger(statsId)
             ? -statsId
-            : null,
+            : generatedFixtureId(
+                phase,
+                fallbackRound,
+                index
+              ),
         kickoff,
         homeTeam,
         awayTeam,
@@ -296,6 +366,11 @@ export function parseRound(html) {
           row,
           "echipa2-logo-s"
         ),
+        kickoffTimeTba: dateCell
+          ? !hasKnownKickoffTime(
+              dateCell[1]
+            )
+          : false,
         ...scores,
         source: "LPF",
       }
@@ -339,6 +414,75 @@ export async function fetchLpfPage(
 export async function fetchLpfResult(
   fixtureId
 ) {
+  const generated =
+    decodeGeneratedFixtureId(
+      fixtureId
+    )
+
+  if (generated) {
+    if (
+      generated.phase ===
+      "playoff"
+    ) {
+      return {
+        id: fixtureId,
+        status: "NS",
+        homeScore: null,
+        awayScore: null,
+        kickoff: null,
+        homeTeam: null,
+        awayTeam: null,
+        homeLogo: null,
+        awayLogo: null,
+        kickoffTimeTba: false,
+      }
+    }
+
+    const roundHtml =
+      await fetchLpfPage(
+        `/etape-liga-1/${generated.round}`
+      )
+    const fixture = parseRound(
+      roundHtml,
+      generated.round,
+      generated.phase
+    ).find(
+      (item) =>
+        item.id === fixtureId
+    )
+
+    if (!fixture) {
+      return {
+        id: fixtureId,
+        status: "NS",
+        homeScore: null,
+        awayScore: null,
+        kickoff: null,
+        homeTeam: null,
+        awayTeam: null,
+        homeLogo: null,
+        awayLogo: null,
+        kickoffTimeTba: false,
+      }
+    }
+
+    const isFinal =
+      fixture.homeScore !== null &&
+      fixture.awayScore !== null &&
+      Date.now() -
+        new Date(
+          fixture.kickoff
+        ).getTime() >
+        135 * 60_000
+
+    return {
+      ...fixture,
+      status: isFinal
+        ? "FT"
+        : "NS",
+    }
+  }
+
   const html = await fetchLpfPage(
     `/statistici/${Math.abs(
       fixtureId
@@ -353,6 +497,9 @@ export async function fetchLpfResult(
   const kickoff = date
     ? parseRomanianDate(date[1])
     : null
+  const kickoffTimeTba = date
+    ? !hasKnownKickoffTime(date[1])
+    : false
   const pageTitle = text(
     html.match(
       /<title[^>]*>([\s\S]*?)<\/title>/i
@@ -390,6 +537,7 @@ export async function fetchLpfResult(
       logoPaths[0] || null,
     awayLogo:
       logoPaths[1] || null,
+    kickoffTimeTba,
   }
 
   if (!score || !kickoff) {

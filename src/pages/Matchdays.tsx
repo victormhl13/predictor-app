@@ -389,6 +389,7 @@ function Matchdays() {
   async function syncResults(
     silent = false
   ) {
+    setSyncing(true)
     const apiMatches =
       matches.filter(
         (match) =>
@@ -397,15 +398,39 @@ function Matchdays() {
       )
 
     if (apiMatches.length === 0) {
-      if (!silent) {
-        setNotice(
-          "No API matches to sync."
+      try {
+        await recordSync(
+          0,
+          0,
+          "success",
+          "Synchronization checked. No LPF fixtures are linked yet."
         )
+        await loadSyncStatus()
+        if (!silent) {
+          setNotice(
+            "Sync checked. No LPF fixtures are linked yet."
+          )
+        }
+      } catch (error) {
+        if (!silent) {
+          setNotice(
+            error instanceof Error
+              ? error.message
+              : "Could not update sync status."
+          )
+        }
+      } finally {
+        setSyncing(false)
+        if (!silent) {
+          window.setTimeout(
+            () => setNotice(""),
+            2600
+          )
+        }
       }
       return
     }
 
-    setSyncing(true)
     try {
       const params =
         new URLSearchParams({

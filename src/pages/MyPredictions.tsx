@@ -125,8 +125,8 @@ function MyPredictions() {
         (matchData || []) as Match[]
       ).forEach((match) => {
         loaded[match.id] = {
-          home: 0,
-          away: 0,
+          home: "",
+          away: "",
           saved: false,
         }
       })
@@ -220,10 +220,10 @@ function MyPredictions() {
       [matchId]: {
         home:
           current[matchId]?.home ??
-          "",
+          0,
         away:
           current[matchId]?.away ??
-          "",
+          0,
         saved: false,
         [side]: value,
       },
@@ -270,7 +270,11 @@ function MyPredictions() {
           !isLocked(
             match.kickoff
           ) &&
-          !draft?.saved
+          dirtyIds.has(match.id) &&
+          typeof draft?.home ===
+            "number" &&
+          typeof draft?.away ===
+            "number"
         )
       }
     )
@@ -378,6 +382,7 @@ function MyPredictions() {
     (match) => {
       const draft = drafts[match.id]
       return (
+        draft?.saved &&
         typeof draft?.home ===
           "number" &&
         typeof draft?.away ===
@@ -613,6 +618,14 @@ function MyPredictions() {
                 editingIds.has(
                   match.id
                 )
+              const canSave =
+                dirtyIds.has(
+                  match.id
+                ) &&
+                typeof draft?.home ===
+                  "number" &&
+                typeof draft?.away ===
+                  "number"
 
               return (
                 <div
@@ -914,7 +927,9 @@ function MyPredictions() {
                           "center",
                       }}
                     >
-                      UNSAVED PREDICTION
+                      {canSave
+                        ? "UNSAVED CHANGES"
+                        : "NO PREDICTION YET"}
                     </div>
                   )}
                   {locked && (
@@ -988,15 +1003,24 @@ function MyPredictions() {
           <button
             type="button"
             onClick={savePredictions}
-            disabled={saving}
+            disabled={
+              saving ||
+              dirtyIds.size === 0
+            }
             className="primary-button"
             style={{
               width: "100%",
+              opacity:
+                dirtyIds.size === 0
+                  ? 0.6
+                  : 1,
             }}
           >
             {saving
               ? "Saving..."
-              : `Save all · ${completed}/${openMatches.length}`}
+              : dirtyIds.size > 0
+                ? `Save changes · ${dirtyIds.size}`
+                : `Saved · ${completed}/${openMatches.length}`}
           </button>
         )}
 

@@ -22,9 +22,51 @@ import TeamBadge from "../components/TeamBadge"
 import Countdown from "../components/Countdown"
 import type {
   Match,
+  Matchday,
   Prediction,
   User,
 } from "../types"
+
+function effectiveKickoff(
+  kickoff: string
+) {
+  const date = new Date(kickoff)
+  const parts =
+    new Intl.DateTimeFormat(
+      "en-GB",
+      {
+        timeZone:
+          "Europe/Bucharest",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }
+    ).formatToParts(date)
+  const hour =
+    parts.find(
+      (part) =>
+        part.type === "hour"
+    )?.value
+  const minute =
+    parts.find(
+      (part) =>
+        part.type === "minute"
+    )?.value
+
+  if (
+    hour === "12" &&
+    minute === "00"
+  ) {
+    date.setHours(
+      23,
+      59,
+      59,
+      999
+    )
+  }
+
+  return date
+}
 
 function Dashboard() {
   const { currentUser } = useAuth()
@@ -51,7 +93,6 @@ function Dashboard() {
     async function loadDashboard() {
       const [
         matchdayResult,
-        upcomingResult,
         predictionResult,
         usersResult,
         allPredictionsResult,
@@ -62,13 +103,6 @@ function Dashboard() {
           .select("*")
           .eq("is_open", true)
           .order("name")
-          .limit(1)
-          .maybeSingle(),
-        supabase
-          .from("matches")
-          .select("*")
-          .is("home_score", null)
-          .order("kickoff")
           .limit(1)
           .maybeSingle(),
         currentUser
@@ -96,12 +130,42 @@ function Dashboard() {
           matchdayResult.data.name
         )
       }
-      const nextMatch =
-        (upcomingResult.data ||
-          null) as Match | null
       const ownPredictions =
         (predictionResult.data ||
           []) as Prediction[]
+
+      const users =
+        (usersResult.data ||
+          []) as User[]
+      const predictions =
+        (allPredictionsResult.data ||
+          []) as Prediction[]
+      const matches =
+        (matchesResult.data ||
+          []) as Match[]
+      const futureMatches = matches
+        .filter(
+          (match) =>
+            match.home_score ===
+              null &&
+            match.away_score ===
+              null &&
+            effectiveKickoff(
+              match.kickoff
+            ) > new Date()
+        )
+        .sort(
+          (a, b) =>
+            new Date(
+              a.kickoff
+            ).getTime() -
+            new Date(
+              b.kickoff
+            ).getTime()
+        )
+      const nextMatch =
+        futureMatches[0] || null
+
       setUpcomingMatch(nextMatch)
       setMyPredictions(
         ownPredictions.length
@@ -117,15 +181,27 @@ function Dashboard() {
         )
       )
 
-      const users =
-        (usersResult.data ||
-          []) as User[]
-      const predictions =
-        (allPredictionsResult.data ||
-          []) as Prediction[]
-      const matches =
-        (matchesResult.data ||
-          []) as Match[]
+      if (
+        !matchdayResult.data &&
+        nextMatch
+      ) {
+        const { data } =
+          await supabase
+            .from("matchdays")
+            .select("*")
+            .eq(
+              "id",
+              nextMatch.matchday_id
+            )
+            .maybeSingle()
+        const nextMatchday =
+          data as Matchday | null
+        if (nextMatchday) {
+          setCurrentMatchday(
+            nextMatchday.name
+          )
+        }
+      }
 
       const ranking = users
         .map((user) => {

@@ -19,6 +19,7 @@ import Countdown from "../components/Countdown"
 import SkeletonList from "../components/SkeletonList"
 import type {
   Match,
+  Matchday,
   Prediction,
   User,
 } from "../types"
@@ -136,13 +137,19 @@ function MyPredictions() {
   const { currentUser } = useAuth()
   const [matches, setMatches] =
     useState<Match[]>([])
+  const [
+    matchdays,
+    setMatchdays,
+  ] = useState<Matchday[]>([])
   const [drafts, setDrafts] =
     useState<Record<string, Draft>>(
       {}
     )
   const [filter, setFilter] =
     useState<
-      "open" | "locked"
+      | "open"
+      | "locked"
+      | "others"
     >("open")
   const [saving, setSaving] =
     useState(false)
@@ -163,6 +170,12 @@ function MyPredictions() {
   const [
     editingIds,
     setEditingIds,
+  ] = useState<Set<string>>(
+    () => new Set()
+  )
+  const [
+    expandedMatchdayIds,
+    setExpandedMatchdayIds,
   ] = useState<Set<string>>(
     () => new Set()
   )
@@ -194,14 +207,30 @@ function MyPredictions() {
 
   useEffect(() => {
     async function load() {
-      const { data: matchData } =
-        await supabase
+      const [
+        matchesResult,
+        matchdaysResult,
+      ] = await Promise.all([
+        supabase
           .from("matches")
           .select("*")
-          .order("kickoff")
+          .order("kickoff"),
+        supabase
+          .from("matchdays")
+          .select("*")
+          .order("name"),
+      ])
+
+      const loadedMatches =
+        (matchesResult.data ||
+          []) as Match[]
 
       setMatches(
-        (matchData || []) as Match[]
+        loadedMatches
+      )
+      setMatchdays(
+        (matchdaysResult.data ||
+          []) as Matchday[]
       )
 
       if (!currentUser) return
@@ -222,7 +251,7 @@ function MyPredictions() {
 
       setDrafts(
         buildDrafts(
-          (matchData || []) as Match[],
+          loadedMatches,
           predictionData as Prediction[]
         )
       )
@@ -402,8 +431,99 @@ function MyPredictions() {
       )
     }
   ).length
+  const otherPredictionsByMatchId =
+    useMemo(() => {
+      const grouped = new Map<
+        string,
+        Prediction[]
+      >()
+
+      lockedPredictions
+        .filter(
+          (prediction) =>
+            prediction.user_id !==
+            currentUser?.id
+        )
+        .forEach(
+          (prediction) => {
+            const existing =
+              grouped.get(
+                prediction.match_id
+              ) || []
+            grouped.set(
+              prediction.match_id,
+              [
+                ...existing,
+                prediction,
+              ]
+            )
+          }
+        )
+
+      return grouped
+    }, [
+      lockedPredictions,
+      currentUser?.id,
+    ])
+  const matchdayPredictionGroups =
+    useMemo(
+      () =>
+        matchdays
+          .map((matchday) => {
+            const groupMatches =
+              matches.filter(
+                (match) =>
+                  match.matchday_id ===
+                  matchday.id
+              )
+            const predictionCount =
+              groupMatches.reduce(
+                (total, match) =>
+                  total +
+                  (
+                    otherPredictionsByMatchId.get(
+                      match.id
+                    ) || []
+                  ).length,
+                0
+              )
+
+            return {
+              matchday,
+              matches: groupMatches,
+              predictionCount,
+            }
+          })
+          .filter(
+            (group) =>
+              group.matches.length > 0
+          ),
+      [
+        matchdays,
+        matches,
+        otherPredictionsByMatchId,
+      ]
+    )
   const hasUnsavedChanges =
     dirtyIds.size > 0
+
+  function toggleMatchday(
+    matchdayId: string
+  ) {
+    setExpandedMatchdayIds(
+      (current) => {
+        const next = new Set(
+          current
+        )
+        if (next.has(matchdayId)) {
+          next.delete(matchdayId)
+        } else {
+          next.add(matchdayId)
+        }
+        return next
+      }
+    )
+  }
 
   useEffect(() => {
     if (!hasUnsavedChanges) {
@@ -554,6 +674,19 @@ function MyPredictions() {
         >
           Locked
         </button>
+        <button
+          type="button"
+          className={`segment ${
+            filter === "others"
+              ? "segment-active"
+              : ""
+          }`}
+          onClick={() =>
+            setFilter("others")
+          }
+        >
+          Others
+        </button>
       </div>
 
       {filter === "open" && (
@@ -601,7 +734,292 @@ function MyPredictions() {
         </div>
       )}
 
-      {loading ? (
+      {filter === "others" ? (
+        loading ? (
+          <SkeletonList rows={4} />
+        ) : matchdayPredictionGroups
+            .length === 0 ? (
+          <div className="surface empty-state">
+            No matchdays yet.
+          </div>
+        ) : (
+          <div
+            className="surface"
+            style={{
+              overflow: "hidden",
+            }}
+          >
+            {matchdayPredictionGroups.map(
+              ({
+                matchday,
+                matches:
+                  groupMatches,
+                predictionCount,
+              }) => {
+                const expanded =
+                  expandedMatchdayIds.has(
+                    matchday.id
+                  )
+
+                return (
+                  <div
+                    key={matchday.id}
+                    style={{
+                      borderBottom:
+                        "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        toggleMatchday(
+                          matchday.id
+                        )
+                      }
+                      style={{
+                        width: "100%",
+                        border: 0,
+                        background:
+                          "transparent",
+                        color:
+                          "#FFFFFF",
+                        padding:
+                          "14px 12px",
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "space-between",
+                        gap: "12px",
+                        textAlign:
+                          "left",
+                      }}
+                    >
+                      <div>
+                        <strong
+                          style={{
+                            display:
+                              "block",
+                            fontSize:
+                              "13px",
+                            letterSpacing:
+                              "0.2px",
+                          }}
+                        >
+                          {
+                            matchday.name
+                          }
+                        </strong>
+                        <span
+                          style={{
+                            display:
+                              "block",
+                            marginTop:
+                              "3px",
+                            color:
+                              "#9CA3AF",
+                            fontSize:
+                              "10px",
+                          }}
+                        >
+                          {
+                            predictionCount
+                          } visible prediction
+                          {predictionCount ===
+                          1
+                            ? ""
+                            : "s"}
+                        </span>
+                      </div>
+                      <span
+                        style={{
+                          color:
+                            "#9CF989",
+                          fontSize:
+                            "18px",
+                          lineHeight: 1,
+                          transform:
+                            expanded
+                              ? "rotate(180deg)"
+                              : "rotate(0deg)",
+                          transition:
+                            "transform 160ms ease",
+                        }}
+                      >
+                        ⌄
+                      </span>
+                    </button>
+
+                    {expanded && (
+                      <div
+                        style={{
+                          padding:
+                            "0 12px 13px",
+                          display:
+                            "grid",
+                          gap: "10px",
+                        }}
+                      >
+                        {predictionCount ===
+                        0 ? (
+                          <div
+                            style={{
+                              color:
+                                "#9CA3AF",
+                              fontSize:
+                                "11px",
+                              padding:
+                                "10px 0 2px",
+                            }}
+                          >
+                            No visible predictions
+                            yet. They appear after
+                            the match is locked.
+                          </div>
+                        ) : (
+                          groupMatches.map(
+                            (match) => {
+                              const predictions =
+                                otherPredictionsByMatchId.get(
+                                  match.id
+                                ) || []
+
+                              if (
+                                predictions.length ===
+                                0
+                              ) {
+                                return null
+                              }
+
+                              return (
+                                <div
+                                  key={
+                                    match.id
+                                  }
+                                  style={{
+                                    border:
+                                      "1px solid rgba(255,255,255,0.075)",
+                                    borderRadius:
+                                      "18px",
+                                    background:
+                                      "rgba(5, 11, 20, 0.38)",
+                                    padding:
+                                      "11px",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display:
+                                        "grid",
+                                      gridTemplateColumns:
+                                        "1fr auto 1fr",
+                                      alignItems:
+                                        "center",
+                                      gap: "8px",
+                                      color:
+                                        "#FFFFFF",
+                                      fontSize:
+                                        "11px",
+                                      fontWeight:
+                                        850,
+                                      lineHeight:
+                                        1.25,
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        minWidth: 0,
+                                        overflowWrap:
+                                          "anywhere",
+                                      }}
+                                    >
+                                      {
+                                        match.home_team
+                                      }
+                                    </span>
+                                    <span
+                                      style={{
+                                        color:
+                                          "#6B7280",
+                                        fontSize:
+                                          "9px",
+                                      }}
+                                    >
+                                      VS
+                                    </span>
+                                    <span
+                                      style={{
+                                        minWidth: 0,
+                                        textAlign:
+                                          "right",
+                                        overflowWrap:
+                                          "anywhere",
+                                      }}
+                                    >
+                                      {
+                                        match.away_team
+                                      }
+                                    </span>
+                                  </div>
+
+                                  <div
+                                    style={{
+                                      marginTop:
+                                        "9px",
+                                      display:
+                                        "grid",
+                                      gap: "7px",
+                                    }}
+                                  >
+                                    {predictions.map(
+                                      (
+                                        prediction
+                                      ) => (
+                                        <div
+                                          key={
+                                            prediction.id
+                                          }
+                                          className="community-prediction-row"
+                                        >
+                                          <span>
+                                            {players.find(
+                                              (
+                                                player
+                                              ) =>
+                                                player.id ===
+                                                prediction.user_id
+                                            )
+                                              ?.name ||
+                                              "Player"}
+                                          </span>
+                                          <strong>
+                                            {
+                                              prediction.home_prediction
+                                            }
+                                            –
+                                            {
+                                              prediction.away_prediction
+                                            }
+                                          </strong>
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              )
+                            }
+                          )
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              }
+            )}
+          </div>
+        )
+      ) : loading ? (
         <SkeletonList rows={4} />
       ) : visibleMatches.length ===
       0 ? (

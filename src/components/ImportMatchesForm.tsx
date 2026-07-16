@@ -6,6 +6,9 @@ import {
 import {
   importMatches as importMatchesSecure,
 } from "../lib/appApi"
+import {
+  formatDualKickoffTime,
+} from "../utils/time"
 import TeamBadge from "./TeamBadge"
 
 type Props = {
@@ -94,31 +97,10 @@ function formatFixtureKickoff(
   kickoff: string,
   kickoffTimeTba?: boolean
 ) {
-  const date = new Date(kickoff)
-  const day =
-    date.toLocaleDateString(
-      "ro-RO",
-      {
-        day: "2-digit",
-        month: "short",
-        timeZone:
-          "Europe/Amsterdam",
-      }
-    )
-
-  if (kickoffTimeTba) {
-    return `${day}, time TBA`
-  }
-
-  return date.toLocaleString(
-    "ro-RO",
+  return formatDualKickoffTime(
+    kickoff,
     {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone:
-        "Europe/Amsterdam",
+      timeTba: kickoffTimeTba,
     }
   )
 }

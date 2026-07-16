@@ -23,6 +23,9 @@ import type {
   Prediction,
   User,
 } from "../types"
+import {
+  formatDualKickoffTime,
+} from "../utils/time"
 
 type Draft = {
   home: number | ""
@@ -607,35 +610,13 @@ function MyPredictions() {
   function formatKickoff(
     kickoff: string
   ) {
-    if (
-      isLikelyTbaKickoff(
-        kickoff
-      )
-    ) {
-      return `${new Date(
-        kickoff
-      ).toLocaleDateString(
-        "ro-RO",
-        {
-          day: "2-digit",
-          month: "short",
-          timeZone:
-            "Europe/Amsterdam",
-        }
-      )}, time TBA`
-    }
-
-    return new Date(
-      kickoff
-    ).toLocaleString(
-      "ro-RO",
+    return formatDualKickoffTime(
+      kickoff,
       {
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone:
-          "Europe/Amsterdam",
+        timeTba:
+          isLikelyTbaKickoff(
+            kickoff
+          ),
       }
     )
   }

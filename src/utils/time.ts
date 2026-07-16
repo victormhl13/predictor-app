@@ -12,7 +12,7 @@ export function formatDualKickoffTime(
         day: "2-digit",
         month: "short",
         timeZone:
-          "Europe/Amsterdam",
+          "Europe/Bucharest",
       }
     )
 
@@ -20,16 +20,6 @@ export function formatDualKickoffTime(
     return `${day}, time TBA`
   }
 
-  const nlTime =
-    date.toLocaleTimeString(
-      "ro-RO",
-      {
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone:
-          "Europe/Amsterdam",
-      }
-    )
   const roTime =
     date.toLocaleTimeString(
       "ro-RO",
@@ -41,5 +31,5 @@ export function formatDualKickoffTime(
       }
     )
 
-  return `${day}, ${nlTime} NL / ${roTime} RO`
+  return `${day}, ${roTime} RO`
 }

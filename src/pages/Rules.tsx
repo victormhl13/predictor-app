@@ -11,7 +11,7 @@ const rules = [
   },
   {
     title: "Prediction deadline",
-    text: "Predictions lock exactly at the official kickoff time. If LPF changes the kickoff, the new time is used automatically.",
+    text: "Predictions lock exactly at the official kickoff time. Kickoff times are shown in Romanian time.",
   },
   {
     title: "Rescheduled matches",
@@ -19,7 +19,7 @@ const rules = [
   },
   {
     title: "Results",
-    text: "Final scores are synchronized from LPF. A matchday closes automatically when every match has a final result.",
+    text: "Final scores are synchronized from LPF. Ranking updates automatically, then the matchday can be closed manually.",
   },
 ]
 

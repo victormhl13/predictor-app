@@ -92,7 +92,7 @@ function Dashboard() {
   useEffect(() => {
     async function loadDashboard() {
       const [
-        matchdayResult,
+        matchdaysResult,
         predictionResult,
         usersResult,
         allPredictionsResult,
@@ -101,10 +101,7 @@ function Dashboard() {
         supabase
           .from("matchdays")
           .select("*")
-          .eq("is_open", true)
-          .order("name")
-          .limit(1)
-          .maybeSingle(),
+          .order("name"),
         currentUser
           ? getMyPredictions().then(
               (data) => ({
@@ -125,11 +122,6 @@ function Dashboard() {
           .select("*"),
       ])
 
-      if (matchdayResult.data) {
-        setCurrentMatchday(
-          matchdayResult.data.name
-        )
-      }
       const ownPredictions =
         (predictionResult.data ||
           []) as Prediction[]
@@ -143,6 +135,14 @@ function Dashboard() {
       const matches =
         (matchesResult.data ||
           []) as Match[]
+      const matchdays =
+        (matchdaysResult.data ||
+          []) as Matchday[]
+      const openMatchday =
+        matchdays.find(
+          (matchday) =>
+            matchday.is_open
+        )
       const futureMatches = matches
         .filter(
           (match) =>
@@ -185,8 +185,21 @@ function Dashboard() {
         futureMatches[0] ||
         unfinishedMatches[0] ||
         null
+      const nextMatchday =
+        nextMatch
+          ? matchdays.find(
+              (matchday) =>
+                matchday.id ===
+                nextMatch.matchday_id
+            )
+          : null
 
       setUpcomingMatch(nextMatch)
+      setCurrentMatchday(
+        nextMatchday?.name ||
+          openMatchday?.name ||
+          "-"
+      )
       setMyPredictions(
         ownPredictions.length
       )
@@ -200,28 +213,6 @@ function Dashboard() {
             )
         )
       )
-
-      if (
-        !matchdayResult.data &&
-        nextMatch
-      ) {
-        const { data } =
-          await supabase
-            .from("matchdays")
-            .select("*")
-            .eq(
-              "id",
-              nextMatch.matchday_id
-            )
-            .maybeSingle()
-        const nextMatchday =
-          data as Matchday | null
-        if (nextMatchday) {
-          setCurrentMatchday(
-            nextMatchday.name
-          )
-        }
-      }
 
       const ranking = users
         .map((user) => {

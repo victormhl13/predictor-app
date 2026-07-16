@@ -61,6 +61,77 @@ function buildDrafts(
   return loaded
 }
 
+function isLikelyTbaKickoff(
+  kickoff: string
+) {
+  const parts =
+    new Intl.DateTimeFormat(
+      "en-GB",
+      {
+        timeZone:
+          "Europe/Bucharest",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }
+    ).formatToParts(
+      new Date(kickoff)
+    )
+  const hour =
+    parts.find(
+      (part) =>
+        part.type === "hour"
+    )?.value
+  const minute =
+    parts.find(
+      (part) =>
+        part.type === "minute"
+    )?.value
+
+  return (
+    hour === "12" &&
+    minute === "00"
+  )
+}
+
+function isFinished(
+  match: Match
+) {
+  return (
+    match.home_score !== null &&
+    match.away_score !== null
+  )
+}
+
+function isMatchLocked(
+  match: Match
+) {
+  if (isFinished(match)) {
+    return true
+  }
+
+  const lockDate = new Date(
+    match.kickoff
+  )
+
+  if (
+    isLikelyTbaKickoff(
+      match.kickoff
+    )
+  ) {
+    lockDate.setHours(
+      23,
+      59,
+      59,
+      999
+    )
+  }
+
+  return (
+    lockDate <= new Date()
+  )
+}
+
 function MyPredictions() {
   const { currentUser } = useAuth()
   const [matches, setMatches] =
@@ -163,64 +234,6 @@ function MyPredictions() {
     )
   }, [currentUser])
 
-  function isLocked(
-    kickoff: string
-  ) {
-    const lockDate = new Date(
-      kickoff
-    )
-
-    if (
-      isLikelyTbaKickoff(
-        kickoff
-      )
-    ) {
-      lockDate.setHours(
-        23,
-        59,
-        59,
-        999
-      )
-    }
-
-    return (
-      lockDate <= new Date()
-    )
-  }
-
-  function isLikelyTbaKickoff(
-    kickoff: string
-  ) {
-    const parts =
-      new Intl.DateTimeFormat(
-        "en-GB",
-        {
-          timeZone:
-            "Europe/Bucharest",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        }
-      ).formatToParts(
-        new Date(kickoff)
-      )
-    const hour =
-      parts.find(
-        (part) =>
-          part.type === "hour"
-      )?.value
-    const minute =
-      parts.find(
-        (part) =>
-          part.type === "minute"
-      )?.value
-
-    return (
-      hour === "12" &&
-      minute === "00"
-    )
-  }
-
   function update(
     matchId: string,
     side: "home" | "away",
@@ -278,9 +291,7 @@ function MyPredictions() {
         const draft =
           drafts[match.id]
         return (
-          !isLocked(
-            match.kickoff
-          ) &&
+          !isMatchLocked(match) &&
           dirtyIds.has(match.id) &&
           typeof draft?.home ===
             "number" &&
@@ -327,10 +338,27 @@ function MyPredictions() {
       setEditingIds(new Set())
     } catch (error) {
       setSaving(false)
-      setNotice(
-        error instanceof Error
-          ? error.message
+      const message =
+        error &&
+        typeof error === "object" &&
+        "message" in error
+          ? String(
+              (
+                error as {
+                  message?: unknown
+                }
+              ).message
+            )
           : "Could not save predictions."
+      setNotice(
+        message.includes(
+          "locked"
+        ) ||
+          message.includes(
+            "invalid"
+          )
+          ? "This match is already locked. Refresh matches and try another open match."
+          : message
       )
       return
     }
@@ -353,18 +381,14 @@ function MyPredictions() {
     () =>
       matches.filter((match) =>
         filter === "locked"
-          ? isLocked(
-              match.kickoff
-            )
-          : !isLocked(
-              match.kickoff
-            )
+          ? isMatchLocked(match)
+          : !isMatchLocked(match)
       ),
     [matches, filter]
   )
   const openMatches = matches.filter(
     (match) =>
-      !isLocked(match.kickoff)
+      !isMatchLocked(match)
   )
   const completed = openMatches.filter(
     (match) => {
@@ -594,9 +618,7 @@ function MyPredictions() {
           {visibleMatches.map(
             (match) => {
               const locked =
-                isLocked(
-                  match.kickoff
-                )
+                isMatchLocked(match)
               const draft =
                 drafts[match.id]
               const missing =

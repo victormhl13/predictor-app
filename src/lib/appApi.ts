@@ -470,6 +470,13 @@ export async function saveMyPredictions(
           predictions,
       }
     )
-  if (error) throw error
+  if (error) {
+    throw new Error(
+      rpcMessage(
+        error,
+        "Could not save predictions."
+      )
+    )
+  }
   return Number(data || 0)
 }

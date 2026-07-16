@@ -163,8 +163,28 @@ function Dashboard() {
               b.kickoff
             ).getTime()
         )
+      const unfinishedMatches =
+        matches
+          .filter(
+            (match) =>
+              match.home_score ===
+                null &&
+              match.away_score ===
+                null
+          )
+          .sort(
+            (a, b) =>
+              new Date(
+                a.kickoff
+              ).getTime() -
+              new Date(
+                b.kickoff
+              ).getTime()
+          )
       const nextMatch =
-        futureMatches[0] || null
+        futureMatches[0] ||
+        unfinishedMatches[0] ||
+        null
 
       setUpcomingMatch(nextMatch)
       setMyPredictions(

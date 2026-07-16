@@ -29,6 +29,38 @@ type Draft = {
   saved: boolean
 }
 
+function buildDrafts(
+  matches: Match[],
+  predictions: Prediction[]
+) {
+  const loaded: Record<
+    string,
+    Draft
+  > = {}
+
+  matches.forEach((match) => {
+    loaded[match.id] = {
+      home: "",
+      away: "",
+      saved: false,
+    }
+  })
+
+  predictions.forEach(
+    (prediction) => {
+      loaded[prediction.match_id] = {
+        home:
+          prediction.home_prediction,
+        away:
+          prediction.away_prediction,
+        saved: true,
+      }
+    }
+  )
+
+  return loaded
+}
+
 function MyPredictions() {
   const { currentUser } = useAuth()
   const [matches, setMatches] =
@@ -117,33 +149,12 @@ function MyPredictions() {
       )
       setPlayers(publicUsers)
 
-      const loaded: Record<
-        string,
-        Draft
-      > = {}
-      ;(
-        (matchData || []) as Match[]
-      ).forEach((match) => {
-        loaded[match.id] = {
-          home: "",
-          away: "",
-          saved: false,
-        }
-      })
-      ;(
-        predictionData as Prediction[]
-      ).forEach((prediction) => {
-        loaded[
-          prediction.match_id
-        ] = {
-          home:
-            prediction.home_prediction,
-          away:
-            prediction.away_prediction,
-          saved: true,
-        }
-      })
-      setDrafts(loaded)
+      setDrafts(
+        buildDrafts(
+          (matchData || []) as Match[],
+          predictionData as Prediction[]
+        )
+      )
       setLoading(false)
     }
 
@@ -304,6 +315,16 @@ function MyPredictions() {
           }
         })
       )
+      const refreshedPredictions =
+        (await getMyPredictions()) as Prediction[]
+      setDrafts(
+        buildDrafts(
+          matches,
+          refreshedPredictions
+        )
+      )
+      setDirtyIds(new Set())
+      setEditingIds(new Set())
     } catch (error) {
       setSaving(false)
       setNotice(
@@ -314,39 +335,6 @@ function MyPredictions() {
       return
     }
 
-    setDrafts((current) => {
-      const next = { ...current }
-      changed.forEach((match) => {
-        next[match.id] = {
-          home:
-            next[match.id]
-              ?.home ?? 0,
-          away:
-            next[match.id]
-              ?.away ?? 0,
-          saved: true,
-        }
-      })
-      return next
-    })
-    setDirtyIds((current) => {
-      const next = new Set(
-        current
-      )
-      changed.forEach((match) =>
-        next.delete(match.id)
-      )
-      return next
-    })
-    setEditingIds((current) => {
-      const next = new Set(
-        current
-      )
-      changed.forEach((match) =>
-        next.delete(match.id)
-      )
-      return next
-    })
     setSaving(false)
     setNotice(
       `${changed.length} prediction${
@@ -851,6 +839,7 @@ function MyPredictions() {
                       />
                       <div className="quick-scores">
                         {[
+                          [0, 0],
                           [1, 0],
                           [1, 1],
                           [2, 1],

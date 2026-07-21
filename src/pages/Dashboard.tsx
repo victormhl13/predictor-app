@@ -12,6 +12,7 @@ import {
 
 import { supabase } from "../lib/supabase"
 import {
+  getAllPredictionsForAdmin,
   getMyPredictions,
   getFinishedPredictions,
   listPublicUsers,
@@ -95,7 +96,7 @@ function Dashboard() {
         matchdaysResult,
         predictionResult,
         usersResult,
-        allPredictionsResult,
+        rankingPredictionsResult,
         matchesResult,
       ] = await Promise.all([
         supabase
@@ -114,9 +115,13 @@ function Dashboard() {
         listPublicUsers().then(
           (data) => ({ data })
         ),
-        getFinishedPredictions().then(
-          (data) => ({ data })
-        ),
+        (currentUser?.role ===
+        "admin"
+          ? getAllPredictionsForAdmin()
+          : getFinishedPredictions()
+        ).then((data) => ({
+          data,
+        })),
         supabase
           .from("matches")
           .select("*"),
@@ -130,7 +135,7 @@ function Dashboard() {
         (usersResult.data ||
           []) as User[]
       const predictions =
-        (allPredictionsResult.data ||
+        (rankingPredictionsResult.data ||
           []) as Prediction[]
       const matches =
         (matchesResult.data ||

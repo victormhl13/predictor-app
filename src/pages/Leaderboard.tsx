@@ -7,9 +7,11 @@ import { Crown } from "lucide-react"
 
 import { supabase } from "../lib/supabase"
 import {
+  getAllPredictionsForAdmin,
   getFinishedPredictions,
   listPublicUsers,
 } from "../lib/appApi"
+import { useAuth } from "../context/AuthContext"
 import {
   rankedPlayers,
 } from "../utils/scoring"
@@ -32,6 +34,7 @@ type Phase =
   | "playoff"
 
 function Leaderboard() {
+  const { currentUser } = useAuth()
   const [phase, setPhase] =
     useState<Phase>("regular")
   const [users, setUsers] =
@@ -52,7 +55,10 @@ function Leaderboard() {
         matchdaysResult,
       ] = await Promise.all([
         listPublicUsers(),
-        getFinishedPredictions(),
+        currentUser?.role ===
+        "admin"
+          ? getAllPredictionsForAdmin()
+          : getFinishedPredictions(),
         supabase
           .from("matches")
           .select("*"),
@@ -74,7 +80,7 @@ function Leaderboard() {
       )
     }
     load()
-  }, [])
+  }, [currentUser])
 
   const players = useMemo<
     Player[]

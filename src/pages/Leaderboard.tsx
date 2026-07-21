@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -45,9 +46,25 @@ function Leaderboard() {
     useState<Match[]>([])
   const [matchdays, setMatchdays] =
     useState<Matchday[]>([])
+  const [loading, setLoading] =
+    useState(true)
+
+  const loadRankingPredictions =
+    useCallback(async () => {
+    if (currentUser) {
+      try {
+        return await getAllPredictionsForAdmin()
+      } catch {
+        return await getFinishedPredictions()
+      }
+    }
+
+    return getFinishedPredictions()
+  }, [currentUser])
 
   useEffect(() => {
     async function load() {
+      setLoading(true)
       const [
         loadedUsers,
         loadedPredictions,
@@ -55,10 +72,7 @@ function Leaderboard() {
         matchdaysResult,
       ] = await Promise.all([
         listPublicUsers(),
-        currentUser?.role ===
-        "admin"
-          ? getAllPredictionsForAdmin()
-          : getFinishedPredictions(),
+        loadRankingPredictions(),
         supabase
           .from("matches")
           .select("*"),
@@ -78,9 +92,19 @@ function Leaderboard() {
         (matchdaysResult.data ||
           []) as Matchday[]
       )
+      setLoading(false)
     }
-    load()
-  }, [currentUser])
+    load().catch(() => {
+      setUsers([])
+      setPredictions([])
+      setMatches([])
+      setMatchdays([])
+      setLoading(false)
+    })
+  }, [
+    currentUser,
+    loadRankingPredictions,
+  ])
 
   const players = useMemo<
     Player[]
@@ -276,14 +300,24 @@ function Leaderboard() {
         </button>
       </div>
 
-      {!hasPhaseResults ||
-      players.length === 0 ? (
+      {loading ? (
+        <div className="surface empty-state">
+          Loading ranking...
+        </div>
+      ) : players.length === 0 ? (
         <div className="surface empty-state">
           No ranking yet for this
           phase.
         </div>
       ) : (
         <>
+          {!hasPhaseResults && (
+            <div className="surface-soft empty-state">
+              No final scores yet for this
+              phase. Players are shown
+              with 0 pts.
+            </div>
+          )}
           <div className="podium-grid">
             {players
               .slice(0, 3)

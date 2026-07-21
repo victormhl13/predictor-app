@@ -34,6 +34,18 @@ type Phase =
   | "regular"
   | "playoff"
 
+function isPlayoffMatchday(
+  matchday?: Matchday
+) {
+  if (!matchday) return false
+  const name =
+    matchday.name.toLowerCase()
+  return (
+    name.includes("play-off") ||
+    name.includes("playoff")
+  )
+}
+
 function Leaderboard() {
   const { currentUser } = useAuth()
   const [phase, setPhase] =
@@ -109,31 +121,36 @@ function Leaderboard() {
   const players = useMemo<
     Player[]
   >(() => {
-    const phaseMatchdayIds =
-      new Set(
-        matchdays
-          .filter((matchday) => {
-            const playoff =
-              matchday.name
-                .toLowerCase()
-                .includes(
-                  "play-off"
-                )
-            return phase ===
-              "playoff"
-              ? playoff
-              : !playoff
-          })
-          .map(
-            (matchday) =>
-              matchday.id
-          )
+    const matchdayById =
+      new Map(
+        matchdays.map(
+          (matchday) => [
+            matchday.id,
+            matchday,
+          ]
+        )
       )
+    const matchBelongsToPhase =
+      (match: Match) => {
+        const matchday =
+          matchdayById.get(
+            match.matchday_id
+          )
+        const playoff =
+          isPlayoffMatchday(
+            matchday
+          )
+
+        return phase ===
+          "playoff"
+          ? playoff
+          : !playoff
+      }
     const phaseMatches =
       matches.filter(
         (match) =>
-          phaseMatchdayIds.has(
-            match.matchday_id
+          matchBelongsToPhase(
+            match
           ) &&
           match.home_score !==
             null &&
@@ -230,29 +247,36 @@ function Leaderboard() {
 
   const hasPhaseResults =
     useMemo(() => {
-      const phaseIds = new Set(
-        matchdays
-          .filter((matchday) => {
-            const playoff =
-              matchday.name
-                .toLowerCase()
-                .includes(
-                  "play-off"
-                )
-            return phase ===
-              "playoff"
-              ? playoff
-              : !playoff
-          })
-          .map(
-            (matchday) =>
-              matchday.id
+      const matchdayById =
+        new Map(
+          matchdays.map(
+            (matchday) => [
+              matchday.id,
+              matchday,
+            ]
           )
-      )
+        )
+      const matchBelongsToPhase =
+        (match: Match) => {
+          const matchday =
+            matchdayById.get(
+              match.matchday_id
+            )
+          const playoff =
+            isPlayoffMatchday(
+              matchday
+            )
+
+          return phase ===
+            "playoff"
+            ? playoff
+            : !playoff
+        }
+
       return matches.some(
         (match) =>
-          phaseIds.has(
-            match.matchday_id
+          matchBelongsToPhase(
+            match
           ) &&
           match.home_score !==
             null &&

@@ -563,72 +563,11 @@ function Matchdays() {
         )
       )
 
-      const finalFixtureIds =
-        new Set(
-          synchronized
-            .filter(
-              (fixture) =>
-                finishedStatuses.has(
-                  fixture.status
-                ) &&
-                fixture.homeScore !==
-                  null &&
-                fixture.awayScore !==
-                  null
-            )
-            .map(
-              (fixture) =>
-                fixture.id
-            )
-        )
-      const completedMatchdays =
-        matchdays.filter(
-          (matchday) => {
-            if (!matchday.is_open) {
-              return false
-            }
-            const items =
-              matches.filter(
-                (match) =>
-                  match.matchday_id ===
-                  matchday.id
-              )
-            return (
-              items.length > 0 &&
-              items.every(
-                (match) =>
-                  (match.home_score !==
-                    null &&
-                    match.away_score !==
-                      null) ||
-                  (match.api_fixture_id !==
-                    null &&
-                    finalFixtureIds.has(
-                      match.api_fixture_id
-                    ))
-              )
-            )
-          }
-        )
-      await Promise.all(
-        completedMatchdays.map(
-          (matchday) =>
-            setMatchdayOpen(
-              matchday.id,
-              false
-            )
-        )
-      )
-
-      const syncMessage =
-        completedMatchdays.length > 0
-          ? `${completedMatchdays.length} matchday closed automatically.`
-          : "Synchronization completed."
       await recordSync(
         scheduleChanges,
         resultChanges,
         "success",
-        syncMessage
+        "Synchronization completed."
       )
 
       await Promise.all([

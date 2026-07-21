@@ -505,14 +505,19 @@ export async function fetchLpfResult(
       await fetchLpfPage(
         `/etape-liga-1/${generated.round}`
       )
-    const fixture = parseRound(
+    const roundFixtures = parseRound(
       roundHtml,
       generated.round,
       generated.phase
-    ).find(
-      (item) =>
-        item.id === fixtureId
     )
+    const fixture =
+      roundFixtures.find(
+        (item) =>
+          item.id === fixtureId
+      ) ||
+      roundFixtures[
+        generated.index - 1
+      ]
 
     if (!fixture) {
       return {
@@ -540,6 +545,7 @@ export async function fetchLpfResult(
 
     return {
       ...fixture,
+      id: fixtureId,
       status: isFinal
         ? "FT"
         : "NS",

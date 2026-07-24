@@ -6,6 +6,7 @@ import {
 
 import { supabase } from "../lib/supabase"
 import {
+  adminSavePrediction,
   getMyPredictions,
   getLockedPredictions,
   listPublicUsers,
@@ -407,6 +408,78 @@ function MyPredictions() {
       () => setNotice(""),
       2400
     )
+  }
+
+  async function saveLockedPrediction(
+    matchId: string
+  ) {
+    if (
+      !currentUser ||
+      currentUser.role !== "admin"
+    ) {
+      return
+    }
+
+    const draft = drafts[matchId]
+    const home =
+      typeof draft?.home ===
+      "number"
+        ? draft.home
+        : 0
+    const away =
+      typeof draft?.away ===
+      "number"
+        ? draft.away
+        : 0
+
+    setSaving(true)
+
+    try {
+      await adminSavePrediction(
+        currentUser.id,
+        matchId,
+        home,
+        away
+      )
+      const refreshedPredictions =
+        (await getMyPredictions()) as Prediction[]
+      setDrafts(
+        buildDrafts(
+          matches,
+          refreshedPredictions
+        )
+      )
+      setDirtyIds((current) => {
+        const next = new Set(
+          current
+        )
+        next.delete(matchId)
+        return next
+      })
+      setNotice(
+        "Locked prediction saved."
+      )
+      window.setTimeout(
+        () => setNotice(""),
+        2400
+      )
+    } catch (error) {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "message" in error
+          ? String(
+              (
+                error as {
+                  message?: unknown
+                }
+              ).message
+            )
+          : "Could not save prediction."
+      setNotice(message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const visibleMatches = useMemo(
@@ -1183,16 +1256,17 @@ function MyPredictions() {
                     }}
                   >
                     {locked ? (
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns:
-                            isFinished(match)
-                              ? "1fr 1fr"
-                              : "1fr",
-                          gap: "9px",
-                        }}
-                      >
+                      <>
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns:
+                              isFinished(match)
+                                ? "1fr 1fr"
+                                : "1fr",
+                            gap: "9px",
+                          }}
+                        >
                         <div
                           style={{
                             padding:
@@ -1295,7 +1369,131 @@ function MyPredictions() {
                             </strong>
                           </div>
                         )}
-                      </div>
+                        </div>
+
+                        {!draft?.saved &&
+                          currentUser?.role ===
+                            "admin" && (
+                            <div
+                              style={{
+                                marginTop:
+                                  "12px",
+                                padding:
+                                  "12px",
+                                border:
+                                  "1px solid rgba(248,212,119,0.15)",
+                                borderRadius:
+                                  "16px",
+                                background:
+                                  "rgba(248,212,119,0.06)",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  marginBottom:
+                                    "10px",
+                                  color:
+                                    "#F8D477",
+                                  fontSize:
+                                    "9px",
+                                  fontWeight:
+                                    850,
+                                  letterSpacing:
+                                    "0.6px",
+                                  textAlign:
+                                    "center",
+                                  textTransform:
+                                    "uppercase",
+                                }}
+                              >
+                                Admin recovery · missing prediction
+                              </div>
+
+                              <ScorePairControl
+                                home={Number(
+                                  draft?.home ??
+                                    0
+                                )}
+                                away={Number(
+                                  draft?.away ??
+                                    0
+                                )}
+                                onChange={(
+                                  side,
+                                  value
+                                ) =>
+                                  update(
+                                    match.id,
+                                    side,
+                                    value
+                                  )
+                                }
+                              />
+
+                              <div className="quick-scores">
+                                {[
+                                  [0, 0],
+                                  [1, 0],
+                                  [1, 1],
+                                  [2, 1],
+                                  [2, 0],
+                                ].map(
+                                  ([
+                                    home,
+                                    away,
+                                  ]) => (
+                                    <button
+                                      key={`${home}-${away}`}
+                                      type="button"
+                                      onClick={() =>
+                                        applyQuickScore(
+                                          match.id,
+                                          home,
+                                          away
+                                        )
+                                      }
+                                      className={
+                                        Number(
+                                          draft?.home ??
+                                            0
+                                        ) === home &&
+                                        Number(
+                                          draft?.away ??
+                                            0
+                                        ) === away
+                                          ? "quick-score-active"
+                                          : ""
+                                      }
+                                    >
+                                      {home}–{away}
+                                    </button>
+                                  )
+                                )}
+                              </div>
+
+                              <button
+                                type="button"
+                                className="primary-button"
+                                disabled={saving}
+                                onClick={() =>
+                                  saveLockedPrediction(
+                                    match.id
+                                  )
+                                }
+                                style={{
+                                  minHeight:
+                                    "38px",
+                                  marginTop:
+                                    "10px",
+                                  fontSize:
+                                    "12px",
+                                }}
+                              >
+                                Save missing prediction
+                              </button>
+                            </div>
+                          )}
+                      </>
                     ) : draft?.saved &&
                       !isEditing ? (
                       <div className="saved-prediction-summary">

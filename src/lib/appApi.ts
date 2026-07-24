@@ -480,3 +480,32 @@ export async function saveMyPredictions(
   }
   return Number(data || 0)
 }
+
+export async function adminSavePrediction(
+  userId: string,
+  matchId: string,
+  home: number,
+  away: number
+) {
+  const { error } =
+    await supabase.rpc(
+      "admin_save_prediction",
+      {
+        p_token:
+          sessionToken(),
+        p_user_id: userId,
+        p_match_id: matchId,
+        p_home_prediction: home,
+        p_away_prediction: away,
+      }
+    )
+
+  if (error) {
+    throw new Error(
+      rpcMessage(
+        error,
+        "Could not save prediction."
+      )
+    )
+  }
+}

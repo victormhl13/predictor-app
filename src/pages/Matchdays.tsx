@@ -88,6 +88,8 @@ function Matchdays() {
     useState(false)
   const [loading, setLoading] =
     useState(true)
+  const [nowMs, setNowMs] =
+    useState(() => Date.now())
   const [
     matchDetailsEditor,
     setMatchDetailsEditor,
@@ -109,6 +111,18 @@ function Matchdays() {
     ]).finally(() =>
       setLoading(false)
     )
+  }, [])
+
+  useEffect(() => {
+    const interval =
+      window.setInterval(() => {
+        setNowMs(Date.now())
+      }, 60 * 1000)
+
+    return () =>
+      window.clearInterval(
+        interval
+      )
   }, [])
 
   useEffect(() => {
@@ -740,6 +754,24 @@ function Matchdays() {
     )
   }
 
+  function canSetFinalScore(
+    match: Match
+  ) {
+    if (
+      isLikelyTbaKickoff(
+        match.kickoff
+      )
+    ) {
+      return false
+    }
+
+    return (
+      new Date(
+        match.kickoff
+      ).getTime() <= nowMs
+    )
+  }
+
   const visibleMatchdays = [
     ...matchdays,
   ]
@@ -1247,6 +1279,10 @@ function Matchdays() {
                     const editing =
                       scoreEditor ===
                       match.id
+                    const scoreAvailable =
+                      canSetFinalScore(
+                        match
+                      )
 
                     return (
                       <article
@@ -1467,7 +1503,8 @@ function Matchdays() {
                             isManaged) && (
                             <>
                               {!editing &&
-                                !finished && (
+                                !finished &&
+                                scoreAvailable && (
                                 <button
                                   type="button"
                                   onClick={() =>
@@ -1494,6 +1531,27 @@ function Matchdays() {
                                   Set score
                                 </button>
                               )}
+
+                              {!editing &&
+                                !finished &&
+                                !scoreAvailable && (
+                                  <div
+                                    style={{
+                                      marginTop:
+                                        "9px",
+                                      color:
+                                        "#7F8896",
+                                      fontSize:
+                                        "9px",
+                                      fontWeight:
+                                        750,
+                                      textAlign:
+                                        "center",
+                                    }}
+                                  >
+                                    Score available after kickoff
+                                  </div>
+                                )}
 
                               {!editing &&
                                 isManaged &&

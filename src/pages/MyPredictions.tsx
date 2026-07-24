@@ -698,7 +698,7 @@ function MyPredictions() {
     <div className="page">
       <PageHeader
         title="Predictions"
-        subtitle="Set your score before kickoff."
+        subtitle="Pick your scores before kickoff."
       />
 
       <div className="segmented">
@@ -1722,8 +1722,8 @@ function MyPredictions() {
             {saving
               ? "Saving..."
               : dirtyIds.size > 0
-                ? `Save changes · ${dirtyIds.size}`
-                : `Saved · ${completed}/${openMatches.length}`}
+                ? `Save picks · ${dirtyIds.size}`
+                : `All picks saved · ${completed}/${openMatches.length}`}
           </button>
         )}
 

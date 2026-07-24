@@ -918,40 +918,45 @@ function Matchdays() {
     <div>
       <PageHeader
         title="Matchdays"
-        subtitle="Fixtures, results and matchday management"
+        subtitle="Fixtures, predictions and final scores."
       />
 
       {currentUser?.role ===
         "admin" && (
-        <div className="matchday-actions">
-          <button
-            type="button"
-            onClick={() =>
-              syncResults(false)
-            }
-            disabled={syncing}
-            className="glass-button matchday-refresh"
-            aria-label="Sync fixtures and results"
-            title="Sync fixtures and results"
-          >
-            <RefreshCw
-              size={16}
-              className={
-                syncing
-                  ? "spin"
-                  : undefined
+        <details className="admin-tools">
+          <summary>
+            Admin tools
+          </summary>
+          <div className="matchday-actions">
+            <button
+              type="button"
+              onClick={() =>
+                syncResults(false)
               }
-            />
-          </button>
-          <div className="matchday-add-action">
-              <AddMatchdayFlow
-                onCreated={async () => {
-                  await loadMatchdays()
-                  await loadMatches()
-                }}
+              disabled={syncing}
+              className="glass-button matchday-refresh"
+              aria-label="Sync fixtures and results"
+              title="Sync fixtures and results"
+            >
+              <RefreshCw
+                size={16}
+                className={
+                  syncing
+                    ? "spin"
+                    : undefined
+                }
               />
+            </button>
+            <div className="matchday-add-action">
+                <AddMatchdayFlow
+                  onCreated={async () => {
+                    await loadMatchdays()
+                    await loadMatches()
+                  }}
+                />
+            </div>
           </div>
-        </div>
+        </details>
       )}
 
       {syncStatus && (
@@ -1141,12 +1146,13 @@ function Matchdays() {
                 }}
               >
                 <span
+                  className="status-pill"
                   style={{
                     color: status.color,
-                    fontSize: "10px",
-                    fontWeight: 800,
-                    letterSpacing:
-                      "0.8px",
+                    borderColor:
+                      `${status.color}40`,
+                    background:
+                      `${status.color}14`,
                   }}
                 >
                   {status.label}

@@ -27,12 +27,51 @@
   min-width: 0;
 }
 
+.admin-tools {
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 16px;
+  background: rgba(8, 13, 21, 0.36);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+}
+
+.admin-tools summary {
+  min-height: 38px;
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #aab3bf;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.admin-tools summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-tools summary::after {
+  content: "⌄";
+  color: #9cf989;
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.16s ease;
+}
+
+.admin-tools[open] summary::after {
+  transform: rotate(180deg);
+}
+
 .matchday-actions {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr);
   gap: 8px;
   width: 100%;
-  margin-top: -2px;
+  padding: 0 8px 8px;
 }
 
 .matchday-refresh {
@@ -92,6 +131,17 @@
 .sync-dot-error {
   background: #ff8585;
   box-shadow: 0 0 8px rgba(255, 133, 133, 0.5);
+}
+
+.status-pill {
+  min-width: 58px;
+  padding: 5px 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-align: center;
 }
 
 .podium-grid {

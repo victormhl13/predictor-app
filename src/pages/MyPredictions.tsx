@@ -1005,7 +1005,9 @@ function MyPredictions() {
       ) : visibleMatches.length ===
       0 ? (
         <div className="surface empty-state">
-          No matches in this view.
+          {filter === "open"
+            ? "No open matches. Matches with a final score move to Locked."
+            : "No matches in this view."}
         </div>
       ) : (
         <div
@@ -1183,23 +1185,116 @@ function MyPredictions() {
                     {locked ? (
                       <div
                         style={{
-                          color:
-                            draft?.saved
-                              ? "#FFFFFF"
-                              : "#9CA3AF",
-                          fontSize:
-                            draft?.saved
-                              ? "19px"
-                              : "11px",
-                          fontWeight:
-                            draft?.saved
-                              ? 850
-                              : 650,
+                          display: "grid",
+                          gridTemplateColumns:
+                            isFinished(match)
+                              ? "1fr 1fr"
+                              : "1fr",
+                          gap: "9px",
                         }}
                       >
-                        {draft?.saved
-                          ? `${draft.home} – ${draft.away}`
-                          : "No prediction"}
+                        <div
+                          style={{
+                            padding:
+                              "10px 11px",
+                            border:
+                              "1px solid rgba(255,255,255,0.07)",
+                            borderRadius:
+                              "15px",
+                            background:
+                              "rgba(255,255,255,0.045)",
+                          }}
+                        >
+                          <span
+                            style={{
+                              display:
+                                "block",
+                              color:
+                                "#9CA3AF",
+                              fontSize:
+                                "8px",
+                              fontWeight:
+                                850,
+                              letterSpacing:
+                                "0.7px",
+                              textTransform:
+                                "uppercase",
+                            }}
+                          >
+                            Your prediction
+                          </span>
+                          <strong
+                            style={{
+                              display:
+                                "block",
+                              marginTop:
+                                "4px",
+                              color:
+                                draft?.saved
+                                  ? "#FFFFFF"
+                                  : "#9CA3AF",
+                              fontSize:
+                                "18px",
+                              fontWeight:
+                                850,
+                            }}
+                          >
+                            {draft?.saved
+                              ? `${draft.home} – ${draft.away}`
+                              : "No prediction"}
+                          </strong>
+                        </div>
+
+                        {isFinished(match) && (
+                          <div
+                            style={{
+                              padding:
+                                "10px 11px",
+                              border:
+                                "1px solid rgba(156,249,137,0.16)",
+                              borderRadius:
+                                "15px",
+                              background:
+                                "rgba(109,255,78,0.07)",
+                            }}
+                          >
+                            <span
+                              style={{
+                                display:
+                                  "block",
+                                color:
+                                  "#9CF989",
+                                fontSize:
+                                  "8px",
+                                fontWeight:
+                                  850,
+                                letterSpacing:
+                                  "0.7px",
+                                textTransform:
+                                  "uppercase",
+                              }}
+                            >
+                              Final score
+                            </span>
+                            <strong
+                              style={{
+                                display:
+                                  "block",
+                                marginTop:
+                                  "4px",
+                                color:
+                                  "#FFFFFF",
+                                fontSize:
+                                  "18px",
+                                fontWeight:
+                                  850,
+                              }}
+                            >
+                              {match.home_score} –{" "}
+                              {match.away_score}
+                            </strong>
+                          </div>
+                        )}
                       </div>
                     ) : draft?.saved &&
                       !isEditing ? (

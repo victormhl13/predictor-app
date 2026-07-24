@@ -19,7 +19,11 @@ const rules = [
   },
   {
     title: "Results",
-    text: "Final scores are synchronized from LPF. Ranking updates automatically, then the matchday can be closed manually.",
+    text: "After matches finish, final scores are synchronized from LPF. If sync is not available, an admin can enter the final score manually after kickoff.",
+  },
+  {
+    title: "Ranking",
+    text: "Ranking updates automatically only for matches that have both a final score and saved predictions. Closing a matchday is manual and does not change points.",
   },
 ]
 

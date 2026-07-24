@@ -430,7 +430,7 @@ function Dashboard() {
                 fontSize: "10px",
               }}
             >
-              Starts in{" "}
+              Predictions lock in{" "}
               <Countdown
                 kickoff={
                   upcomingMatch.kickoff

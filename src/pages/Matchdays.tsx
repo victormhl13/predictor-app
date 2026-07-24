@@ -255,6 +255,13 @@ function Matchdays() {
     homeScore: number,
     awayScore: number
   ) {
+    const confirmed =
+      window.confirm(
+        "Save this final score? This will lock the match and update the ranking."
+      )
+
+    if (!confirmed) return
+
     try {
       await setFinalScore(
         matchId,
@@ -626,12 +633,22 @@ function Matchdays() {
               }`
             : "",
         ].filter(Boolean)
+        const hasPendingFinals =
+          apiMatches.some(
+            (match) =>
+              match.home_score ===
+                null ||
+              match.away_score ===
+                null
+          )
         setNotice(
           changes.length > 0
             ? `${changes.join(
                 " and "
               )} synchronized.`
-            : "Everything is up to date."
+            : hasPendingFinals
+              ? "No final results found on LPF yet."
+              : "Everything is up to date."
         )
       }
     } catch (error) {
@@ -770,6 +787,64 @@ function Matchdays() {
         match.kickoff
       ).getTime() <= nowMs
     )
+  }
+
+  function matchdayStatus(
+    matchday: Matchday,
+    matchdayMatches: Match[]
+  ) {
+    if (
+      matchdayMatches.length === 0
+    ) {
+      return {
+        label: matchday.is_open
+          ? "OPEN"
+          : "CLOSED",
+        color: matchday.is_open
+          ? "#9CF989"
+          : "#FF8A8A",
+      }
+    }
+
+    const allFinished =
+      matchdayMatches.every(
+        (match) =>
+          match.home_score !==
+            null &&
+          match.away_score !== null
+      )
+    const hasLive =
+      matchdayMatches.some(
+        (match) =>
+          match.home_score ===
+            null &&
+          match.away_score ===
+            null &&
+          canSetFinalScore(match)
+      )
+
+    if (allFinished) {
+      return {
+        label: "FINISHED",
+        color: "#60A5FA",
+      }
+    }
+
+    if (hasLive) {
+      return {
+        label: "LIVE",
+        color: "#F8D477",
+      }
+    }
+
+    return {
+      label: matchday.is_open
+        ? "OPEN"
+        : "CLOSED",
+      color: matchday.is_open
+        ? "#9CF989"
+        : "#FF8A8A",
+    }
   }
 
   const visibleMatchdays = [
@@ -1001,6 +1076,11 @@ function Matchdays() {
         const isManaged =
           managedMatchday ===
           matchday.id
+        const status =
+          matchdayStatus(
+            matchday,
+            allMatchdayMatches
+          )
 
         return (
           <section
@@ -1062,19 +1142,14 @@ function Matchdays() {
               >
                 <span
                   style={{
-                    color:
-                      matchday.is_open
-                        ? "#9CF989"
-                        : "#FF8A8A",
+                    color: status.color,
                     fontSize: "10px",
                     fontWeight: 800,
                     letterSpacing:
                       "0.8px",
                   }}
                 >
-                  {matchday.is_open
-                    ? "OPEN"
-                    : "CLOSED"}
+                  {status.label}
                 </span>
 
                 {currentUser?.role ===

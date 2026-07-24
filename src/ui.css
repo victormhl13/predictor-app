@@ -427,6 +427,87 @@ select.field {
   transition: width 0.25s ease;
 }
 
+.prediction-list {
+  display: grid;
+  gap: 11px;
+}
+
+.prediction-card {
+  position: relative;
+  padding: 13px 12px 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.095);
+  border-radius: 19px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(14, 22, 34, 0.66),
+      rgba(7, 12, 20, 0.52)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 26px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+}
+
+.prediction-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(109, 255, 78, 0.075),
+      transparent 42%
+    );
+  opacity: 0.85;
+}
+
+.prediction-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.prediction-card-missing {
+  border-color: rgba(248, 212, 119, 0.16);
+}
+
+.prediction-card-missing::before {
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(248, 212, 119, 0.11),
+      transparent 43%
+    );
+}
+
+.prediction-card-saved {
+  border-color: rgba(109, 255, 78, 0.15);
+}
+
+.prediction-card-locked {
+  opacity: 0.94;
+}
+
+.prediction-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 11px;
+  color: #8f9aa8;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.45px;
+  text-transform: uppercase;
+}
+
+.prediction-card-meta span:first-child {
+  color: #b7ffa7;
+}
+
 .score-pair {
   display: grid;
   gap: 8px;
@@ -500,7 +581,7 @@ select.field {
 
 .quick-scores {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
   margin-top: 8px;
 }

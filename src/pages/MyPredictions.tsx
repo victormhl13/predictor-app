@@ -1083,12 +1083,7 @@ function MyPredictions() {
             : "No matches in this view."}
         </div>
       ) : (
-        <div
-          className="surface"
-          style={{
-            overflow: "hidden",
-          }}
-        >
+        <div className="prediction-list">
           {visibleMatches.map(
             (match) => {
               const locked =
@@ -1110,20 +1105,47 @@ function MyPredictions() {
                   "number" &&
                 typeof draft?.away ===
                   "number"
+              const cardStatus =
+                locked
+                  ? isFinished(match)
+                    ? "Final"
+                    : "Locked"
+                  : draft?.saved &&
+                      !isEditing
+                    ? "Pick saved"
+                    : missing
+                      ? "Pick missing"
+                      : "Make your pick"
 
               return (
                 <div
                   key={match.id}
-                  style={{
-                    padding:
-                      "13px 12px",
-                    borderBottom:
-                      "1px solid rgba(255,255,255,0.055)",
-                    background: missing
-                      ? "linear-gradient(90deg, rgba(248,212,119,0.08), transparent)"
-                      : "transparent",
-                  }}
+                  className={`prediction-card ${
+                    missing
+                      ? "prediction-card-missing"
+                      : ""
+                  } ${
+                    draft?.saved &&
+                    !isEditing
+                      ? "prediction-card-saved"
+                      : ""
+                  } ${
+                    locked
+                      ? "prediction-card-locked"
+                      : ""
+                  }`}
                 >
+                  <div className="prediction-card-meta">
+                    <span>
+                      {cardStatus}
+                    </span>
+                    <span>
+                      {formatKickoff(
+                        match.kickoff
+                      )}
+                    </span>
+                  </div>
+
                   <div
                     style={{
                       display: "grid",
@@ -1178,9 +1200,7 @@ function MyPredictions() {
                           "center",
                       }}
                     >
-                      {formatKickoff(
-                        match.kickoff
-                      )}
+                      Pick closes
                       <div
                         style={{
                           marginTop:

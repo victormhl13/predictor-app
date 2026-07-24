@@ -9,7 +9,7 @@ type Props = {
     matchId: string,
     homeScore: number,
     awayScore: number
-  ) => void
+  ) => void | Promise<void>
 }
 
 function FinalScoreForm({
@@ -26,6 +26,8 @@ function FinalScoreForm({
     useState(
       currentAwayScore ?? 0
     )
+  const [saving, setSaving] =
+    useState(false)
 
   function updateScore(
     side: "home" | "away",
@@ -39,12 +41,17 @@ function FinalScoreForm({
     setAwayScore(value)
   }
 
-  function handleSubmit() {
-    onSave(
-      matchId,
-      homeScore,
-      awayScore
-    )
+  async function handleSubmit() {
+    try {
+      setSaving(true)
+      await onSave(
+        matchId,
+        homeScore,
+        awayScore
+      )
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -83,6 +90,7 @@ function FinalScoreForm({
       <button
         type="button"
         onClick={handleSubmit}
+        disabled={saving}
         style={{
           display: "block",
           width: "100%",
@@ -102,10 +110,15 @@ function FinalScoreForm({
             "blur(14px)",
           fontSize: "13px",
           fontWeight: 800,
-          cursor: "pointer",
+          cursor: saving
+            ? "wait"
+            : "pointer",
+          opacity: saving ? 0.72 : 1,
         }}
       >
-        Save
+        {saving
+          ? "Saving final score..."
+          : "Save final score"}
       </button>
     </div>
   )

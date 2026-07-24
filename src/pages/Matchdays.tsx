@@ -249,12 +249,32 @@ function Matchdays() {
       )
     } catch (error) {
       console.error(error)
+      setNotice(
+        error instanceof Error
+          ? `Could not save final score: ${error.message}`
+          : "Could not save final score."
+      )
+      window.setTimeout(
+        () => setNotice(""),
+        4200
+      )
       return
     }
 
+    setMatches((currentMatches) =>
+      currentMatches.map((match) =>
+        match.id === matchId
+          ? {
+              ...match,
+              home_score: homeScore,
+              away_score: awayScore,
+            }
+          : match
+      )
+    )
     setScoreEditor(null)
     await loadMatches()
-    setNotice("Score saved.")
+    setNotice("Final score saved.")
     window.setTimeout(
       () => setNotice(""),
       2200

@@ -195,7 +195,16 @@ function Dashboard() {
       const openMatchday =
         matchdays.find(
           (matchday) =>
-            matchday.is_open
+            matchday.is_open &&
+            matches.some(
+              (match) =>
+                match.matchday_id ===
+                  matchday.id &&
+                (match.home_score ===
+                  null ||
+                  match.away_score ===
+                    null)
+            )
         )
       const futureMatches = matches
         .filter(

@@ -127,10 +127,7 @@ function Matchdays() {
 
   useEffect(() => {
     if (
-      matchdays.length === 0 ||
-      Object.keys(
-        expandedMatchdays
-      ).length > 0
+      matchdays.length === 0
     ) {
       return
     }
@@ -139,7 +136,16 @@ function Matchdays() {
     const openMatchday =
       matchdays.find(
         (matchday) =>
-          matchday.is_open
+          matchday.is_open &&
+          matches.some(
+            (match) =>
+              match.matchday_id ===
+                matchday.id &&
+              (match.home_score ===
+                null ||
+                match.away_score ===
+                  null)
+          )
       )
     const nextMatch = matches
       .filter(
@@ -163,28 +169,22 @@ function Matchdays() {
       openMatchday?.id ||
       nextMatch?.matchday_id
 
-    if (target) {
-      const timeout =
-        window.setTimeout(() => {
-          setExpandedMatchdays(
-            (current) =>
-              Object.keys(
-                current
-              ).length > 0
-                ? current
-                : {
-                    [target]:
-                      true,
-                  }
-          )
-        }, 0)
-      return () =>
-        window.clearTimeout(
-          timeout
+    const timeout =
+      window.setTimeout(() => {
+        setExpandedMatchdays(
+          target
+            ? {
+                [target]: true,
+              }
+            : {}
         )
-    }
+      }, 0)
+
+    return () =>
+      window.clearTimeout(
+        timeout
+      )
   }, [
-    expandedMatchdays,
     matchdays,
     matches,
   ])

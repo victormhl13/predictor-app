@@ -69,6 +69,55 @@ function effectiveKickoff(
   return date
 }
 
+function inferNextMatchdayName(
+  matchdays: Matchday[]
+) {
+  const regularMatchdays =
+    matchdays
+      .map((matchday) => {
+        const match =
+          matchday.name.match(
+            /^(.*?Matchday\s+)(\d+)$/i
+          )
+        if (!match) return null
+        return {
+          prefix: match[1],
+          number: Number(match[2]),
+        }
+      })
+      .filter(
+        (
+          item
+        ): item is {
+          prefix: string
+          number: number
+        } => Boolean(item)
+      )
+
+  if (
+    regularMatchdays.length === 0
+  ) {
+    return "-"
+  }
+
+  const latest =
+    regularMatchdays.sort(
+      (a, b) =>
+        b.number - a.number
+    )[0]
+
+  if (latest.number >= 30) {
+    return `${latest.prefix.replace(
+      /Matchday\s+$/i,
+      ""
+    )}Play-off 1`
+  }
+
+  return `${latest.prefix}${
+    latest.number + 1
+  }`
+}
+
 function Dashboard() {
   const { currentUser } = useAuth()
   const [
@@ -203,7 +252,9 @@ function Dashboard() {
       setCurrentMatchday(
         nextMatchday?.name ||
           openMatchday?.name ||
-          "-"
+          inferNextMatchdayName(
+            matchdays
+          )
       )
       setMyPredictions(
         ownPredictions.length

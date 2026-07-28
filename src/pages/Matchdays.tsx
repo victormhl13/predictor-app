@@ -136,9 +136,16 @@ function Matchdays() {
     }
 
     const now = Date.now()
+    const openMatchday =
+      matchdays.find(
+        (matchday) =>
+          matchday.is_open
+      )
     const nextMatch = matches
       .filter(
         (match) =>
+          match.home_score === null &&
+          match.away_score === null &&
           new Date(
             match.kickoff
           ).getTime() >= now
@@ -153,12 +160,8 @@ function Matchdays() {
           ).getTime()
       )[0]
     const target =
-      nextMatch?.matchday_id ||
-      matchdays.find(
-        (matchday) =>
-          matchday.is_open
-      )?.id ||
-      matchdays[0]?.id
+      openMatchday?.id ||
+      nextMatch?.matchday_id
 
     if (target) {
       const timeout =

@@ -3,6 +3,8 @@ import {
   useRef,
   useState,
 } from "react"
+import type { ReactNode } from "react"
+import { createPortal } from "react-dom"
 import { Plus, X } from "lucide-react"
 
 import { createMatchdayWithMatches } from "../lib/appApi"
@@ -69,6 +71,15 @@ function phaseLabel(
   }
 
   return `Matchday ${matchday}`
+}
+
+function addMatchdayOverlay(
+  content: ReactNode
+) {
+  return createPortal(
+    content,
+    document.body
+  )
 }
 
 function AddMatchdayFlow({
@@ -337,7 +348,8 @@ function AddMatchdayFlow({
         Add Matchday
       </button>
 
-      {open && (
+      {open &&
+        addMatchdayOverlay(
         <div
           role="dialog"
           aria-modal="true"
@@ -781,7 +793,7 @@ function AddMatchdayFlow({
             )}
           </div>
         </div>
-      )}
+        )}
     </>
   )
 }

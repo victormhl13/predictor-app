@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useRef,
   useState,
 } from "react"
 import { Plus, X } from "lucide-react"
@@ -73,6 +74,10 @@ function phaseLabel(
 function AddMatchdayFlow({
   onCreated,
 }: Props) {
+  const sheetRef =
+    useRef<HTMLDivElement | null>(
+      null
+    )
   const [open, setOpen] =
     useState(false)
   const [season, setSeason] =
@@ -102,6 +107,12 @@ function AddMatchdayFlow({
 
   useEffect(() => {
     if (!open) return
+
+    window.setTimeout(() => {
+      sheetRef.current?.scrollTo({
+        top: 0,
+      })
+    }, 0)
 
     fetch("/api/football-seasons")
       .then((response) =>
@@ -335,10 +346,10 @@ function AddMatchdayFlow({
             zIndex: 320,
             inset: 0,
             display: "flex",
-            alignItems: "flex-end",
+            alignItems: "center",
             justifyContent: "center",
             padding:
-              "18px 18px calc(98px + env(safe-area-inset-bottom))",
+              "calc(96px + env(safe-area-inset-top)) 18px calc(98px + env(safe-area-inset-bottom))",
             background:
               "rgba(3,6,12,0.84)",
             backdropFilter:
@@ -349,12 +360,13 @@ function AddMatchdayFlow({
           onClick={close}
         >
           <div
+            ref={sheetRef}
             className="surface"
             style={{
               width: "100%",
               maxWidth: "390px",
               maxHeight:
-                "calc(100dvh - 142px - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
+                "calc(100dvh - 194px - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
               overflowY: "auto",
               overscrollBehavior:
                 "contain",

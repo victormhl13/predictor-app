@@ -137,6 +137,27 @@ function isMatchLocked(
   )
 }
 
+function matchdayNumber(
+  matchday?: Matchday
+) {
+  const match =
+    matchday?.name.match(
+      /(Matchday|Play-off)\s+(\d+)/i
+    )
+
+  if (!match) return 0
+
+  const number = Number(
+    match[2]
+  )
+
+  return match[1]
+    .toLowerCase()
+    .includes("play")
+    ? 30 + number
+    : number
+}
+
 function MyPredictions() {
   const { currentUser } = useAuth()
   const [matches, setMatches] =
@@ -484,12 +505,55 @@ function MyPredictions() {
 
   const visibleMatches = useMemo(
     () =>
-      matches.filter((match) =>
-        filter === "locked"
-          ? isMatchLocked(match)
-          : !isMatchLocked(match)
-      ),
-    [matches, filter]
+      matches
+        .filter((match) =>
+          filter === "locked"
+            ? isMatchLocked(match)
+            : !isMatchLocked(match)
+        )
+        .sort((a, b) => {
+          const aMatchday =
+            matchdays.find(
+              (matchday) =>
+                matchday.id ===
+                a.matchday_id
+            )
+          const bMatchday =
+            matchdays.find(
+              (matchday) =>
+                matchday.id ===
+                b.matchday_id
+            )
+          const finalOrder =
+            Number(isFinished(a)) -
+            Number(isFinished(b))
+
+          if (finalOrder !== 0) {
+            return finalOrder
+          }
+
+          const matchdayOrder =
+            matchdayNumber(
+              bMatchday
+            ) -
+            matchdayNumber(
+              aMatchday
+            )
+
+          if (matchdayOrder !== 0) {
+            return matchdayOrder
+          }
+
+          return (
+            new Date(
+              a.kickoff
+            ).getTime() -
+            new Date(
+              b.kickoff
+            ).getTime()
+          )
+        }),
+    [matches, matchdays, filter]
   )
   const openMatches = matches.filter(
     (match) =>

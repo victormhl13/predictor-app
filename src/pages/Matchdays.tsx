@@ -133,20 +133,20 @@ function Matchdays() {
     }
 
     const now = Date.now()
-    const openMatchday =
-      matchdays.find(
+    const openMatchday = [
+      ...matchdays,
+    ]
+      .filter(
         (matchday) =>
-          matchday.is_open &&
-          matches.some(
-            (match) =>
-              match.matchday_id ===
-                matchday.id &&
-              (match.home_score ===
-                null ||
-                match.away_score ===
-                  null)
+          matchdayHasUnfinishedMatches(
+            matchday
           )
       )
+      .sort(
+        (a, b) =>
+          matchdayNumber(b) -
+          matchdayNumber(a)
+      )[0]
     const nextMatch = matches
       .filter(
         (match) =>
@@ -850,6 +850,82 @@ function Matchdays() {
     }
   }
 
+  function matchdayNumber(
+    matchday: Matchday
+  ) {
+    const match =
+      matchday.name.match(
+        /(Matchday|Play-off)\s+(\d+)/i
+      )
+
+    if (!match) return 0
+
+    const number = Number(
+      match[2]
+    )
+
+    return match[1]
+      .toLowerCase()
+      .includes("play")
+      ? 30 + number
+      : number
+  }
+
+  function getMatchdayMatches(
+    matchday: Matchday
+  ) {
+    return matches.filter(
+      (match) =>
+        match.matchday_id ===
+        matchday.id
+    )
+  }
+
+  function matchIsFinished(
+    match: Match
+  ) {
+    return (
+      match.home_score !== null &&
+      match.away_score !== null
+    )
+  }
+
+  function matchdayIsFinished(
+    matchday: Matchday
+  ) {
+    const dayMatches =
+      getMatchdayMatches(matchday)
+
+    return (
+      dayMatches.length > 0 &&
+      dayMatches.every(
+        matchIsFinished
+      )
+    )
+  }
+
+  function matchdayHasUnfinishedMatches(
+    matchday: Matchday
+  ) {
+    return getMatchdayMatches(
+      matchday
+    ).some(
+      (match) =>
+        !matchIsFinished(match)
+    )
+  }
+
+  const activeUpcomingMatchday =
+    [...matchdays]
+      .filter(
+        matchdayHasUnfinishedMatches
+      )
+      .sort(
+        (a, b) =>
+          matchdayNumber(b) -
+          matchdayNumber(a)
+      )[0]
+
   const visibleMatchdays = [
     ...matchdays,
   ]
@@ -858,63 +934,26 @@ function Matchdays() {
         matchFilter ===
         "upcoming"
       ) {
-        return matchday.is_open
+        return (
+          matchday.id ===
+          activeUpcomingMatchday?.id
+        )
       }
       if (
         matchFilter ===
         "finished"
       ) {
-        return !matchday.is_open
+        return matchdayIsFinished(
+          matchday
+        )
       }
       return true
     })
     .sort((a, b) => {
-      if (
-        a.is_open !== b.is_open
-      ) {
-        return a.is_open ? -1 : 1
-      }
-
-      const matchdayTime = (
-        id: string,
-        mode: "first" | "last"
-      ) => {
-        const times = matches
-          .filter(
-            (match) =>
-              match.matchday_id ===
-              id
-          )
-          .map((match) =>
-            new Date(
-              match.kickoff
-            ).getTime()
-          )
-        if (times.length === 0) {
-          return 0
-        }
-        return mode === "first"
-          ? Math.min(...times)
-          : Math.max(...times)
-      }
-
-      return a.is_open
-        ? matchdayTime(
-            a.id,
-            "first"
-          ) -
-            matchdayTime(
-              b.id,
-              "first"
-            )
-        : matchdayTime(
-            a.id,
-            "last"
-          ) -
-            matchdayTime(
-              b.id,
-              "last"
-            )
+      return (
+        matchdayNumber(b) -
+        matchdayNumber(a)
+      )
     })
 
   return (
@@ -1046,11 +1085,7 @@ function Matchdays() {
       visibleMatchdays.map(
         (matchday) => {
         const allMatchdayMatches =
-          matches.filter(
-            (match) =>
-              match.matchday_id ===
-              matchday.id
-          )
+          getMatchdayMatches(matchday)
         const matchdayMatches =
           allMatchdayMatches.filter(
             (match) => {

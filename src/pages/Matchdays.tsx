@@ -487,6 +487,7 @@ function Matchdays() {
                 match.api_fixture_id
             )
             .join(","),
+          t: String(Date.now()),
         })
       const response = await fetch(
         `/api/sync-results?${params.toString()}`

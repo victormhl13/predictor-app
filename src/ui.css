@@ -661,6 +661,42 @@ select.field {
   font-size: 12px;
 }
 
+.other-match-teams {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.other-match-team {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.other-match-team span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.other-match-team-away {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.other-match-vs {
+  color: #6b7280;
+  font-size: 8px;
+  font-weight: 900;
+}
+
 .locked-matchday-group {
   overflow: hidden;
   padding: 0;
@@ -718,7 +754,7 @@ select.field {
 .final-compact-row {
   min-height: 62px;
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   padding: 9px 11px;
@@ -732,13 +768,32 @@ select.field {
     );
 }
 
-.final-compact-row > :last-child {
-  justify-self: end;
-}
-
 .final-compact-center {
   min-width: 0;
   text-align: center;
+}
+
+.final-compact-team {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.final-compact-team span {
+  min-width: 0;
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.final-compact-team-away {
+  justify-content: flex-end;
+  text-align: right;
 }
 
 .final-compact-center span,

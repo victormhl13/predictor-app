@@ -1102,59 +1102,42 @@ function MyPredictions() {
                                       "11px",
                                   }}
                                 >
-                                  <div
-                                    style={{
-                                      display:
-                                        "grid",
-                                      gridTemplateColumns:
-                                        "1fr auto 1fr",
-                                      alignItems:
-                                        "center",
-                                      gap: "8px",
-                                      color:
-                                        "#FFFFFF",
-                                      fontSize:
-                                        "11px",
-                                      fontWeight:
-                                        850,
-                                      lineHeight:
-                                        1.25,
-                                    }}
-                                  >
-                                    <span
-                                      style={{
-                                        minWidth: 0,
-                                        overflowWrap:
-                                          "anywhere",
-                                      }}
-                                    >
-                                      {
-                                        match.home_team
-                                      }
-                                    </span>
-                                    <span
-                                      style={{
-                                        color:
-                                          "#6B7280",
-                                        fontSize:
-                                          "9px",
-                                      }}
-                                    >
+                                  <div className="other-match-teams">
+                                    <div className="other-match-team">
+                                      <TeamBadge
+                                        name={
+                                          match.home_team
+                                        }
+                                        logo={
+                                          match.home_team_logo
+                                        }
+                                        size={26}
+                                      />
+                                      <span>
+                                        {
+                                          match.home_team
+                                        }
+                                      </span>
+                                    </div>
+                                    <span className="other-match-vs">
                                       VS
                                     </span>
-                                    <span
-                                      style={{
-                                        minWidth: 0,
-                                        textAlign:
-                                          "right",
-                                        overflowWrap:
-                                          "anywhere",
-                                      }}
-                                    >
-                                      {
-                                        match.away_team
-                                      }
-                                    </span>
+                                    <div className="other-match-team other-match-team-away">
+                                      <span>
+                                        {
+                                          match.away_team
+                                        }
+                                      </span>
+                                      <TeamBadge
+                                        name={
+                                          match.away_team
+                                        }
+                                        logo={
+                                          match.away_team_logo
+                                        }
+                                        size={26}
+                                      />
+                                    </div>
                                   </div>
 
                                   <div
@@ -1303,15 +1286,20 @@ function MyPredictions() {
                                   className="final-compact-row"
                                   aria-label={`${match.home_team} ${match.home_score} - ${match.away_score} ${match.away_team}`}
                                 >
-                                  <TeamBadge
-                                    name={
-                                      match.home_team
-                                    }
-                                    logo={
-                                      match.home_team_logo
-                                    }
-                                    size={34}
-                                  />
+                                  <div className="final-compact-team">
+                                    <TeamBadge
+                                      name={
+                                        match.home_team
+                                      }
+                                      logo={
+                                        match.home_team_logo
+                                      }
+                                      size={32}
+                                    />
+                                    <span>
+                                      {match.home_team}
+                                    </span>
+                                  </div>
                                   <div className="final-compact-center">
                                     <span>
                                       Final
@@ -1331,15 +1319,20 @@ function MyPredictions() {
                                         : "No pick"}
                                     </small>
                                   </div>
-                                  <TeamBadge
-                                    name={
-                                      match.away_team
-                                    }
-                                    logo={
-                                      match.away_team_logo
-                                    }
-                                    size={34}
-                                  />
+                                  <div className="final-compact-team final-compact-team-away">
+                                    <span>
+                                      {match.away_team}
+                                    </span>
+                                    <TeamBadge
+                                      name={
+                                        match.away_team
+                                      }
+                                      logo={
+                                        match.away_team_logo
+                                      }
+                                      size={32}
+                                    />
+                                  </div>
                                 </div>
                               )
                             }

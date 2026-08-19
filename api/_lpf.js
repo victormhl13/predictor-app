@@ -491,9 +491,13 @@ export async function fetchLpfPage(
   const response = await fetch(
     new URL(path, LPF_BASE_URL),
     {
+      cache: "no-store",
       headers: {
         accept:
           "text/html,application/xhtml+xml",
+        "cache-control":
+          "no-cache",
+        pragma: "no-cache",
         "user-agent":
           "GoalPredict/1.0 (private football predictions app)",
       },

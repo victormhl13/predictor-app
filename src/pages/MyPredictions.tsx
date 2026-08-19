@@ -637,6 +637,29 @@ function MyPredictions() {
           .filter(
             (group) =>
               group.matches.length > 0
+          )
+          .map((group) => ({
+            ...group,
+            matches: [
+              ...group.matches,
+            ].sort(
+              (a, b) =>
+                new Date(
+                  a.kickoff
+                ).getTime() -
+                new Date(
+                  b.kickoff
+                ).getTime()
+            ),
+          }))
+          .sort(
+            (a, b) =>
+              matchdayNumber(
+                b.matchday
+              ) -
+              matchdayNumber(
+                a.matchday
+              )
           ),
       [
         matchdays,
@@ -861,12 +884,7 @@ function MyPredictions() {
             No matchdays yet.
           </div>
         ) : (
-          <div
-            className="surface"
-            style={{
-              overflow: "hidden",
-            }}
-          >
+          <div className="prediction-list">
             {matchdayPredictionGroups.map(
               ({
                 matchday,
@@ -882,9 +900,9 @@ function MyPredictions() {
                 return (
                   <div
                     key={matchday.id}
+                    className="surface"
                     style={{
-                      borderBottom:
-                        "1px solid rgba(255,255,255,0.06)",
+                      overflow: "hidden",
                     }}
                   >
                     <button

@@ -195,6 +195,26 @@ const TEAM_NAMES = {
     "DINAMO BUCUREȘTI",
   "DINAMO BUCUREȘTI":
     "DINAMO BUCUREȘTI",
+  "FC PETROLUL":
+    "FC PETROLUL",
+  "FC PETROLUL PLOIESTI":
+    "FC PETROLUL",
+  "FC PETROLUL PLOIEȘTI":
+    "FC PETROLUL",
+  "PETROLUL PLOIESTI":
+    "FC PETROLUL",
+  "PETROLUL PLOIEȘTI":
+    "FC PETROLUL",
+  "FC RAPID":
+    "FC RAPID",
+  "FC RAPID BUCURESTI":
+    "FC RAPID",
+  "FC RAPID BUCUREȘTI":
+    "FC RAPID",
+  "RAPID BUCURESTI":
+    "FC RAPID",
+  "RAPID BUCUREȘTI":
+    "FC RAPID",
 }
 
 function normalizeTeamName(name) {
@@ -216,6 +236,19 @@ function normalizeTeamName(name) {
     normalized.toLocaleUpperCase(
       "ro-RO"
     )
+  )
+}
+
+function sameTeamName(a, b) {
+  const first =
+    normalizeTeamName(a)
+  const second =
+    normalizeTeamName(b)
+
+  return Boolean(
+    first &&
+      second &&
+      first === second
   )
 }
 
@@ -578,6 +611,14 @@ export async function fetchLpfResult(
     pageTitle.match(
       /^(.*?)\s+-\s+(.*?)\s+-\s+Etapa\b/i
     )
+  const titleHomeTeam =
+    normalizeTeamName(
+      titleTeams?.[1]
+    )
+  const titleAwayTeam =
+    normalizeTeamName(
+      titleTeams?.[2]
+    )
   let roundFixture = null
 
   if (roundNumber) {
@@ -596,7 +637,19 @@ export async function fetchLpfResult(
         roundFixtures.find(
           (item) =>
             item.id === fixtureId
-        ) || null
+        ) ||
+        roundFixtures.find(
+          (item) =>
+            sameTeamName(
+              item.homeTeam,
+              titleHomeTeam
+            ) &&
+            sameTeamName(
+              item.awayTeam,
+              titleAwayTeam
+            )
+        ) ||
+        null
     } catch (error) {
       console.warn(
         `Could not refresh LPF round ${roundNumber}`,
@@ -635,15 +688,11 @@ export async function fetchLpfResult(
     )
   const homeTeam =
     roundFixture?.homeTeam ||
-    normalizeTeamName(
-      titleTeams?.[1]
-    ) ||
+    titleHomeTeam ||
     null
   const awayTeam =
     roundFixture?.awayTeam ||
-    normalizeTeamName(
-      titleTeams?.[2]
-    ) ||
+    titleAwayTeam ||
     null
   const details = {
     kickoff,

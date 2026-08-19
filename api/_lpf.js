@@ -563,21 +563,60 @@ export async function fetchLpfResult(
   const date = html.match(
     /class=["'][^"']*homepage-etapa-footer[^"']*["'][^>]*>[\s\S]*?<span[^>]*>([\s\S]*?)<\/span>/i
   )
-  const kickoff = date
-    ? parseRomanianDate(date[1])
-    : null
-  const kickoffTimeTba = date
-    ? !hasKnownKickoffTime(date[1])
-    : false
   const pageTitle = text(
     html.match(
       /<title[^>]*>([\s\S]*?)<\/title>/i
     )?.[1] || ""
   )
+  const roundNumber =
+    Number(
+      pageTitle.match(
+        /\bEtapa\s+(\d+)\b/i
+      )?.[1]
+    ) || null
   const titleTeams =
     pageTitle.match(
       /^(.*?)\s+-\s+(.*?)\s+-\s+Etapa\b/i
     )
+  let roundFixture = null
+
+  if (roundNumber) {
+    try {
+      const roundHtml =
+        await fetchLpfPage(
+          `/etape-liga-1/${roundNumber}`
+        )
+      const roundFixtures =
+        parseRound(
+          roundHtml,
+          roundNumber,
+          "regular"
+        )
+      roundFixture =
+        roundFixtures.find(
+          (item) =>
+            item.id === fixtureId
+        ) || null
+    } catch (error) {
+      console.warn(
+        `Could not refresh LPF round ${roundNumber}`,
+        error
+      )
+    }
+  }
+
+  const kickoff =
+    roundFixture?.kickoff ||
+    (date
+      ? parseRomanianDate(date[1])
+      : null)
+  const kickoffTimeTba =
+    roundFixture?.kickoffTimeTba ??
+    (date
+      ? !hasKnownKickoffTime(
+          date[1]
+        )
+      : false)
   const scoreRow =
     html.match(
       /<tr[^>]*>[\s\S]*?class=["'][^"']*scor_mc[^"']*["'][\s\S]*?<\/tr>/i
@@ -595,21 +634,29 @@ export async function fetchLpfResult(
       ).toString()
     )
   const homeTeam =
+    roundFixture?.homeTeam ||
     normalizeTeamName(
       titleTeams?.[1]
-    ) || null
+    ) ||
+    null
   const awayTeam =
+    roundFixture?.awayTeam ||
     normalizeTeamName(
       titleTeams?.[2]
-    ) || null
+    ) ||
+    null
   const details = {
     kickoff,
     homeTeam,
     awayTeam,
     homeLogo:
-      logoPaths[0] || null,
+      roundFixture?.homeLogo ||
+      logoPaths[0] ||
+      null,
     awayLogo:
-      logoPaths[1] || null,
+      roundFixture?.awayLogo ||
+      logoPaths[1] ||
+      null,
     kickoffTimeTba,
   }
 

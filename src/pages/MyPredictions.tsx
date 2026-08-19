@@ -667,6 +667,64 @@ function MyPredictions() {
         otherPredictionsByMatchId,
       ]
     )
+  const lockedMatchdayGroups =
+    useMemo(
+      () =>
+        matchdays
+          .map((matchday) => {
+            const groupMatches =
+              matches
+                .filter(
+                  (match) =>
+                    match.matchday_id ===
+                      matchday.id &&
+                    isMatchLocked(match)
+                )
+                .sort((a, b) => {
+                  const finalOrder =
+                    Number(
+                      isFinished(a)
+                    ) -
+                    Number(
+                      isFinished(b)
+                    )
+
+                  if (
+                    finalOrder !== 0
+                  ) {
+                    return finalOrder
+                  }
+
+                  return (
+                    new Date(
+                      a.kickoff
+                    ).getTime() -
+                    new Date(
+                      b.kickoff
+                    ).getTime()
+                  )
+                })
+
+            return {
+              matchday,
+              matches: groupMatches,
+            }
+          })
+          .filter(
+            (group) =>
+              group.matches.length > 0
+          )
+          .sort(
+            (a, b) =>
+              matchdayNumber(
+                b.matchday
+              ) -
+              matchdayNumber(
+                a.matchday
+              )
+          ),
+      [matchdays, matches]
+    )
   const hasUnsavedChanges =
     dirtyIds.size > 0
 
@@ -1146,6 +1204,238 @@ function MyPredictions() {
                               )
                             }
                           )
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              }
+            )}
+          </div>
+        )
+      ) : filter === "locked" ? (
+        loading ? (
+          <SkeletonList rows={4} />
+        ) : lockedMatchdayGroups
+            .length === 0 ? (
+          <div className="surface empty-state">
+            No locked matches yet.
+          </div>
+        ) : (
+          <div className="prediction-list">
+            {lockedMatchdayGroups.map(
+              ({
+                matchday,
+                matches:
+                  groupMatches,
+              }) => {
+                const expanded =
+                  expandedMatchdayIds.has(
+                    matchday.id
+                  )
+
+                return (
+                  <div
+                    key={matchday.id}
+                    className="surface locked-matchday-group"
+                  >
+                    <button
+                      type="button"
+                      className="locked-matchday-header"
+                      onClick={() =>
+                        toggleMatchday(
+                          matchday.id
+                        )
+                      }
+                    >
+                      <div>
+                        <strong>
+                          {matchday.name}
+                        </strong>
+                        <span>
+                          {
+                            groupMatches.length
+                          } locked match
+                          {groupMatches.length ===
+                          1
+                            ? ""
+                            : "es"}
+                        </span>
+                      </div>
+                      <span
+                        className={`matchday-chevron ${
+                          expanded
+                            ? "matchday-chevron-open"
+                            : ""
+                        }`}
+                      >
+                        ⌄
+                      </span>
+                    </button>
+
+                    {expanded && (
+                      <div className="locked-matchday-body">
+                        {groupMatches.map(
+                          (match) => {
+                            const draft =
+                              drafts[
+                                match.id
+                              ]
+                            const matchPredictions =
+                              lockedPredictions.filter(
+                                (
+                                  prediction
+                                ) =>
+                                  prediction.match_id ===
+                                  match.id
+                              )
+
+                            if (
+                              isFinished(
+                                match
+                              )
+                            ) {
+                              return (
+                                <div
+                                  key={
+                                    match.id
+                                  }
+                                  className="final-compact-row"
+                                  aria-label={`${match.home_team} ${match.home_score} - ${match.away_score} ${match.away_team}`}
+                                >
+                                  <TeamBadge
+                                    name={
+                                      match.home_team
+                                    }
+                                    logo={
+                                      match.home_team_logo
+                                    }
+                                    size={34}
+                                  />
+                                  <div className="final-compact-center">
+                                    <span>
+                                      Final
+                                    </span>
+                                    <strong>
+                                      {
+                                        match.home_score
+                                      }{" "}
+                                      –{" "}
+                                      {
+                                        match.away_score
+                                      }
+                                    </strong>
+                                    <small>
+                                      {draft?.saved
+                                        ? `You ${draft.home}–${draft.away}`
+                                        : "No pick"}
+                                    </small>
+                                  </div>
+                                  <TeamBadge
+                                    name={
+                                      match.away_team
+                                    }
+                                    logo={
+                                      match.away_team_logo
+                                    }
+                                    size={34}
+                                  />
+                                </div>
+                              )
+                            }
+
+                            return (
+                              <div
+                                key={
+                                  match.id
+                                }
+                                className="locked-pending-row"
+                              >
+                                <div className="locked-pending-teams">
+                                  <TeamBadge
+                                    name={
+                                      match.home_team
+                                    }
+                                    logo={
+                                      match.home_team_logo
+                                    }
+                                    size={28}
+                                  />
+                                  <span>
+                                    {match.home_team}
+                                  </span>
+                                  <small>
+                                    vs
+                                  </small>
+                                  <span>
+                                    {match.away_team}
+                                  </span>
+                                  <TeamBadge
+                                    name={
+                                      match.away_team
+                                    }
+                                    logo={
+                                      match.away_team_logo
+                                    }
+                                    size={28}
+                                  />
+                                </div>
+                                <div className="locked-pending-meta">
+                                  <span>
+                                    Locked
+                                  </span>
+                                  <strong>
+                                    {draft?.saved
+                                      ? `${draft.home} – ${draft.away}`
+                                      : "No prediction"}
+                                  </strong>
+                                  <small>
+                                    {formatKickoff(
+                                      match.kickoff
+                                    )}
+                                  </small>
+                                </div>
+                                {matchPredictions.length >
+                                  0 && (
+                                  <div className="community-predictions compact-community">
+                                    {matchPredictions.map(
+                                      (
+                                        prediction
+                                      ) => (
+                                        <div
+                                          key={
+                                            prediction.id
+                                          }
+                                          className="community-prediction-row"
+                                        >
+                                          <span>
+                                            {players.find(
+                                              (
+                                                player
+                                              ) =>
+                                                player.id ===
+                                                prediction.user_id
+                                            )
+                                              ?.name ||
+                                              "Player"}
+                                          </span>
+                                          <strong>
+                                            {
+                                              prediction.home_prediction
+                                            }
+                                            –
+                                            {
+                                              prediction.away_prediction
+                                            }
+                                          </strong>
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          }
                         )}
                       </div>
                     )}

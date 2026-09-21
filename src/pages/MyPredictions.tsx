@@ -158,6 +158,14 @@ function matchdayNumber(
     : number
 }
 
+function draftScore(
+  value: Draft["home"]
+) {
+  return typeof value === "number"
+    ? value
+    : 0
+}
+
 function MyPredictions() {
   const { currentUser } = useAuth()
   const [matches, setMatches] =
@@ -297,11 +305,13 @@ function MyPredictions() {
       ...current,
       [matchId]: {
         home:
-          current[matchId]?.home ??
-          0,
+          draftScore(
+            current[matchId]?.home
+          ),
         away:
-          current[matchId]?.away ??
-          0,
+          draftScore(
+            current[matchId]?.away
+          ),
         saved: false,
         [side]: value,
       },
@@ -341,16 +351,22 @@ function MyPredictions() {
     match: Match
   ) {
     const draft = drafts[match.id]
+    const home =
+      draftScore(draft?.home)
+    const away =
+      draftScore(draft?.away)
 
     return (
       !isMatchLocked(match) &&
-      typeof draft?.home ===
-        "number" &&
-      typeof draft?.away ===
-        "number" &&
+      (typeof draft?.home ===
+        "number" ||
+        typeof draft?.away ===
+          "number") &&
+      Number.isInteger(home) &&
+      Number.isInteger(away) &&
       (dirtyIds.has(match.id) ||
         editingIds.has(match.id) ||
-        !draft.saved)
+        !draft?.saved)
     )
   }
 
@@ -379,10 +395,14 @@ function MyPredictions() {
           return {
             match_id: match.id,
             home: Number(
-              draft?.home ?? 0
+              draftScore(
+                draft?.home
+              )
             ),
             away: Number(
-              draft?.away ?? 0
+              draftScore(
+                draft?.away
+              )
             ),
           }
         })

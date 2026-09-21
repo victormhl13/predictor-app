@@ -72,6 +72,9 @@ function ScorePairControl({
         score={home}
         onChange={onChange}
       />
+      <span className="score-pair-separator">
+        –
+      </span>
       <ScoreRow
         label="Away"
         side="away"

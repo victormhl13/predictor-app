@@ -1,6 +1,6 @@
 {
-  "name": "PitchCall",
-  "short_name": "PitchCall",
+  "name": "ScoreClub",
+  "short_name": "ScoreClub",
   "description": "Private football prediction league.",
   "start_url": "/",
   "display": "standalone",

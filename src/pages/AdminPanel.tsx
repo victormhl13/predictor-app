@@ -173,7 +173,7 @@ function AdminPanel() {
     <div className="page">
       <PageHeader
         title="Users"
-        subtitle={`${users.length} PitchCall accounts`}
+        subtitle={`${users.length} ScoreClub accounts`}
         action={
           <button
             type="button"

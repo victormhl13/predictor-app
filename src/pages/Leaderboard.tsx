@@ -578,37 +578,38 @@ function Leaderboard() {
                   latestMatchdaySummary.matchday
                 }
               </strong>
-              <small>
-                Winner:{" "}
-                {
-                  latestMatchdaySummary
-                    .winner.name
-                }{" "}
-                ·{" "}
-                {
-                  latestMatchdaySummary
-                    .winner.points
-                }{" "}
-                pts ·{" "}
-                {
-                  latestMatchdaySummary.winnerExact
-                }{" "}
-                exact score
-                {latestMatchdaySummary.winnerExact ===
-                1
-                  ? ""
-                  : "s"}{" "}
-                ·{" "}
-                {
-                  latestMatchdaySummary.runnerUp
+              <div className="recap-chip-grid">
+                <span>
+                  <b>Winner</b>
+                  {
+                    latestMatchdaySummary
+                      .winner.name
+                  }
+                </span>
+                <span>
+                  <b>Points</b>
+                  {
+                    latestMatchdaySummary
+                      .winner.points
+                  }
+                </span>
+                <span>
+                  <b>Exact</b>
+                  {
+                    latestMatchdaySummary.winnerExact
+                  }
+                </span>
+                <span>
+                  <b>Gap</b>
+                  {latestMatchdaySummary.runnerUp
                     ? latestMatchdaySummary.winner.points -
                         latestMatchdaySummary.runnerUp.points >
                       0
-                      ? `+${latestMatchdaySummary.winner.points - latestMatchdaySummary.runnerUp.points} pts over ${latestMatchdaySummary.runnerUp.name}`
-                      : `level with ${latestMatchdaySummary.runnerUp.name}`
-                    : `${latestMatchdaySummary.matches} matches`
-                }{" "}
-              </small>
+                      ? `+${latestMatchdaySummary.winner.points - latestMatchdaySummary.runnerUp.points}`
+                      : "Level"
+                    : `${latestMatchdaySummary.matches} games`}
+                </span>
+              </div>
             </div>
           )}
           {players[0] && (

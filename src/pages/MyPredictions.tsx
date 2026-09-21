@@ -1477,7 +1477,7 @@ function MyPredictions() {
       0 ? (
         <div className="surface empty-state">
           {filter === "open"
-            ? "No open matches. Matches with a final score move to Locked."
+            ? "No open fixtures. New predictions appear when the next matchday is created."
             : "No matches in this view."}
         </div>
       ) : (
@@ -1507,13 +1507,13 @@ function MyPredictions() {
                 locked
                   ? isFinished(match)
                     ? "Final"
-                    : "Locked"
+                    : "Locked at kickoff"
                   : draft?.saved &&
                       !isEditing
                     ? "Pick saved"
                     : missing
-                      ? "Pick missing"
-                      : "Make your pick"
+                      ? "Prediction needed"
+                      : "Choose score"
 
               return (
                 <div

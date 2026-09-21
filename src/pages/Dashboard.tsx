@@ -455,10 +455,10 @@ function Dashboard() {
         subtitle="Here is what matters right now."
       />
 
-      <div className="surface-soft how-it-works-card">
-        <span className="section-label">
-          How it works
-        </span>
+      <details className="surface-soft how-it-works-card">
+        <summary>
+          How FinalWhistle works
+        </summary>
         <div>
           <strong>Predict</strong>
           <span>before kickoff</span>
@@ -471,7 +471,7 @@ function Dashboard() {
           <strong>Score</strong>
           <span>3 exact · 1 outcome</span>
         </div>
-      </div>
+      </details>
 
       <Link
         to={
@@ -583,7 +583,7 @@ function Dashboard() {
           </div>
         ) : (
           <div className="empty-state">
-            No upcoming match.
+            No upcoming fixtures yet.
           </div>
         )}
 

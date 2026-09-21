@@ -1083,6 +1083,11 @@ function Matchdays() {
             Admin mode:{" "}
             {adminMode ? "On" : "Off"}
           </button>
+          {adminMode && (
+            <div className="admin-enabled-note">
+              Admin tools enabled
+            </div>
+          )}
 
           {adminMode && (
             <div className="matchday-actions">
@@ -1804,7 +1809,7 @@ function Matchdays() {
                                       "10px",
                                   }}
                                 >
-                                  Set score
+                                  Set final score
                                 </button>
                               )}
 
@@ -1826,7 +1831,7 @@ function Matchdays() {
                                         "center",
                                     }}
                                   >
-                                    Awaiting kickoff · final score available after kickoff
+                                    Awaiting kickoff · final score unlocks after the match starts
                                   </div>
                                 )}
 

@@ -31,6 +31,7 @@ type Player = User & {
 }
 
 type Phase =
+  | "overall"
   | "regular"
   | "playoff"
 
@@ -49,7 +50,7 @@ function isPlayoffMatchday(
 function Leaderboard() {
   const { currentUser } = useAuth()
   const [phase, setPhase] =
-    useState<Phase>("regular")
+    useState<Phase>("overall")
   const [users, setUsers] =
     useState<User[]>([])
   const [predictions, setPredictions] =
@@ -132,6 +133,10 @@ function Leaderboard() {
       )
     const matchBelongsToPhase =
       (match: Match) => {
+        if (phase === "overall") {
+          return true
+        }
+
         const matchday =
           matchdayById.get(
             match.matchday_id
@@ -258,6 +263,10 @@ function Leaderboard() {
         )
       const matchBelongsToPhase =
         (match: Match) => {
+          if (phase === "overall") {
+            return true
+          }
+
           const matchday =
             matchdayById.get(
               match.matchday_id
@@ -288,14 +297,99 @@ function Leaderboard() {
       matchdays,
     ])
 
+  const latestMatchdaySummary =
+    useMemo(() => {
+      const scoredMatches = matches
+        .filter(
+          (match) =>
+            match.home_score !==
+              null &&
+            match.away_score !== null
+        )
+        .sort(
+          (a, b) =>
+            new Date(
+              b.kickoff
+            ).getTime() -
+            new Date(
+              a.kickoff
+            ).getTime()
+        )
+      const latestMatchdayId =
+        scoredMatches[0]
+          ?.matchday_id
+
+      if (!latestMatchdayId) {
+        return null
+      }
+
+      const latestMatches =
+        scoredMatches.filter(
+          (match) =>
+            match.matchday_id ===
+            latestMatchdayId
+        )
+      const latestIds = new Set(
+        latestMatches.map(
+          (match) => match.id
+        )
+      )
+      const roundPlayers =
+        rankedPlayers(
+          users,
+          predictions,
+          matches,
+          latestIds
+        )
+      const winner =
+        roundPlayers[0]
+      const matchday =
+        matchdays.find(
+          (item) =>
+            item.id ===
+            latestMatchdayId
+        )
+
+      if (!winner) {
+        return null
+      }
+
+      return {
+        matchday:
+          matchday?.name ||
+          "Latest matchday",
+        winner,
+        matches:
+          latestMatches.length,
+      }
+    }, [
+      users,
+      predictions,
+      matches,
+      matchdays,
+    ])
+
   return (
     <div className="page">
       <PageHeader
         title="Ranking"
-        subtitle="Separate standings for the regular season and play-off."
+        subtitle="Overall, regular season and play-off standings."
       />
 
       <div className="segmented">
+        <button
+          type="button"
+          className={`segment ${
+            phase === "overall"
+              ? "segment-active"
+              : ""
+          }`}
+          onClick={() =>
+            setPhase("overall")
+          }
+        >
+          Overall
+        </button>
         <button
           type="button"
           className={`segment ${
@@ -335,6 +429,35 @@ function Leaderboard() {
         </div>
       ) : (
         <>
+          {latestMatchdaySummary && (
+            <div className="surface-soft matchday-summary-card">
+              <span className="section-label">
+                Latest matchday
+              </span>
+              <strong>
+                {
+                  latestMatchdaySummary.matchday
+                }
+              </strong>
+              <small>
+                Winner:{" "}
+                {
+                  latestMatchdaySummary
+                    .winner.name
+                }{" "}
+                ·{" "}
+                {
+                  latestMatchdaySummary
+                    .winner.points
+                }{" "}
+                pts from{" "}
+                {
+                  latestMatchdaySummary.matches
+                }{" "}
+                matches
+              </small>
+            </div>
+          )}
           {!hasPhaseResults && (
             <div className="surface-soft empty-state">
               No final scores yet for this

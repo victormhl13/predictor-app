@@ -133,6 +133,13 @@ function Dashboard() {
     setMyPredictions,
   ] = useState(0)
   const [
+    openPredictionProgress,
+    setOpenPredictionProgress,
+  ] = useState({
+    completed: 0,
+    total: 0,
+  })
+  const [
     nextMatchPredicted,
     setNextMatchPredicted,
   ] = useState(false)
@@ -268,6 +275,30 @@ function Dashboard() {
       setMyPredictions(
         ownPredictions.length
       )
+      const openPredictionMatches =
+        matches.filter(
+          (match) =>
+            match.home_score ===
+              null &&
+            match.away_score ===
+              null &&
+            effectiveKickoff(
+              match.kickoff
+            ) > new Date()
+        )
+      setOpenPredictionProgress({
+        completed:
+          openPredictionMatches.filter(
+            (match) =>
+              ownPredictions.some(
+                (prediction) =>
+                  prediction.match_id ===
+                  match.id
+              )
+          ).length,
+        total:
+          openPredictionMatches.length,
+      })
       setNextMatchPredicted(
         Boolean(
           nextMatch &&
@@ -593,6 +624,56 @@ function Dashboard() {
           overflow: "hidden",
         }}
       >
+        <div
+          className="dashboard-progress-card"
+        >
+          <div>
+            <span className="section-label">
+              Open picks
+            </span>
+            <strong>
+              {
+                openPredictionProgress.completed
+              }
+              /
+              {
+                openPredictionProgress.total
+              }
+            </strong>
+          </div>
+          <div className="progress-track">
+            <div
+              className="progress-fill"
+              style={{
+                width: `${
+                  openPredictionProgress.total
+                    ? (openPredictionProgress.completed /
+                        openPredictionProgress.total) *
+                      100
+                    : 0
+                }%`,
+              }}
+            />
+          </div>
+          <small>
+            {openPredictionProgress.total ===
+            0
+              ? "No open matches right now."
+              : openPredictionProgress.completed ===
+                  openPredictionProgress.total
+                ? "All open predictions are saved."
+                : `${
+                    openPredictionProgress.total -
+                    openPredictionProgress.completed
+                  } prediction${
+                    openPredictionProgress.total -
+                      openPredictionProgress.completed ===
+                    1
+                      ? ""
+                      : "s"
+                  } missing.`}
+          </small>
+        </div>
         <Link
           to="/predictions"
           className="compact-row"

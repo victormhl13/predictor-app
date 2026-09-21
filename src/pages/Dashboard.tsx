@@ -455,6 +455,24 @@ function Dashboard() {
         subtitle="Here is what matters right now."
       />
 
+      <div className="surface-soft how-it-works-card">
+        <span className="section-label">
+          How it works
+        </span>
+        <div>
+          <strong>Predict</strong>
+          <span>before kickoff</span>
+        </div>
+        <div>
+          <strong>Lock</strong>
+          <span>automatically at kickoff</span>
+        </div>
+        <div>
+          <strong>Score</strong>
+          <span>3 exact · 1 outcome</span>
+        </div>
+      </div>
+
       <Link
         to={
           upcomingMatch &&

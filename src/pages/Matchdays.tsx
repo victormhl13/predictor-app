@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useRef,
   useState,
 } from "react"
 import {
@@ -32,6 +33,7 @@ import ImportMatchesForm from "../components/ImportMatchesForm"
 import TeamBadge from "../components/TeamBadge"
 import SkeletonList from "../components/SkeletonList"
 import EditMatchForm from "../components/EditMatchForm"
+import ConfirmDialog from "../components/ConfirmDialog"
 import type {
   Match,
   Matchday,
@@ -104,6 +106,55 @@ function Matchdays() {
       status: string
       message: string | null
     } | null>(null)
+  const [
+    confirmDialog,
+    setConfirmDialog,
+  ] = useState<{
+    title: string
+    message: string
+    confirmLabel?: string
+    tone?: "default" | "danger"
+  } | null>(null)
+  const confirmResolver =
+    useRef<
+      | ((confirmed: boolean) => void)
+      | null
+    >(null)
+
+  function askConfirm({
+    title,
+    message,
+    confirmLabel,
+    tone,
+  }: {
+    title: string
+    message: string
+    confirmLabel?: string
+    tone?: "default" | "danger"
+  }) {
+    return new Promise<boolean>(
+      (resolve) => {
+        confirmResolver.current =
+          resolve
+        setConfirmDialog({
+          title,
+          message,
+          confirmLabel,
+          tone,
+        })
+      }
+    )
+  }
+
+  function closeConfirm(
+    confirmed: boolean
+  ) {
+    confirmResolver.current?.(
+      confirmed
+    )
+    confirmResolver.current = null
+    setConfirmDialog(null)
+  }
 
   useEffect(() => {
     Promise.all([
@@ -274,11 +325,13 @@ function Matchdays() {
         item.id === matchId
     )
     const confirmed =
-      window.confirm(
-        match
-          ? `Save final score?\n\n${match.home_team} ${homeScore}–${awayScore} ${match.away_team}\n\nThis will update the ranking.`
-          : "Save this final score? This will update the ranking."
-      )
+      await askConfirm({
+        title: "Save final score?",
+        message: match
+          ? `${match.home_team} ${homeScore}–${awayScore} ${match.away_team}. This will update the ranking.`
+          : "This will update the ranking.",
+        confirmLabel: "Save score",
+      })
 
     if (!confirmed) return
 
@@ -326,9 +379,12 @@ function Matchdays() {
     matchdayId: string
   ) {
     const confirmed =
-      window.confirm(
-        "Close this matchday? Predictions and results will remain visible."
-      )
+      await askConfirm({
+        title: "Close matchday?",
+        message:
+          "Predictions and results will remain visible. You can reopen it later from Admin mode.",
+        confirmLabel: "Close matchday",
+      })
 
     if (!confirmed) return
 
@@ -366,11 +422,16 @@ function Matchdays() {
   async function removeMatch(
     matchId: string
   ) {
-    if (
-      !window.confirm(
-        "Delete this match and its predictions?"
-      )
-    ) {
+    const confirmed =
+      await askConfirm({
+        title: "Delete match?",
+        message:
+          "This will delete the match and its predictions.",
+        confirmLabel: "Delete match",
+        tone: "danger",
+      })
+
+    if (!confirmed) {
       return
     }
 
@@ -387,9 +448,12 @@ function Matchdays() {
     matchday: Matchday
   ) {
     const confirmed =
-      window.confirm(
-        `Delete "${matchday.name}" and all of its matches and predictions? This cannot be undone.`
-      )
+      await askConfirm({
+        title: "Delete matchday?",
+        message: `Delete "${matchday.name}" and all of its matches and predictions? This cannot be undone.`,
+        confirmLabel: "Delete matchday",
+        tone: "danger",
+      })
     if (!confirmed) return
 
     try {
@@ -1133,6 +1197,25 @@ function Matchdays() {
       {loading && (
         <SkeletonList rows={4} />
       )}
+
+      {!loading &&
+        visibleMatchdays.length ===
+          0 && (
+          <div className="surface empty-state empty-state-pro">
+            <strong>
+              No matchdays here.
+            </strong>
+            <span>
+              {matchFilter ===
+              "upcoming"
+                ? "The next open matchday will appear here once it is created or imported."
+                : matchFilter ===
+                    "finished"
+                  ? "Finished matchdays appear here after final scores are saved."
+                  : "Create or import the first matchday from Admin mode."}
+            </span>
+          </div>
+        )}
 
       {!loading &&
       visibleMatchdays.map(
@@ -2039,6 +2122,29 @@ function Matchdays() {
           {notice}
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(
+          confirmDialog
+        )}
+        title={
+          confirmDialog?.title || ""
+        }
+        message={
+          confirmDialog?.message ||
+          ""
+        }
+        confirmLabel={
+          confirmDialog?.confirmLabel
+        }
+        tone={confirmDialog?.tone}
+        onConfirm={() =>
+          closeConfirm(true)
+        }
+        onCancel={() =>
+          closeConfirm(false)
+        }
+      />
     </div>
   )
 }

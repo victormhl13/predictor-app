@@ -86,6 +86,8 @@ function Matchdays() {
     useState("")
   const [syncing, setSyncing] =
     useState(false)
+  const [adminMode, setAdminMode] =
+    useState(false)
   const [loading, setLoading] =
     useState(true)
   const [nowMs, setNowMs] =
@@ -124,6 +126,15 @@ function Matchdays() {
         interval
       )
   }, [])
+
+  useEffect(() => {
+    if (!adminMode) {
+      setManagedMatchday(null)
+      setScoreEditor(null)
+      setMatchDetailsEditor(null)
+      setImportMatchday(null)
+    }
+  }, [adminMode])
 
   useEffect(() => {
     if (
@@ -990,11 +1001,27 @@ function Matchdays() {
 
       {currentUser?.role ===
         "admin" && (
-        <details className="admin-tools">
-          <summary>
-            Admin tools
-          </summary>
-          <div className="matchday-actions">
+        <div className="admin-tools">
+          <button
+            type="button"
+            className={`admin-mode-toggle ${
+              adminMode
+                ? "admin-mode-toggle-on"
+                : ""
+            }`}
+            onClick={() =>
+              setAdminMode(
+                (current) =>
+                  !current
+              )
+            }
+          >
+            Admin mode:{" "}
+            {adminMode ? "On" : "Off"}
+          </button>
+
+          {adminMode && (
+            <div className="matchday-actions">
             <button
               type="button"
               onClick={() =>
@@ -1023,7 +1050,8 @@ function Matchdays() {
                 />
             </div>
           </div>
-        </details>
+          )}
+        </div>
       )}
 
       {syncStatus && (
@@ -1240,7 +1268,8 @@ function Matchdays() {
                 </span>
 
                 {currentUser?.role ===
-                  "admin" && (
+                  "admin" &&
+                  adminMode && (
                     <button
                       type="button"
                       aria-label="Manage matchday"
@@ -1305,7 +1334,8 @@ function Matchdays() {
               </div>
             </div>
 
-            {isManaged && (
+            {adminMode &&
+              isManaged && (
               <div
                 style={{
                   marginTop: "14px",
@@ -1661,6 +1691,7 @@ function Matchdays() {
 
                         {currentUser?.role ===
                           "admin" &&
+                          adminMode &&
                           (!finished ||
                             isManaged) && (
                             <>

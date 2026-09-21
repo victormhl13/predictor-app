@@ -2013,26 +2013,6 @@ function MyPredictions() {
                     )}
                   </div>
 
-                  {!locked &&
-                    draft?.saved &&
-                    !isEditing && (
-                      <div
-                        style={{
-                          marginTop:
-                            "7px",
-                          color:
-                            "#9CF989",
-                          fontSize:
-                            "9px",
-                          fontWeight:
-                            800,
-                          textAlign:
-                            "center",
-                        }}
-                      >
-                        SAVED
-                      </div>
-                    )}
                   {missing && (
                     <div
                       style={{

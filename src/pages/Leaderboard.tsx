@@ -14,6 +14,7 @@ import {
 } from "../lib/appApi"
 import { useAuth } from "../context/AuthContext"
 import {
+  predictionPoints,
   rankedPlayers,
 } from "../utils/scoring"
 import PageHeader from "../components/PageHeader"
@@ -413,6 +414,8 @@ function Leaderboard() {
         )
       const winner =
         roundPlayers[0]
+      const runnerUp =
+        roundPlayers[1]
       const matchday =
         matchdays.find(
           (item) =>
@@ -424,11 +427,41 @@ function Leaderboard() {
         return null
       }
 
+      const winnerExact =
+        predictions.filter(
+          (prediction) => {
+            if (
+              prediction.user_id !==
+              winner.id ||
+              !latestIds.has(
+                prediction.match_id
+              )
+            ) {
+              return false
+            }
+            const match =
+              matches.find(
+                (item) =>
+                  item.id ===
+                  prediction.match_id
+              )
+            return (
+              match &&
+              predictionPoints(
+                prediction,
+                match
+              ) === 3
+            )
+          }
+        ).length
+
       return {
         matchday:
           matchday?.name ||
           "Latest matchday",
         winner,
+        runnerUp,
+        winnerExact,
         matches:
           latestMatches.length,
       }
@@ -556,11 +589,25 @@ function Leaderboard() {
                   latestMatchdaySummary
                     .winner.points
                 }{" "}
-                pts from{" "}
+                pts ·{" "}
                 {
-                  latestMatchdaySummary.matches
+                  latestMatchdaySummary.winnerExact
                 }{" "}
-                matches
+                exact score
+                {latestMatchdaySummary.winnerExact ===
+                1
+                  ? ""
+                  : "s"}{" "}
+                ·{" "}
+                {
+                  latestMatchdaySummary.runnerUp
+                    ? latestMatchdaySummary.winner.points -
+                        latestMatchdaySummary.runnerUp.points >
+                      0
+                      ? `+${latestMatchdaySummary.winner.points - latestMatchdaySummary.runnerUp.points} pts over ${latestMatchdaySummary.runnerUp.name}`
+                      : `level with ${latestMatchdaySummary.runnerUp.name}`
+                    : `${latestMatchdaySummary.matches} matches`
+                }{" "}
               </small>
             </div>
           )}

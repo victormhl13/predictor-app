@@ -1,6 +1,6 @@
 {
-  "name": "ScoreClub",
-  "short_name": "ScoreClub",
+  "name": "FinalWhistle",
+  "short_name": "FinalWhistle",
   "description": "Private football prediction league.",
   "start_url": "/",
   "display": "standalone",

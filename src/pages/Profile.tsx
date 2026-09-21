@@ -168,7 +168,7 @@ function Profile() {
         matches
       )
     downloadCsv(
-      "goalpredict-export.csv",
+      "finalwhistle-export.csv",
       [
         [
           "Type",

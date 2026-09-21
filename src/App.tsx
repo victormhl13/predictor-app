@@ -110,7 +110,7 @@ function App() {
                 "0 2px 18px rgba(0,0,0,0.62), 0 0 24px rgba(156,249,137,0.18)",
             }}
           >
-            ScoreClub
+            FinalWhistle
           </h1>
 
           <div
@@ -155,7 +155,7 @@ function App() {
         <Suspense
           fallback={
             <div className="surface empty-state">
-              Loading ScoreClub…
+              Loading FinalWhistle…
             </div>
           }
         >

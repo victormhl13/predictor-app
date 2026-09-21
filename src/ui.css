@@ -1230,10 +1230,22 @@ select.field {
 }
 
 .saved-prediction-summary {
-  min-height: 50px;
+  min-height: 42px;
   border-color: rgba(156, 249, 137, 0.18);
-  border-radius: 16px;
+  border-radius: 14px;
   background: rgba(10, 18, 24, 0.5);
+}
+
+.prediction-card-saved {
+  padding: 10px;
+}
+
+.prediction-card-saved .prediction-card-meta {
+  margin-bottom: 7px;
+}
+
+.prediction-card-saved .saved-prediction-summary {
+  margin-top: -2px;
 }
 
 .community-predictions,
@@ -1275,6 +1287,30 @@ select.field {
 .toast {
   border-color: rgba(156, 249, 137, 0.25);
   background: rgba(8, 14, 16, 0.96);
+  color: #d7ffce;
+}
+
+.admin-mode-toggle {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.095);
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0.022)
+    );
+  color: rgba(226, 232, 240, 0.82);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.admin-mode-toggle-on {
+  border-color: rgba(156, 249, 137, 0.24);
+  background: rgba(156, 249, 137, 0.1);
   color: #d7ffce;
 }
 

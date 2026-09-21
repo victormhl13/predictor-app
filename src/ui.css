@@ -1755,3 +1755,233 @@ select.field {
 .compact-row:active {
   transform: scale(0.99);
 }
+
+/* Premium visual pass: background balance, sports cards, podium, badges, motion. */
+.page {
+  letter-spacing: -0.01em;
+}
+
+.page-title {
+  font-size: 21px;
+  letter-spacing: -0.55px;
+}
+
+.page-subtitle {
+  max-width: 310px;
+  margin-inline: auto;
+  color: rgba(226, 232, 240, 0.74);
+  font-size: 11.5px;
+}
+
+.surface,
+.surface-soft,
+.prediction-card,
+.matchday-card,
+.match-row-card {
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.surface,
+.matchday-card {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(18, 27, 40, 0.62),
+      rgba(6, 11, 19, 0.52)
+    ) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 18px 42px rgba(0, 0, 0, 0.22) !important;
+}
+
+.surface-soft {
+  border-color: rgba(255, 255, 255, 0.105);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(16, 24, 36, 0.50),
+      rgba(6, 11, 19, 0.42)
+    );
+}
+
+.matchday-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.matchday-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(156, 249, 137, 0.09),
+      transparent 28%,
+      transparent 72%,
+      rgba(96, 165, 250, 0.055)
+    );
+  opacity: 0.65;
+}
+
+.matchday-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.match-row-card {
+  position: relative;
+  margin-inline: -2px;
+  padding-inline: 2px !important;
+}
+
+.match-row-card:last-child {
+  border-bottom-color: transparent !important;
+}
+
+.prediction-card {
+  border-color: rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(18, 27, 40, 0.64),
+      rgba(7, 12, 20, 0.54)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 16px 34px rgba(0, 0, 0, 0.18);
+}
+
+.prediction-card::after,
+.matchday-card::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08),
+      transparent 26%,
+      transparent 74%,
+      rgba(156, 249, 137, 0.035)
+    );
+  opacity: 0.75;
+}
+
+.bottom-navigation {
+  box-shadow:
+    0 14px 40px rgba(0, 0, 0, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+.team-badge {
+  filter: saturate(1.04) contrast(1.03);
+}
+
+.podium-grid {
+  align-items: end;
+  gap: 10px;
+}
+
+.podium-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 96px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(18, 27, 40, 0.66),
+      rgba(7, 12, 20, 0.52)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.075),
+    0 16px 34px rgba(0, 0, 0, 0.18);
+}
+
+.podium-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(255, 255, 255, 0.16),
+      transparent 38%
+    );
+}
+
+.podium-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.podium-1 {
+  min-height: 108px;
+  border-color: rgba(248, 212, 119, 0.28);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(248, 212, 119, 0.16),
+      rgba(9, 15, 24, 0.56)
+    );
+}
+
+.podium-2 {
+  border-color: rgba(203, 213, 225, 0.22);
+}
+
+.podium-3 {
+  border-color: rgba(217, 154, 104, 0.24);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .surface,
+  .surface-soft,
+  .prediction-card,
+  .matchday-card {
+    animation: card-enter 360ms ease both;
+  }
+
+  .primary-button,
+  .glass-button,
+  .danger-button,
+  .segment,
+  .bottom-navigation a,
+  .team-badge {
+    transition:
+      transform 160ms ease,
+      border-color 160ms ease,
+      background 160ms ease,
+      box-shadow 160ms ease,
+      opacity 160ms ease;
+  }
+
+  .primary-button:active,
+  .glass-button:active,
+  .danger-button:active,
+  .segment:active,
+  .bottom-navigation a:active {
+    transform: scale(0.97);
+  }
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

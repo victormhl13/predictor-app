@@ -1277,6 +1277,7 @@ function Matchdays() {
         return (
           <section
             key={matchday.id}
+            className="matchday-card"
             style={{
               marginBottom: "10px",
               padding: "12px 13px",
@@ -1567,6 +1568,7 @@ function Matchdays() {
                     return (
                       <article
                         key={match.id}
+                        className="match-row-card"
                         style={{
                           padding:
                             "12px 0",

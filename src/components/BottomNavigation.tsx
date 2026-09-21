@@ -22,8 +22,8 @@ function BottomNavigation() {
       justifyContent: "center",
       gap: "3px",
       width: "52px",
-      height: "48px",
-      borderRadius: "16px",
+      height: "46px",
+      borderRadius: "15px",
       textDecoration: "none",
       color: active
         ? "#D7FFCE"
@@ -41,25 +41,26 @@ function BottomNavigation() {
 
   return (
     <div
+      className="bottom-navigation"
       style={{
         position: "fixed",
         zIndex: 200,
         bottom:
-          "calc(14px + env(safe-area-inset-bottom))",
+          "calc(12px + env(safe-area-inset-bottom))",
         left: "50%",
         transform: "translateX(-50%)",
-        width: "calc(100% - 36px)",
-        maxWidth: "394px",
-        height: "62px",
+        width: "calc(100% - 40px)",
+        maxWidth: "382px",
+        height: "58px",
         display: "flex",
         justifyContent: "space-around",
         alignItems: "center",
         background:
-          "linear-gradient(180deg, rgba(15,22,34,0.90), rgba(7,12,21,0.88))",
+          "linear-gradient(180deg, rgba(16,24,36,0.82), rgba(7,12,21,0.86))",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
         border: "1px solid rgba(255,255,255,0.13)",
-        borderRadius: "22px",
+        borderRadius: "21px",
         boxShadow:
           "0 16px 44px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.08)",
         isolation: "isolate",

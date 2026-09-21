@@ -27,6 +27,9 @@ import type {
   Prediction,
   User,
 } from "../types"
+import {
+  rankedPlayers,
+} from "../utils/scoring"
 
 function effectiveKickoff(
   kickoff: string
@@ -145,6 +148,10 @@ function Dashboard() {
   ] = useState(false)
   const [leader, setLeader] =
     useState("No leader yet")
+  const [
+    lastMatchdayWinner,
+    setLastMatchdayWinner,
+  ] = useState("No finished matchday yet")
 
   useEffect(() => {
     async function loadDashboard() {
@@ -374,6 +381,67 @@ function Dashboard() {
         setLeader(
           `${ranking[0].name} · ${ranking[0].points} pts`
         )
+      }
+
+      const scoredMatches = matches
+        .filter(
+          (match) =>
+            match.home_score !==
+              null &&
+            match.away_score !== null
+        )
+        .sort(
+          (a, b) =>
+            new Date(
+              b.kickoff
+            ).getTime() -
+            new Date(
+              a.kickoff
+            ).getTime()
+        )
+      const lastMatchdayId =
+        scoredMatches[0]
+          ?.matchday_id
+
+      if (lastMatchdayId) {
+        const lastIds = new Set(
+          scoredMatches
+            .filter(
+              (match) =>
+                match.matchday_id ===
+                lastMatchdayId
+            )
+            .map(
+              (match) => match.id
+            )
+        )
+        const lastRanking =
+          rankedPlayers(
+            users,
+            predictions,
+            matches,
+            lastIds
+          )
+        const winner =
+          lastRanking[0]
+        if (winner) {
+          const matchday =
+            matchdays.find(
+              (item) =>
+                item.id ===
+                lastMatchdayId
+            )
+          setLastMatchdayWinner(
+            `${winner.name} · ${winner.points} pts${
+              matchday
+                ? ` · ${matchday.name.replace(
+                    /^.*?·\s*/,
+                    ""
+                  )}`
+                : ""
+            }`
+          )
+        }
       }
     }
 
@@ -618,6 +686,20 @@ function Dashboard() {
         </div>
       </div>
 
+      <div className="surface-soft home-winner-card">
+        <span className="section-label">
+          Last matchday winner
+        </span>
+        <strong>
+          {lastMatchdayWinner}
+        </strong>
+        <small>
+          Full per-matchday ranking is
+          available in Ranking → By
+          matchday.
+        </small>
+      </div>
+
       <div
         className="surface-soft"
         style={{
@@ -673,6 +755,20 @@ function Dashboard() {
                       : "s"
                   } missing.`}
           </small>
+          {openPredictionProgress.total >
+            0 &&
+            openPredictionProgress.completed <
+              openPredictionProgress.total && (
+              <Link
+                to="/predictions"
+                className="mini-action-link"
+              >
+                Complete picks
+                <ArrowRight
+                  size={12}
+                />
+              </Link>
+            )}
         </div>
         <Link
           to="/predictions"

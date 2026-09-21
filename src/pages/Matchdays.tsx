@@ -1149,6 +1149,14 @@ function Matchdays() {
             matchday,
             allMatchdayMatches
           )
+        const finishedCount =
+          allMatchdayMatches.filter(
+            matchIsFinished
+          ).length
+        const isFinishedMatchday =
+          matchdayIsFinished(
+            matchday
+          )
 
         return (
           <section
@@ -1199,6 +1207,16 @@ function Matchdays() {
                   {allMatchdayMatches.length}{" "}
                   matches
                 </div>
+                {isFinishedMatchday && (
+                  <div className="matchday-inline-summary">
+                    {finishedCount}/
+                    {
+                      allMatchdayMatches.length
+                    }{" "}
+                    final scores · ranking
+                    updated
+                  </div>
+                )}
               </div>
 
               <div

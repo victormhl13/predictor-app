@@ -320,6 +320,12 @@ function Leaderboard() {
       matchdays,
     ])
 
+  const leadGap =
+    players.length >= 2
+      ? players[0].points -
+        players[1].points
+      : 0
+
   const finishedMatchdays =
     useMemo(
       () =>
@@ -556,6 +562,21 @@ function Leaderboard() {
                 }{" "}
                 matches
               </small>
+            </div>
+          )}
+          {players[0] && (
+            <div className="surface-soft lead-gap-card">
+              <span className="section-label">
+                Leader gap
+              </span>
+              <strong>
+                {players[0].name}
+                {players.length >= 2
+                  ? leadGap > 0
+                    ? ` leads by ${leadGap} pts`
+                    : " is level at the top"
+                  : " leads the table"}
+              </strong>
             </div>
           )}
           {!hasPhaseResults && (

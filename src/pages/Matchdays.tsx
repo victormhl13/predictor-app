@@ -258,9 +258,15 @@ function Matchdays() {
     homeScore: number,
     awayScore: number
   ) {
+    const match = matches.find(
+      (item) =>
+        item.id === matchId
+    )
     const confirmed =
       window.confirm(
-        "Save this final score? This will lock the match and update the ranking."
+        match
+          ? `Save final score?\n\n${match.home_team} ${homeScore}–${awayScore} ${match.away_team}\n\nThis will update the ranking.`
+          : "Save this final score? This will update the ranking."
       )
 
     if (!confirmed) return
@@ -1674,6 +1680,7 @@ function Matchdays() {
                                 !finished &&
                                 !scoreAvailable && (
                                   <div
+                                    className="score-awaiting-note"
                                     style={{
                                       marginTop:
                                         "9px",
@@ -1687,7 +1694,7 @@ function Matchdays() {
                                         "center",
                                     }}
                                   >
-                                    Score available after kickoff
+                                    Awaiting kickoff · final score available after kickoff
                                   </div>
                                 )}
 

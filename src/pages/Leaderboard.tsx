@@ -34,6 +34,7 @@ type Phase =
   | "overall"
   | "regular"
   | "playoff"
+  | "matchday"
 
 function isPlayoffMatchday(
   matchday?: Matchday
@@ -61,6 +62,10 @@ function Leaderboard() {
     useState<Matchday[]>([])
   const [loading, setLoading] =
     useState(true)
+  const [
+    selectedMatchdayId,
+    setSelectedMatchdayId,
+  ] = useState("")
 
   const loadRankingPredictions =
     useCallback(async () => {
@@ -135,6 +140,13 @@ function Leaderboard() {
       (match: Match) => {
         if (phase === "overall") {
           return true
+        }
+
+        if (phase === "matchday") {
+          return selectedMatchdayId
+            ? match.matchday_id ===
+                selectedMatchdayId
+            : false
         }
 
         const matchday =
@@ -244,6 +256,7 @@ function Leaderboard() {
     )
   }, [
     phase,
+    selectedMatchdayId,
     users,
     predictions,
     matches,
@@ -265,6 +278,15 @@ function Leaderboard() {
         (match: Match) => {
           if (phase === "overall") {
             return true
+          }
+
+          if (
+            phase === "matchday"
+          ) {
+            return selectedMatchdayId
+              ? match.matchday_id ===
+                  selectedMatchdayId
+              : false
           }
 
           const matchday =
@@ -293,9 +315,51 @@ function Leaderboard() {
       )
     }, [
       phase,
+      selectedMatchdayId,
       matches,
       matchdays,
     ])
+
+  const finishedMatchdays =
+    useMemo(
+      () =>
+        matchdays
+          .filter((matchday) =>
+            matches.some(
+              (match) =>
+                match.matchday_id ===
+                  matchday.id &&
+                match.home_score !==
+                  null &&
+                match.away_score !==
+                  null
+            )
+          )
+          .sort((a, b) =>
+            b.name.localeCompare(
+              a.name,
+              undefined,
+              { numeric: true }
+            )
+          ),
+      [matchdays, matches]
+    )
+
+  useEffect(() => {
+    if (
+      phase === "matchday" &&
+      !selectedMatchdayId &&
+      finishedMatchdays[0]
+    ) {
+      setSelectedMatchdayId(
+        finishedMatchdays[0].id
+      )
+    }
+  }, [
+    phase,
+    selectedMatchdayId,
+    finishedMatchdays,
+  ])
 
   const latestMatchdaySummary =
     useMemo(() => {
@@ -416,7 +480,43 @@ function Leaderboard() {
         >
           Play-off
         </button>
+        <button
+          type="button"
+          className={`segment ${
+            phase === "matchday"
+              ? "segment-active"
+              : ""
+          }`}
+          onClick={() =>
+            setPhase("matchday")
+          }
+        >
+          By matchday
+        </button>
       </div>
+
+      {phase === "matchday" && (
+        <select
+          value={selectedMatchdayId}
+          onChange={(event) =>
+            setSelectedMatchdayId(
+              event.target.value
+            )
+          }
+          className="compact-select"
+        >
+          {finishedMatchdays.map(
+            (matchday) => (
+              <option
+                key={matchday.id}
+                value={matchday.id}
+              >
+                {matchday.name}
+              </option>
+            )
+          )}
+        </select>
+      )}
 
       {loading ? (
         <div className="surface empty-state">

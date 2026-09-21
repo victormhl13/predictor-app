@@ -23,10 +23,12 @@ import { useAuth } from "../context/AuthContext"
 import PageHeader from "../components/PageHeader"
 import type {
   Match,
+  Matchday,
   Prediction,
 } from "../types"
 import {
   personalStats,
+  predictionPoints,
   rankedPlayers,
 } from "../utils/scoring"
 import {
@@ -52,6 +54,19 @@ function Profile() {
       accuracy: 0,
       bestMatchday: 0,
     })
+  const [
+    matchdayHistory,
+    setMatchdayHistory,
+  ] = useState<
+    {
+      id: string
+      name: string
+      points: number
+      exact: number
+      outcomes: number
+      scored: number
+    }[]
+  >([])
 
   useEffect(() => {
     async function load() {
@@ -60,12 +75,16 @@ function Profile() {
       const [
         predictionsResult,
         matchesResult,
+        matchdaysResult,
       ] = await Promise.all([
         getMyPredictions().then(
           (data) => ({ data })
         ),
         supabase
           .from("matches")
+          .select("*"),
+        supabase
+          .from("matchdays")
           .select("*"),
       ])
 
@@ -75,6 +94,9 @@ function Profile() {
       const matches =
         (matchesResult.data ||
           []) as Match[]
+      const matchdays =
+        (matchdaysResult.data ||
+          []) as Matchday[]
 
       setPredictionCount(
         predictions.length
@@ -125,6 +147,80 @@ function Profile() {
           matches
         )
       )
+
+      const matchesById = new Map(
+        matches.map((match) => [
+          match.id,
+          match,
+        ])
+      )
+      const history =
+        matchdays
+          .map((matchday) => {
+            let dayPoints = 0
+            let exact = 0
+            let outcomes = 0
+            let scored = 0
+
+            predictions.forEach(
+              (prediction) => {
+                const match =
+                  matchesById.get(
+                    prediction.match_id
+                  )
+                if (
+                  !match ||
+                  match.matchday_id !==
+                    matchday.id ||
+                  match.home_score ===
+                    null ||
+                  match.away_score ===
+                    null
+                ) {
+                  return
+                }
+
+                scored += 1
+                const earned =
+                  predictionPoints(
+                    prediction,
+                    match
+                  )
+                dayPoints += earned
+                if (earned === 3) {
+                  exact += 1
+                }
+                if (earned > 0) {
+                  outcomes += 1
+                }
+              }
+            )
+
+            return {
+              id: matchday.id,
+              name: matchday.name,
+              points: dayPoints,
+              exact,
+              outcomes,
+              scored,
+            }
+          })
+          .filter(
+            (item) =>
+              item.scored > 0
+          )
+          .sort(
+            (a, b) =>
+              b.name.localeCompare(
+                a.name,
+                undefined,
+                {
+                  numeric: true,
+                }
+              )
+          )
+
+      setMatchdayHistory(history)
     }
 
     load()
@@ -403,6 +499,43 @@ function Profile() {
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="surface profile-history-card">
+        <div className="section-label">
+          Matchday history
+        </div>
+        {matchdayHistory.length ===
+        0 ? (
+          <div className="empty-state">
+            No completed matchdays yet.
+          </div>
+        ) : (
+          <div className="profile-history-list">
+            {matchdayHistory
+              .slice(0, 6)
+              .map((item) => (
+                <div
+                  key={item.id}
+                  className="profile-history-row"
+                >
+                  <div>
+                    <strong>
+                      {item.name}
+                    </strong>
+                    <small>
+                      {item.exact} exact ·{" "}
+                      {item.outcomes} correct
+                      outcomes
+                    </small>
+                  </div>
+                  <span>
+                    {item.points} pts
+                  </span>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
 
       <div

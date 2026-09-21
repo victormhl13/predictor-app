@@ -1,19 +1,57 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="bg" x1="96" x2="416" y1="48" y2="464" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#172235"/>
-      <stop offset="1" stop-color="#050910"/>
+    <linearGradient id="app-bg" x1="90" x2="425" y1="35" y2="480" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#182638"/>
+      <stop offset=".54" stop-color="#07101B"/>
+      <stop offset="1" stop-color="#03060B"/>
     </linearGradient>
-    <linearGradient id="accent" x1="128" x2="384" y1="96" y2="416" gradientUnits="userSpaceOnUse">
+    <radialGradient id="spotlight" cx="50%" cy="24%" r="62%">
+      <stop stop-color="#9CFF89" stop-opacity=".34"/>
+      <stop offset=".42" stop-color="#2C7A37" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lime" x1="140" x2="382" y1="106" y2="408" gradientUnits="userSpaceOnUse">
       <stop stop-color="#D7FFCE"/>
-      <stop offset="1" stop-color="#6DFF4E"/>
+      <stop offset=".5" stop-color="#76FF5A"/>
+      <stop offset="1" stop-color="#20D94A"/>
     </linearGradient>
+    <linearGradient id="ball-shine" x1="206" x2="300" y1="160" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset=".55" stop-color="#EEF4F0"/>
+      <stop offset="1" stop-color="#B7C1BA"/>
+    </linearGradient>
+    <filter id="soft-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity=".52"/>
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <path d="M136 332V180c0-24 20-44 44-44h152c24 0 44 20 44 44v152c0 24-20 44-44 44H180c-24 0-44-20-44-44Z" fill="#0B121E" stroke="#FFFFFF" stroke-opacity=".18" stroke-width="14"/>
-  <circle cx="256" cy="256" r="92" fill="#F7FFF5"/>
-  <path d="m256 190 42 31-16 49h-52l-16-49z" fill="#111827"/>
-  <path d="m256 142 36 44-36 26-36-26zM354 228l-53-7-13 39 41 30zM322 356l-13-54-40-1-13 51zM190 356l66-4-13-51-40 1zM158 228l25 62 41-30-13-39z" fill="#111827"/>
-  <circle cx="256" cy="256" r="118" fill="none" stroke="url(#accent)" stroke-width="16"/>
-  <path d="M151 389 389 151" stroke="url(#accent)" stroke-width="18" stroke-linecap="round" opacity=".9"/>
+
+  <rect width="512" height="512" rx="108" fill="url(#app-bg)"/>
+  <rect width="512" height="512" rx="108" fill="url(#spotlight)"/>
+
+  <g opacity=".42" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M116 116h280c16 0 29 13 29 29v222c0 16-13 29-29 29H116c-16 0-29-13-29-29V145c0-16 13-29 29-29Z" fill="none" stroke-width="10"/>
+    <path d="M256 116v280" stroke-width="8" opacity=".55"/>
+    <circle cx="256" cy="256" r="55" fill="none" stroke-width="8" opacity=".72"/>
+    <path d="M87 200h86v112H87M425 200h-86v112h86" fill="none" stroke-width="8" opacity=".6"/>
+    <path d="M181 116v57h150v-57M181 396v-57h150v57" fill="none" stroke-width="7" opacity=".46"/>
+  </g>
+
+  <g filter="url(#soft-shadow)">
+    <path d="M256 72 374 128v112c0 82-47 139-118 182-71-43-118-100-118-182V128L256 72Z" fill="#0B1420" stroke="url(#lime)" stroke-width="15" stroke-linejoin="round"/>
+    <path d="M176 157h160v54H176z" fill="none" stroke="#FFFFFF" stroke-opacity=".34" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M176 180h160M216 157v54M256 157v54M296 157v54" stroke="#FFFFFF" stroke-opacity=".24" stroke-width="5"/>
+  </g>
+
+  <g filter="url(#soft-shadow)">
+    <circle cx="256" cy="270" r="82" fill="url(#ball-shine)" stroke="#FFFFFF" stroke-opacity=".92" stroke-width="6"/>
+    <path d="m256 212 39 28-15 46h-48l-15-46Z" fill="#101722"/>
+    <path d="m256 184 31 36-31 23-31-23Z" fill="#101722"/>
+    <path d="m332 247-43-6-12 37 34 25Z" fill="#101722"/>
+    <path d="m303 341-11-45-36-1-12 47Z" fill="#101722"/>
+    <path d="m209 341 59 1-12-47-36 1Z" fill="#101722"/>
+    <path d="m180 247 21 56 34-25-12-37Z" fill="#101722"/>
+    <path d="M225 220 201 241M287 220l24 21M235 278l-34 25M277 278l34 25M256 295v47" stroke="#DDE6E2" stroke-opacity=".54" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <path d="M168 414c33 23 65 34 88 46 23-12 55-23 88-46" fill="none" stroke="url(#lime)" stroke-width="12" stroke-linecap="round" opacity=".9"/>
 </svg>

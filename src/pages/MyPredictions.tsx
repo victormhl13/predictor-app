@@ -337,23 +337,30 @@ function MyPredictions() {
     })
   }
 
+  function isSaveCandidate(
+    match: Match
+  ) {
+    const draft = drafts[match.id]
+
+    return (
+      !isMatchLocked(match) &&
+      typeof draft?.home ===
+        "number" &&
+      typeof draft?.away ===
+        "number" &&
+      (dirtyIds.has(match.id) ||
+        editingIds.has(match.id) ||
+        !draft.saved)
+    )
+  }
+
   async function savePredictions() {
     if (!currentUser) return
 
-    const changed = matches.filter(
-      (match) => {
-        const draft =
-          drafts[match.id]
-        return (
-          !isMatchLocked(match) &&
-          dirtyIds.has(match.id) &&
-          typeof draft?.home ===
-            "number" &&
-          typeof draft?.away ===
-            "number"
-        )
-      }
-    )
+    const changed =
+      matches.filter(
+        isSaveCandidate
+      )
 
     if (changed.length === 0) {
       setNotice(
@@ -726,7 +733,13 @@ function MyPredictions() {
       [matchdays, matches]
     )
   const hasUnsavedChanges =
-    dirtyIds.size > 0
+    matches.some(
+      isSaveCandidate
+    )
+  const saveCandidateCount =
+    matches.filter(
+      isSaveCandidate
+    ).length
 
   function toggleMatchday(
     matchdayId: string
@@ -2093,21 +2106,21 @@ function MyPredictions() {
             onClick={savePredictions}
             disabled={
               saving ||
-              dirtyIds.size === 0
+              saveCandidateCount === 0
             }
             className="primary-button"
             style={{
               width: "100%",
               opacity:
-                dirtyIds.size === 0
+                saveCandidateCount === 0
                   ? 0.6
                   : 1,
             }}
           >
             {saving
               ? "Saving..."
-              : dirtyIds.size > 0
-                ? `Save picks · ${dirtyIds.size}`
+              : saveCandidateCount > 0
+                ? `Save picks · ${saveCandidateCount}`
                 : `All picks saved · ${completed}/${openMatches.length}`}
           </button>
         )}

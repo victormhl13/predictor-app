@@ -437,11 +437,29 @@ function Matchdays() {
     silent = false
   ) {
     setSyncing(true)
+    const syncMatchday =
+      [...matchdays]
+        .filter(
+          (matchday) =>
+            matchday.is_open &&
+            matchdayHasUnfinishedMatches(
+              matchday
+            )
+        )
+        .sort(
+          (a, b) =>
+            matchdayNumber(b) -
+            matchdayNumber(a)
+        )[0] ||
+      activeUpcomingMatchday
     const apiMatches =
       matches.filter(
         (match) =>
           match.api_fixture_id !==
-          null
+            null &&
+          (!syncMatchday ||
+            match.matchday_id ===
+              syncMatchday.id)
       )
 
     if (apiMatches.length === 0) {

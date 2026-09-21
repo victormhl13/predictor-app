@@ -117,6 +117,28 @@ function localDateToIso(
   ).toISOString()
 }
 
+function fixedOffsetDateToIso(
+  year,
+  month,
+  day,
+  hour,
+  minute,
+  offsetMinutes
+) {
+  const utcGuess = Date.UTC(
+    year,
+    month - 1,
+    day,
+    hour,
+    minute
+  )
+
+  return new Date(
+    utcGuess -
+      offsetMinutes * 60_000
+  ).toISOString()
+}
+
 export function parseRomanianDate(
   value
 ) {
@@ -145,6 +167,41 @@ export function parseRomanianDate(
     Number(match[1]),
     hour,
     minute
+  )
+}
+
+export function parseLpfScheduleDate(
+  value
+) {
+  const normalized = text(value)
+    .toLocaleLowerCase("ro-RO")
+    .replace(/\./g, "")
+  const match = normalized.match(
+    /(\d{1,2})\s+([a-zăâîșşțţ]+)\s+(\d{4})(?:,?\s+(\d{1,2}):(\d{2}))?/i
+  )
+  if (!match) return null
+
+  const month =
+    MONTHS[match[2]]
+  if (!month) return null
+
+  if (!match[4]) {
+    return localDateToIso(
+      Number(match[3]),
+      month,
+      Number(match[1]),
+      12,
+      0
+    )
+  }
+
+  return fixedOffsetDateToIso(
+    Number(match[3]),
+    month,
+    Number(match[1]),
+    Number(match[4]),
+    Number(match[5] || 0),
+    60
   )
 }
 
@@ -422,7 +479,7 @@ export function parseRound(
         )
       const kickoff =
         dateCell
-          ? parseRomanianDate(
+          ? parseLpfScheduleDate(
               dateCell[1]
             )
           : null

@@ -1,15 +1,22 @@
 :root {
-  --background: #05080f;
+  --background: #060910;
+  --panel: rgba(10, 16, 26, 0.74);
+  --panel-soft: rgba(12, 18, 29, 0.58);
+  --line: rgba(255, 255, 255, 0.11);
+  --line-soft: rgba(255, 255, 255, 0.075);
+  --accent: #9cf989;
+  --accent-strong: #6dff4e;
+  --amber: #f8d477;
 
   --text-primary:
     #FFFFFF;
 
   --text-secondary:
-    #9CA3AF;
+    #aeb7c4;
 
   font-family:
+    Manrope,
     Inter,
-
     system-ui,
 
     sans-serif;
@@ -84,14 +91,15 @@ body::before {
     center top / cover
     no-repeat;
 
-  opacity: 0.84;
+  opacity: 0.68;
 
   filter:
-    saturate(0.92)
-    contrast(0.94)
-    blur(0.55px);
+    saturate(0.76)
+    contrast(0.88)
+    brightness(0.86)
+    blur(0.65px);
 
-  transform: scale(1.012);
+  transform: scale(1.018);
 }
 
 body::after {
@@ -99,24 +107,29 @@ body::after {
 
   background:
     radial-gradient(
-      ellipse at 50% 4%,
-      rgba(74, 150, 91, 0.13) 0%,
-      rgba(5, 8, 15, 0.06) 34%,
-      transparent 58%
+      ellipse at 50% 2%,
+      rgba(156, 249, 137, 0.13) 0%,
+      rgba(6, 9, 16, 0.12) 32%,
+      transparent 56%
+    ),
+    radial-gradient(
+      ellipse at 50% 62%,
+      rgba(42, 88, 73, 0.12) 0%,
+      transparent 46%
     ),
     linear-gradient(
       90deg,
-      rgba(5, 8, 15, 0.43) 0%,
-      rgba(5, 8, 15, 0.11) 17%,
-      rgba(5, 8, 15, 0.11) 83%,
-      rgba(5, 8, 15, 0.43) 100%
+      rgba(3, 6, 12, 0.62) 0%,
+      rgba(5, 8, 15, 0.22) 20%,
+      rgba(5, 8, 15, 0.22) 80%,
+      rgba(3, 6, 12, 0.62) 100%
     ),
     linear-gradient(
       180deg,
-      rgba(5, 8, 15, 0.24) 0%,
-      rgba(5, 8, 15, 0.38) 34%,
-      rgba(5, 8, 15, 0.56) 72%,
-      rgba(5, 8, 15, 0.70) 100%
+      rgba(5, 8, 15, 0.42) 0%,
+      rgba(5, 8, 15, 0.56) 38%,
+      rgba(5, 8, 15, 0.70) 74%,
+      rgba(3, 6, 12, 0.86) 100%
     );
 }
 

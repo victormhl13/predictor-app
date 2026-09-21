@@ -83,44 +83,54 @@ function App() {
 
             justifyContent: "center",
 
-            marginBottom: "30px",
+          marginBottom: "30px",
 
-            paddingTop: "2px",
+            paddingTop: "4px",
 
-            paddingBottom: "8px",
+            paddingBottom: "4px",
 
             flex: "0 0 auto",
           }}
         >
           <h1
             style={{
-              fontSize: "17px",
+              fontSize: "18px",
 
               fontWeight: 900,
 
               margin: 0,
 
-              letterSpacing: "2.2px",
+              letterSpacing: "2.8px",
 
               textTransform: "uppercase",
 
               color: "#FFFFFF",
 
               textShadow:
-                "0 0 12px rgba(109,255,78,0.35), 0 0 30px rgba(109,255,78,0.15)",
+                "0 2px 18px rgba(0,0,0,0.62), 0 0 24px rgba(156,249,137,0.18)",
             }}
           >
-            GoalPredict
+            PitchCall
           </h1>
 
           <div
             style={{
-              fontSize: "25px",
-
-              marginTop: "4px",
+              width: "34px",
+              height: "34px",
+              marginTop: "7px",
+              display: "grid",
+              placeItems: "center",
+              border:
+                "1px solid rgba(255,255,255,0.14)",
+              borderRadius: "999px",
+              background:
+                "linear-gradient(145deg, rgba(255,255,255,0.16), rgba(255,255,255,0.04))",
+              boxShadow:
+                "0 10px 26px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.12)",
+              fontSize: "20px",
 
               filter:
-                "drop-shadow(0 0 14px rgba(109,255,78,0.4))",
+                "drop-shadow(0 0 14px rgba(156,249,137,0.18))",
             }}
           >
             ⚽
@@ -145,7 +155,7 @@ function App() {
         <Suspense
           fallback={
             <div className="surface empty-state">
-              Loading GoalPredict…
+              Loading PitchCall…
             </div>
           }
         >

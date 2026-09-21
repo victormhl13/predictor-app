@@ -1,7 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#08120c"/>
-  <circle cx="256" cy="256" r="160" fill="#f7fff5"/>
-  <path d="m256 157 58 42-22 68h-72l-22-68z" fill="#14231a"/>
-  <path d="m256 96 51 62-51 37-51-37zM407 207l-75-10-17 53 57 42zM349 390l-18-76-55-1-20 72zM163 390l93-5-20-72-55 1zM105 207l35 85 57-42-17-53z" fill="#14231a"/>
-  <circle cx="256" cy="256" r="160" fill="none" stroke="#6dff4e" stroke-width="18"/>
+  <defs>
+    <linearGradient id="bg" x1="96" x2="416" y1="48" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#172235"/>
+      <stop offset="1" stop-color="#050910"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="128" x2="384" y1="96" y2="416" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D7FFCE"/>
+      <stop offset="1" stop-color="#6DFF4E"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M136 332V180c0-24 20-44 44-44h152c24 0 44 20 44 44v152c0 24-20 44-44 44H180c-24 0-44-20-44-44Z" fill="#0B121E" stroke="#FFFFFF" stroke-opacity=".18" stroke-width="14"/>
+  <circle cx="256" cy="256" r="92" fill="#F7FFF5"/>
+  <path d="m256 190 42 31-16 49h-52l-16-49z" fill="#111827"/>
+  <path d="m256 142 36 44-36 26-36-26zM354 228l-53-7-13 39 41 30zM322 356l-13-54-40-1-13 51zM190 356l66-4-13-51-40 1zM158 228l25 62 41-30-13-39z" fill="#111827"/>
+  <circle cx="256" cy="256" r="118" fill="none" stroke="url(#accent)" stroke-width="16"/>
+  <path d="M151 389 389 151" stroke="url(#accent)" stroke-width="18" stroke-linecap="round" opacity=".9"/>
 </svg>

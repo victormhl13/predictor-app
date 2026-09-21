@@ -32,7 +32,7 @@ function Rules() {
     <div className="page">
       <PageHeader
         title="Rules"
-        subtitle="How GoalPredict scoring and deadlines work."
+        subtitle="How PitchCall scoring and deadlines work."
       />
       <div
         className="surface"

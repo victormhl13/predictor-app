@@ -558,11 +558,11 @@ function Leaderboard() {
       )}
 
       {loading ? (
-        <div className="surface empty-state">
+        <div className="surface empty-state empty-state-polished">
           Loading ranking...
         </div>
       ) : players.length === 0 ? (
-        <div className="surface empty-state">
+        <div className="surface empty-state empty-state-polished">
           No ranking yet for this
           phase.
         </div>
@@ -628,7 +628,7 @@ function Leaderboard() {
             </div>
           )}
           {!hasPhaseResults && (
-            <div className="surface-soft empty-state">
+            <div className="surface-soft empty-state empty-state-polished">
               No final scores yet for this
               phase. Players are shown
               with 0 pts.
@@ -683,7 +683,7 @@ function Leaderboard() {
                 return (
                   <div
                     key={player.id}
-                    className="compact-row"
+                    className="compact-row ranking-row"
                     style={{
                       minHeight:
                         index === 0

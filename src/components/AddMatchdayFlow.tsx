@@ -353,6 +353,7 @@ function AddMatchdayFlow({
         <div
           role="dialog"
           aria-modal="true"
+          className="matchday-modal-backdrop"
           style={{
             position: "fixed",
             zIndex: 320,
@@ -373,7 +374,7 @@ function AddMatchdayFlow({
         >
           <div
             ref={sheetRef}
-            className="surface"
+            className="surface matchday-modal-sheet"
             style={{
               width: "100%",
               maxWidth: "390px",
@@ -443,6 +444,7 @@ function AddMatchdayFlow({
               Competition phase
               <select
                 className="field"
+                data-compact-select="true"
                 value={phase}
                 onChange={(event) => {
                   setPhase(
@@ -485,6 +487,7 @@ function AddMatchdayFlow({
               Season
               <select
                 className="field"
+                data-compact-select="true"
                 value={season}
                 onChange={(event) => {
                   setSeason(
@@ -523,6 +526,7 @@ function AddMatchdayFlow({
               Matchday
               <select
                 className="field"
+                data-compact-select="true"
                 value={matchday}
                 onChange={(event) => {
                   setMatchday(
@@ -578,7 +582,7 @@ function AddMatchdayFlow({
               disabled={
                 loading || saving
               }
-              className="glass-button"
+              className="glass-button matchday-load-button"
               style={{
                 width: "100%",
                 marginTop: "12px",
@@ -626,7 +630,7 @@ function AddMatchdayFlow({
               disabled={
                 saving || loading
               }
-              className="glass-button"
+              className="glass-button matchday-empty-button"
               style={{
                 width: "100%",
                 marginTop: "11px",
@@ -651,7 +655,7 @@ function AddMatchdayFlow({
 
             {fixtures.length > 0 && (
               <div
-                className="surface-soft"
+                className="surface-soft fixture-picker-list"
                 style={{
                   marginTop: "12px",
                   overflow: "hidden",
@@ -661,7 +665,7 @@ function AddMatchdayFlow({
                   (fixture) => (
                     <label
                       key={fixture.id}
-                      className="compact-row"
+                      className="compact-row fixture-picker-row"
                       style={{
                         cursor: "pointer",
                         display: "grid",
@@ -777,6 +781,7 @@ function AddMatchdayFlow({
                   selected.length === 0
                 }
                 className="primary-button"
+                data-primary-action="true"
                 style={{
                   width: "100%",
                   marginTop: "14px",

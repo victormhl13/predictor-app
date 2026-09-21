@@ -5,7 +5,7 @@ function SkeletonList({
 }) {
   return (
     <div
-      className="surface"
+      className="surface skeleton-card"
       style={{
         padding: "12px",
         display: "grid",
@@ -17,6 +17,7 @@ function SkeletonList({
       }).map((_, index) => (
         <div
           key={index}
+          className="skeleton-row"
           style={{
             height: "48px",
             borderRadius: "13px",

@@ -247,7 +247,7 @@ function Profile() {
       />
 
       <div
-        className="surface"
+        className="surface profile-hero-card"
         style={{
           padding: "16px",
         }}
@@ -260,6 +260,7 @@ function Profile() {
           }}
         >
           <div
+            className="profile-avatar"
             style={{
               width: "54px",
               height: "54px",
@@ -366,7 +367,7 @@ function Profile() {
       </div>
 
       <div
-        className="surface"
+        className="surface profile-stats-card"
         style={{
           padding: "14px",
         }}
@@ -405,7 +406,7 @@ function Profile() {
       </div>
 
       <div
-        className="surface-soft"
+        className="surface-soft profile-action-card"
         style={{
           overflow: "hidden",
         }}

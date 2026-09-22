@@ -480,7 +480,7 @@ function Dashboard() {
             ? "/predictions"
             : "/matchdays"
         }
-        className="surface"
+        className="surface home-match-center"
         style={{
           padding: "16px",
           color: "inherit",
@@ -496,7 +496,7 @@ function Dashboard() {
           }}
         >
           <span className="section-label">
-            Next match
+            Today / Next up
           </span>
           <ArrowRight
             size={15}
@@ -506,6 +506,7 @@ function Dashboard() {
 
         {upcomingMatch ? (
           <div
+            className="home-match-teams"
             style={{
               display: "grid",
               gridTemplateColumns:
@@ -516,6 +517,7 @@ function Dashboard() {
             }}
           >
             <div
+              className="home-match-team"
               style={{
                 display: "grid",
                 justifyItems: "center",
@@ -544,6 +546,7 @@ function Dashboard() {
               </strong>
             </div>
             <span
+              className="home-match-vs"
               style={{
                 color: "#6B7280",
                 fontSize: "11px",
@@ -553,6 +556,7 @@ function Dashboard() {
               VS
             </span>
             <div
+              className="home-match-team"
               style={{
                 display: "grid",
                 justifyItems: "center",
@@ -589,6 +593,7 @@ function Dashboard() {
 
         {upcomingMatch && (
           <div
+            className="home-match-footer"
             style={{
               display: "flex",
               alignItems: "center",
@@ -637,7 +642,7 @@ function Dashboard() {
       </Link>
 
       <div
-        className="surface-soft"
+        className="surface-soft home-snapshot-grid"
         style={{
           display: "grid",
           gridTemplateColumns:

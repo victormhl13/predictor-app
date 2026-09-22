@@ -1277,7 +1277,11 @@ function Matchdays() {
         return (
           <section
             key={matchday.id}
-            className="matchday-card"
+            className={`matchday-card ${
+              isFinishedMatchday
+                ? "matchday-card-finished"
+                : "matchday-card-active"
+            }`}
             style={{
               marginBottom: "10px",
               padding: "12px 13px",

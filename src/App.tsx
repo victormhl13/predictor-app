@@ -74,6 +74,7 @@ function App() {
         {/* HEADER */}
 
         <div
+          className="app-brand-lockup"
           style={{
             display: "flex",
 
@@ -93,6 +94,7 @@ function App() {
           }}
         >
           <h1
+            className="app-brand-title"
             style={{
               fontSize: "18px",
 
@@ -114,6 +116,7 @@ function App() {
           </h1>
 
           <div
+            className="app-brand-ball"
             style={{
               width: "34px",
               height: "34px",

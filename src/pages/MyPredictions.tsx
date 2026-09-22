@@ -923,7 +923,7 @@ function MyPredictions() {
 
       {filter === "open" && (
         <div
-          className="surface-soft"
+          className="surface-soft predictions-progress-card"
           style={{
             padding: "10px 12px",
           }}
@@ -991,13 +991,14 @@ function MyPredictions() {
                 return (
                   <div
                     key={matchday.id}
-                    className="surface"
+                    className="surface prediction-matchday-group"
                     style={{
                       overflow: "hidden",
                     }}
                   >
-                    <button
+                   <button
                       type="button"
+                      className="prediction-matchday-header"
                       onClick={() =>
                         toggleMatchday(
                           matchday.id
@@ -1253,7 +1254,7 @@ function MyPredictions() {
                 return (
                   <div
                     key={matchday.id}
-                    className="surface locked-matchday-group"
+                    className="surface locked-matchday-group prediction-matchday-group"
                   >
                     <button
                       type="button"

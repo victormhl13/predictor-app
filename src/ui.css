@@ -3168,3 +3168,19 @@ select.field {
   height: 5px !important;
   box-shadow: 0 0 6px rgba(109, 255, 78, 0.45) !important;
 }
+
+/* iOS/PWA fix: prevent automatic zoom when focusing form controls. */
+@media (max-width: 600px) {
+  input,
+  select,
+  textarea,
+  .field,
+  .compact-select {
+    font-size: 16px !important;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    font-size: 16px !important;
+  }
+}

@@ -67,27 +67,71 @@ function BottomNavigation() {
         pointerEvents: "auto",
       }}
     >
-      <Link to="/" style={itemStyle("/")}>
+      <Link
+        to="/"
+        className={`bottom-nav-item ${
+          location.pathname === "/"
+            ? "bottom-nav-item-active"
+            : ""
+        }`}
+        style={itemStyle("/")}
+      >
         <House size={18} />
         <span style={{ fontSize: "8.5px", fontWeight: 750 }}>Home</span>
       </Link>
 
-      <Link to="/matchdays" style={itemStyle("/matchdays")}>
+      <Link
+        to="/matchdays"
+        className={`bottom-nav-item ${
+          location.pathname ===
+          "/matchdays"
+            ? "bottom-nav-item-active"
+            : ""
+        }`}
+        style={itemStyle("/matchdays")}
+      >
         <Calendar size={18} />
         <span style={{ fontSize: "8.5px", fontWeight: 750 }}>Matches</span>
       </Link>
 
-      <Link to="/predictions" style={itemStyle("/predictions")}>
+      <Link
+        to="/predictions"
+        className={`bottom-nav-item ${
+          location.pathname ===
+          "/predictions"
+            ? "bottom-nav-item-active"
+            : ""
+        }`}
+        style={itemStyle("/predictions")}
+      >
         <Target size={18} />
         <span style={{ fontSize: "8.5px", fontWeight: 750 }}>Picks</span>
       </Link>
 
-      <Link to="/leaderboard" style={itemStyle("/leaderboard")}>
+      <Link
+        to="/leaderboard"
+        className={`bottom-nav-item ${
+          location.pathname ===
+          "/leaderboard"
+            ? "bottom-nav-item-active"
+            : ""
+        }`}
+        style={itemStyle("/leaderboard")}
+      >
         <Trophy size={18} />
         <span style={{ fontSize: "8.5px", fontWeight: 750 }}>Ranking</span>
       </Link>
 
-      <Link to="/profile" style={itemStyle("/profile")}>
+      <Link
+        to="/profile"
+        className={`bottom-nav-item ${
+          location.pathname ===
+          "/profile"
+            ? "bottom-nav-item-active"
+            : ""
+        }`}
+        style={itemStyle("/profile")}
+      >
         <User size={18} />
         <span style={{ fontSize: "8.5px", fontWeight: 750 }}>Profile</span>
       </Link>

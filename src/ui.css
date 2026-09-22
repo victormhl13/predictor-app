@@ -2518,3 +2518,348 @@ select.field {
     transform: translateX(120%);
   }
 }
+
+/* FinalWhistle premium design system pass */
+:root {
+  --fw-bg-0: #050811;
+  --fw-surface-1: rgba(11, 17, 27, 0.76);
+  --fw-surface-2: rgba(11, 17, 27, 0.58);
+  --fw-surface-3: rgba(255, 255, 255, 0.045);
+  --fw-border: rgba(255, 255, 255, 0.105);
+  --fw-border-strong: rgba(255, 255, 255, 0.145);
+  --fw-text: #f8fafc;
+  --fw-muted: rgba(203, 213, 225, 0.72);
+  --fw-dim: rgba(148, 163, 184, 0.70);
+  --fw-green: #9cf989;
+  --fw-green-soft: rgba(156, 249, 137, 0.105);
+  --fw-amber: #f8d477;
+  --fw-blue: #93c5fd;
+  --fw-radius-lg: 22px;
+  --fw-radius-md: 17px;
+  --fw-radius-sm: 13px;
+  --fw-shadow-card:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 18px 42px rgba(0, 0, 0, 0.24);
+  --fw-shadow-soft:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+.app-shell {
+  padding:
+    calc(12px + env(safe-area-inset-top))
+    18px
+    calc(76px + env(safe-area-inset-bottom)) !important;
+}
+
+.app-main {
+  scrollbar-width: none;
+}
+
+.app-main::-webkit-scrollbar {
+  display: none;
+}
+
+.app-brand-lockup {
+  margin-bottom: 22px !important;
+  padding-bottom: 6px !important;
+}
+
+.app-brand-title {
+  font-size: 17px !important;
+  letter-spacing: 3px !important;
+}
+
+.app-brand-ball {
+  width: 30px !important;
+  height: 30px !important;
+  font-size: 18px !important;
+}
+
+.page {
+  gap: 12px !important;
+}
+
+.page-header {
+  margin-bottom: 8px !important;
+}
+
+.page-header-copy {
+  padding-inline: 16px !important;
+}
+
+.page-title {
+  color: var(--fw-text) !important;
+  font-size: 19px !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1.05 !important;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.74) !important;
+}
+
+.page-subtitle {
+  max-width: 310px !important;
+  color: var(--fw-muted) !important;
+  font-size: 10.8px !important;
+  line-height: 1.38 !important;
+}
+
+.surface,
+.surface-soft,
+.prediction-card,
+.matchday-card,
+.profile-hero-card,
+.profile-stats-card,
+.profile-action-card {
+  border-color: var(--fw-border) !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(13, 20, 31, 0.78),
+      rgba(6, 10, 18, 0.66)
+    ) !important;
+  box-shadow: var(--fw-shadow-card) !important;
+  backdrop-filter: blur(16px) saturate(1.08) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.08) !important;
+}
+
+.surface {
+  border-radius: var(--fw-radius-lg) !important;
+}
+
+.surface-soft {
+  border-radius: var(--fw-radius-md) !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(13, 20, 31, 0.62),
+      rgba(6, 10, 18, 0.52)
+    ) !important;
+  box-shadow: var(--fw-shadow-soft) !important;
+}
+
+.section-label {
+  color: var(--fw-dim) !important;
+  font-size: 8.4px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.14em !important;
+}
+
+.primary-button,
+.glass-button,
+.danger-button {
+  min-height: 42px !important;
+  border-radius: 15px !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.primary-button {
+  border-color: rgba(156, 249, 137, 0.26) !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(156, 249, 137, 0.20),
+      rgba(26, 48, 34, 0.24)
+    ) !important;
+  color: #efffec !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    0 12px 26px rgba(0, 0, 0, 0.20) !important;
+}
+
+.primary-button::before {
+  display: none !important;
+}
+
+.glass-button {
+  border-color: var(--fw-border) !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.085),
+      rgba(255, 255, 255, 0.032)
+    ) !important;
+}
+
+.danger-button {
+  border-color: rgba(248, 113, 113, 0.24) !important;
+  background: rgba(127, 29, 29, 0.18) !important;
+  color: #fca5a5 !important;
+}
+
+.segmented {
+  padding: 4px !important;
+  border-color: rgba(255, 255, 255, 0.09) !important;
+  border-radius: 17px !important;
+  background: rgba(6, 10, 18, 0.66) !important;
+}
+
+.segment {
+  height: 33px !important;
+  border-radius: 13px !important;
+  color: rgba(203, 213, 225, 0.68) !important;
+  font-size: 9.5px !important;
+  font-weight: 900 !important;
+}
+
+.segment-active {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(156, 249, 137, 0.18),
+      rgba(156, 249, 137, 0.075)
+    ) !important;
+  color: #e7ffdf !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 8px 18px rgba(0, 0, 0, 0.14) !important;
+}
+
+.status-pill,
+.prediction-card-meta span:first-child,
+.score-awaiting-note,
+.mini-action-link {
+  min-height: 24px !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  color: rgba(226, 232, 240, 0.9) !important;
+  font-size: 8px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.12em !important;
+}
+
+.prediction-card-missing .prediction-card-meta span:first-child {
+  border-color: rgba(248, 212, 119, 0.20) !important;
+  background: rgba(248, 212, 119, 0.08) !important;
+  color: #ffe9a8 !important;
+}
+
+.prediction-card-saved .prediction-card-meta span:first-child,
+.segment-active,
+.matchday-card-active .status-pill {
+  border-color: rgba(156, 249, 137, 0.22) !important;
+}
+
+.prediction-list {
+  gap: 10px !important;
+}
+
+.prediction-card,
+.matchday-card {
+  border-radius: 21px !important;
+}
+
+.prediction-card::before,
+.prediction-card::after,
+.matchday-card::before,
+.matchday-card::after {
+  opacity: 0.42 !important;
+}
+
+.compact-row {
+  min-height: 50px !important;
+  padding: 10px 13px !important;
+}
+
+.team-badge {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 7px 18px rgba(0, 0, 0, 0.24) !important;
+}
+
+.bottom-navigation {
+  width: calc(100% - 42px) !important;
+  max-width: 378px !important;
+  height: 57px !important;
+  border-color: rgba(255, 255, 255, 0.13) !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(14, 21, 32, 0.86),
+      rgba(6, 10, 18, 0.90)
+    ) !important;
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09) !important;
+}
+
+.bottom-nav-item {
+  width: 50px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  color: rgba(226, 232, 240, 0.70) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.bottom-nav-item span {
+  font-size: 8px !important;
+  font-weight: 850 !important;
+}
+
+.bottom-nav-item-active {
+  color: #dfffda !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(156, 249, 137, 0.17),
+      rgba(156, 249, 137, 0.07)
+    ) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.11),
+    0 8px 20px rgba(0, 0, 0, 0.16) !important;
+}
+
+.home-match-center {
+  border-color: rgba(156, 249, 137, 0.13) !important;
+}
+
+.home-match-teams {
+  min-height: 108px !important;
+}
+
+.home-match-vs {
+  background: rgba(255, 255, 255, 0.045) !important;
+}
+
+.home-snapshot-grid > div {
+  min-height: 88px !important;
+}
+
+.lead-gap-card::after {
+  order: -1;
+}
+
+.podium-card {
+  border-radius: 18px !important;
+}
+
+.podium-1 {
+  border-color: rgba(248, 212, 119, 0.24) !important;
+}
+
+.ranking-row {
+  min-height: 56px !important;
+}
+
+.profile-hero-card,
+.profile-stats-card,
+.profile-action-card {
+  border-radius: 22px !important;
+}
+
+.matchday-modal-sheet {
+  border-radius: 24px !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .surface,
+  .surface-soft,
+  .prediction-card,
+  .matchday-card {
+    animation-duration: 260ms !important;
+  }
+}

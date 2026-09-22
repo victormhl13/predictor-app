@@ -47,6 +47,7 @@ function App() {
   return (
     <BrowserRouter>
       <div
+        className="app-shell"
         style={{
           height: "100dvh",
 
@@ -143,6 +144,7 @@ function App() {
         {/* AUTH GATE */}
 
         <main
+          className="app-main"
           style={{
             flex: "1 1 auto",
             minHeight: 0,

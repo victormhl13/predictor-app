@@ -1676,49 +1676,6 @@ select.field {
   color: #0b1220;
 }
 
-.profile-history-card {
-  padding: 14px;
-}
-
-.profile-history-list {
-  display: grid;
-  gap: 8px;
-  margin-top: 11px;
-}
-
-.profile-history-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 48px;
-  padding: 10px 11px;
-  border: 1px solid rgba(255, 255, 255, 0.075);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.profile-history-row strong {
-  display: block;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 850;
-}
-
-.profile-history-row small {
-  display: block;
-  margin-top: 3px;
-  color: rgba(203, 213, 225, 0.72);
-  font-size: 9px;
-}
-
-.profile-history-row > span {
-  flex: 0 0 auto;
-  color: #d7ffce;
-  font-size: 13px;
-  font-weight: 950;
-}
-
 .score-awaiting-note {
   padding: 7px 9px;
   border: 1px solid rgba(96, 165, 250, 0.14);

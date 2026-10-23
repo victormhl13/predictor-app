@@ -291,7 +291,9 @@ function AddMatchdayFlow({
     } catch (saveError) {
       console.error(saveError)
       setError(
-        "Could not create the matchday."
+        saveError instanceof Error
+          ? `Could not create the matchday: ${saveError.message}`
+          : "Could not create the matchday. Check the selected fixtures and try again."
       )
     } finally {
       setSaving(false)
@@ -321,9 +323,12 @@ function AddMatchdayFlow({
       )
       await onCreated()
       close()
-    } catch {
+    } catch (saveError) {
+      console.error(saveError)
       setError(
-        "Could not create an empty matchday."
+        saveError instanceof Error
+          ? `Could not create an empty matchday: ${saveError.message}`
+          : "Could not create an empty matchday."
       )
     } finally {
       setSaving(false)

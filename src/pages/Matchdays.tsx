@@ -518,29 +518,13 @@ function Matchdays() {
     silent = false
   ) {
     setSyncing(true)
-    const syncMatchday =
-      [...matchdays]
-        .filter(
-          (matchday) =>
-            matchday.is_open &&
-            matchdayHasUnfinishedMatches(
-              matchday
-            )
-        )
-        .sort(
-          (a, b) =>
-            matchdayNumber(b) -
-            matchdayNumber(a)
-        )[0] ||
-      activeUpcomingMatchday
     const apiMatches =
       matches.filter(
         (match) =>
           match.api_fixture_id !==
             null &&
-          (!syncMatchday ||
-            match.matchday_id ===
-              syncMatchday.id)
+          (match.home_score === null ||
+            match.away_score === null)
       )
 
     if (apiMatches.length === 0) {
@@ -623,6 +607,10 @@ function Matchdays() {
       const synchronized =
         (data.fixtures ||
           []) as SyncedFixture[]
+      const failedFixtureCount =
+        Array.isArray(data.failedIds)
+          ? data.failedIds.length
+          : 0
       let scheduleChanges = 0
       let resultChanges = 0
 
@@ -710,8 +698,12 @@ function Matchdays() {
       await recordSync(
         scheduleChanges,
         resultChanges,
-        "success",
-        "Synchronization completed."
+        failedFixtureCount > 0
+          ? "error"
+          : "success",
+        failedFixtureCount > 0
+          ? `LPF failed to load ${failedFixtureCount} fixture${failedFixtureCount === 1 ? "" : "s"}.`
+          : "Synchronization completed."
       )
 
       await Promise.all([
@@ -745,7 +737,9 @@ function Matchdays() {
                 null
           )
         setNotice(
-          changes.length > 0
+          failedFixtureCount > 0
+            ? `${failedFixtureCount} fixture${failedFixtureCount === 1 ? "" : "s"} could not be synchronized. ${changes.length > 0 ? `${changes.join(" and ")} saved.` : "Try again later."}`
+            : changes.length > 0
             ? `${changes.join(
                 " and "
               )} synchronized.`

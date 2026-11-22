@@ -291,9 +291,15 @@ function MyPredictions() {
       setLoading(false)
     }
 
-    load().catch(() =>
+    load().catch((error: unknown) => {
+      console.error("Could not load picks", error)
+      setNotice(
+        error instanceof Error
+          ? `Could not load picks: ${error.message}`
+          : "Could not load picks. Refresh and try again."
+      )
       setLoading(false)
-    )
+    })
   }, [currentUser])
 
   function update(

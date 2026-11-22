@@ -58,11 +58,28 @@ export default {
             (result) =>
               result.value
           )
+      const failedIds =
+        lpfSettled.flatMap(
+          (result, index) =>
+            result.status === "rejected"
+              ? [lpfIds[index]]
+              : []
+        )
+
+      if (
+        lpfIds.length > 0 &&
+        lpfFixtures.length === 0
+      ) {
+        throw new Error(
+          "LPF did not return any fixture data."
+        )
+      }
 
       return json({
         fixtures: [
           ...lpfFixtures,
         ],
+        failedIds,
         source: "LPF",
       })
     } catch (error) {

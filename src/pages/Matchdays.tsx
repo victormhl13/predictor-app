@@ -752,7 +752,11 @@ function Matchdays() {
       const message =
         error instanceof Error
           ? error.message
-          : "Could not sync results."
+          : error &&
+              typeof error === "object" &&
+              "message" in error
+            ? String(error.message)
+            : "Could not sync results."
       try {
         await recordSync(
           0,

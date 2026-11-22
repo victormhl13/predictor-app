@@ -296,7 +296,11 @@ function MyPredictions() {
       setNotice(
         error instanceof Error
           ? `Could not load picks: ${error.message}`
-          : "Could not load picks. Refresh and try again."
+          : error &&
+              typeof error === "object" &&
+              "message" in error
+            ? `Could not load picks: ${String(error.message)}`
+            : "Could not load picks. Refresh and try again."
       )
       setLoading(false)
     })
